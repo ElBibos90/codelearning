@@ -1,0 +1,79 @@
+{
+  "name": "codelearning",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "test:setup": "node src/scripts/test/setupTestDb.js",
+    "test:run": "node src/scripts/test/runTests.js",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.config.js",
+    "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
+    "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
+    "test:full": "npm run test:setup && npm test",
+    "db:backup": "node src/scripts/db/backup.js",
+    "db:migrate": "node src/scripts/db/migrate.js",
+    "db:verify": "node src/scripts/db/verify.js",
+    "db:maintenance": "npm run db:backup && npm run db:verify",
+    "validate:schema": "node src/scripts/validation/schemaCheck.js",
+    "validate:data": "node src/scripts/validation/dataCheck.js",
+    "validate:all": "npm run validate:schema && npm run validate:data",
+    "maintenance:cleanup": "node src/scripts/maintenance/cleanup.js",
+    "maintenance:health": "node src/scripts/maintenance/healthCheck.js",
+    "maintenance:full": "npm run maintenance:health && npm run maintenance:cleanup",
+    "maintenance:test": "node src/scripts/maintenance/testAllJobs.js",
+    "cron:start": "node src/scripts/maintenance/cronScheduler.js start",
+    "cron:stop": "node src/scripts/maintenance/cronScheduler.js stop",
+    "cron:status": "node src/scripts/maintenance/cronScheduler.js status"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.4.1",
+    "express-validator": "^7.2.0",
+    "fs-extra": "^11.2.0",
+    "helmet": "^6.2.0",
+    "jsonwebtoken": "^9.0.2",
+    "node-cron": "^3.0.0",
+    "node-schedule": "^2.1.1",
+    "pg": "^8.13.1",
+    "sanitize-html": "^2.13.1",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
+    "uuid": "^11.0.3"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.24.0",
+    "@babel/plugin-transform-modules-commonjs": "^7.25.9",
+    "@babel/preset-env": "^7.24.0",
+    "@babel/register": "^7.23.7",
+    "@jest/globals": "^29.7.0",
+    "babel-jest": "^29.7.0",
+    "colors": "^1.4.0",
+    "cross-env": "^7.0.3",
+    "jest": "^29.7.0",
+    "nodemon": "^3.1.0",
+    "supertest": "^6.3.4"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "transform": {},
+    "moduleNameMapper": {
+      "^(\\.{1,2}/.*)\\.js$": "$1"
+    },
+    "testMatch": [
+      "**/tests/**/*.js",
+      "**/src/**/*.test.js"
+    ],
+    "setupFiles": [
+      "./tests/setup.js"
+    ]
+  }
+}
