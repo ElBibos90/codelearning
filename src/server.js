@@ -3,7 +3,6 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
-import rateLimit from 'express-rate-limit';
 import userRoutes from './routes/userRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
@@ -20,6 +19,7 @@ import swaggerUi from 'swagger-ui-express';
 import { specs } from './config/swagger.js';
 import adminRoutes from './routes/adminRoutes.js';
 import favoriteRoutes from './routes/favoriteRoutes.js';
+import { securityMiddleware } from './middleware/security.js';
 
 // Configurazione dotenv - carica il file .env appropriato
 if (process.env.NODE_ENV === 'test') {
@@ -30,28 +30,6 @@ if (process.env.NODE_ENV === 'test') {
 
 // Inizializzazione express
 const app = express();
-
-// Configurazione rate limiting
-const limiter = rateLimit({
-    windowMs: (process.env.RATE_LIMIT_WINDOW || 15) * 60 * 1000,
-    max: process.env.RATE_LIMIT_MAX || 100,
-    standardHeaders: true,
-    legacyHeaders: false,
-    message: {
-        success: false,
-        message: `Troppe richieste da questo IP, riprova tra ${process.env.RATE_LIMIT_WINDOW || 15} minuti`
-    }
-});
-
-// Rate limiting per autenticazione
-const authLimiter = rateLimit({
-    windowMs: (process.env.AUTH_RATE_LIMIT_WINDOW || 60) * 60 * 1000,
-    max: process.env.AUTH_RATE_LIMIT_MAX || 5,
-    message: {
-        success: false,
-        message: 'Troppi tentativi di accesso, riprova più tardi'
-    }
-});
 
 // Configurazione CORS
 const corsOptions = {
@@ -70,7 +48,8 @@ const corsOptions = {
     maxAge: 600
 };
 
-// Middleware
+// Middleware di base
+app.use(cors(corsOptions));
 app.use(helmet({
     contentSecurityPolicy: {
         directives: {
@@ -89,16 +68,16 @@ app.use(helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 
-app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Non applicare rate limiting in ambiente di test
-if (process.env.NODE_ENV !== 'test') {
-    app.use(limiter);
-    app.use('/api/auth/login', authLimiter);
-    app.use('/api/auth/register', authLimiter);
-}
+// Security Middleware
+app.use(securityMiddleware.checkBlacklist);
+
+// Rate Limiters per tipo di route
+app.use('/api/auth/*', securityMiddleware.authLimiter);
+app.use('/api/admin/*', securityMiddleware.adminLimiter);
+app.use('/api/*', securityMiddleware.apiLimiter);
 
 // Security headers
 app.use((req, res, next) => {
@@ -196,5 +175,4 @@ if (process.env.NODE_ENV !== 'test') {
     process.on('SIGINT', gracefulShutdown);
 }
 
-// Un solo export alla fine del file
 export default app;

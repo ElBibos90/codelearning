@@ -1,13 +1,18 @@
 
 > codelearning@1.0.0 test
-> node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.config.js
+> node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.config.js tests/security.test.js
 
   console.log
-    Directory backup creata in: C:\Users\eddyr\Desktop\codelearning\backups
+    Directory backup creata in: C:\Users\eddyr\Desktop\CodeLearning\backups
 
       at new BackupService (src/services/backupService.js:33:17)
 
-(node:9968) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+  console.log
+    Starting rate limit test
+
+      at Object.<anonymous> (tests/security.test.js:45:21)
+
+(node:19312) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
 (Use `node --trace-warnings ...` to show where the warning was created)
   console.log
     Database connesso con successo
@@ -15,42 +20,9 @@
       at BoundPool.<anonymous> (src/config/database.js:18:11)
 
   console.log
-    Response error: { success: false, message: 'Errore nel cambio di stato della lezione' }
-
-      at Object.<anonymous> (src/tests/lessonRoutes.test.js:87:21)
-
-  console.log
     Database connesso con successo
 
       at BoundPool.<anonymous> (src/config/database.js:18:11)
-
-FAIL src/tests/lessonRoutes.test.js
-  Lesson Routes Tests
-    √ Should create a new lesson with theory template (52 ms)
-    × Should update lesson status (19 ms)
-    √ Should get lesson details (53 ms)
-
-  ● Lesson Routes Tests › Should update lesson status
-
-    expect(received).toBe(expected) // Object.is equality
-
-    Expected: 200
-    Received: 500
-
-    [0m [90m 88 |[39m         }
-     [90m 89 |[39m
-    [31m[1m>[22m[39m[90m 90 |[39m         expect(response[33m.[39mstatus)[33m.[39mtoBe([35m200[39m)[33m;[39m
-     [90m    |[39m                                 [31m[1m^[22m[39m
-     [90m 91 |[39m         expect(response[33m.[39mbody[33m.[39msuccess)[33m.[39mtoBe([36mtrue[39m)[33m;[39m
-     [90m 92 |[39m         expect(response[33m.[39mbody[33m.[39mdata)[33m.[39mtoHaveProperty([32m'status'[39m[33m,[39m [32m'review'[39m)[33m;[39m
-     [90m 93 |[39m         expect(response[33m.[39mbody[33m.[39mdata)[33m.[39mtoHaveProperty([32m'id'[39m)[33m;[39m[0m
-
-      at Object.<anonymous> (src/tests/lessonRoutes.test.js:90:33)
-
-  console.log
-    Directory backup creata in: C:\Users\eddyr\Desktop\codelearning\backups
-
-      at new BackupService (src/services/backupService.js:33:17)
 
   console.log
     Database connesso con successo
@@ -58,230 +30,73 @@ FAIL src/tests/lessonRoutes.test.js
       at BoundPool.<anonymous> (src/config/database.js:18:11)
 
   console.log
-    Response error: { success: false, message: 'Errore nel cambio di stato della lezione' }
+    Database connesso con successo
 
-      at Object.<anonymous> (tests/lessonRoutes.test.js:76:21)
+      at BoundPool.<anonymous> (src/config/database.js:18:11)
 
   console.log
     Database connesso con successo
 
       at BoundPool.<anonymous> (src/config/database.js:18:11)
 
-FAIL tests/lessonRoutes.test.js
-  Lesson Routes Tests
-    √ Should create a new lesson with theory template (23 ms)
-    × Should update lesson status (15 ms)
-    √ Should get lesson details (47 ms)
+FAIL tests/security.test.js (7.917 s)
+  Test Environment
+    √ should have correct test environment variables (3 ms)
+    √ should mock console.error and console.warn (1 ms)
+    √ should have correct test environment variables (1 ms)
+    √ should mock console.error and console.warn (1 ms)
+  Security Middleware - Rate Limiting
+    Authentication Rate Limiting
+      √ should limit login attempts (871 ms)
+      √ should track login attempts separately by IP (609 ms)
+    Admin Routes Rate Limiting
+      √ should apply stricter limits to admin routes (720 ms)
+    API Rate Limiting
+      √ should apply general rate limits to API routes (1077 ms)
+      √ should track rate limits separately for different routes (366 ms)
+    IP Blacklisting
+      × should blacklist IP after repeated violations (1457 ms)
+      × should maintain blacklist across different routes (1499 ms)
+      √ should track violations separately by IP (326 ms)
 
-  ● Lesson Routes Tests › Should update lesson status
-
-    expect(received).toBe(expected) // Object.is equality
-
-    Expected: 200
-    Received: 500
-
-    [0m [90m 77 |[39m         }
-     [90m 78 |[39m
-    [31m[1m>[22m[39m[90m 79 |[39m         expect(response[33m.[39mstatus)[33m.[39mtoBe([35m200[39m)[33m;[39m
-     [90m    |[39m                                 [31m[1m^[22m[39m
-     [90m 80 |[39m         expect(response[33m.[39mbody[33m.[39msuccess)[33m.[39mtoBe([36mtrue[39m)[33m;[39m
-     [90m 81 |[39m         expect(response[33m.[39mbody[33m.[39mdata)[33m.[39mtoHaveProperty([32m'status'[39m[33m,[39m [32m'review'[39m)[33m;[39m
-     [90m 82 |[39m         expect(response[33m.[39mbody[33m.[39mdata)[33m.[39mtoHaveProperty([32m'id'[39m)[33m;[39m[0m
-
-      at Object.<anonymous> (tests/lessonRoutes.test.js:79:33)
-
-  console.log
-    Directory backup creata in: C:\Users\eddyr\Desktop\codelearning\backups
-
-      at new BackupService (src/services/backupService.js:33:17)
-
-  console.log
-    Database connesso con successo
-
-      at BoundPool.<anonymous> (src/config/database.js:18:11)
-
-FAIL src/tests/favorites.test.js
-  Favorites API
-    × Should add a course to favorites (21 ms)
-    × Should prevent duplicate favorites (7 ms)
-    × Should get user favorites (11 ms)
-    × Should remove from favorites (7 ms)
-
-  ● Favorites API › Should add a course to favorites
+  ● Security Middleware - Rate Limiting › IP Blacklisting › should blacklist IP after repeated violations
 
     expect(received).toBe(expected) // Object.is equality
 
-    Expected: 201
-    Received: 404
+    Expected: 403
+    Received: 200
 
-    [0m [90m 34 |[39m             [33m.[39msend({ notes[33m:[39m [32m'Test note'[39m })[33m;[39m
-     [90m 35 |[39m
-    [31m[1m>[22m[39m[90m 36 |[39m         expect(response[33m.[39mstatus)[33m.[39mtoBe([35m201[39m)[33m;[39m
-     [90m    |[39m                                 [31m[1m^[22m[39m
-     [90m 37 |[39m         expect(response[33m.[39mbody[33m.[39msuccess)[33m.[39mtoBe([36mtrue[39m)[33m;[39m
-     [90m 38 |[39m     })[33m;[39m
-     [90m 39 |[39m[0m
+    [0m [90m 184 |[39m                 [33m.[39m[36mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer ${userToken}`[39m)[33m;[39m
+     [90m 185 |[39m
+    [31m[1m>[22m[39m[90m 186 |[39m             expect(response[33m.[39mstatus)[33m.[39mtoBe([35m403[39m)[33m;[39m
+     [90m     |[39m                                     [31m[1m^[22m[39m
+     [90m 187 |[39m             expect(response[33m.[39mbody[33m.[39mmessage)[33m.[39mtoMatch([35m/Access denied due to repeated violations/[39m)[33m;[39m
+     [90m 188 |[39m         }[33m,[39m [35m30000[39m)[33m;[39m
+     [90m 189 |[39m[0m
 
-      at Object.<anonymous> (src/tests/favorites.test.js:36:33)
+      at Object.<anonymous> (tests/security.test.js:186:37)
 
-  ● Favorites API › Should prevent duplicate favorites
-
-    expect(received).toBe(expected) // Object.is equality
-
-    Expected: 400
-    Received: 404
-
-    [0m [90m 44 |[39m             [33m.[39msend({ notes[33m:[39m [32m'Test note'[39m })[33m;[39m
-     [90m 45 |[39m
-    [31m[1m>[22m[39m[90m 46 |[39m         expect(response[33m.[39mstatus)[33m.[39mtoBe([35m400[39m)[33m;[39m
-     [90m    |[39m                                 [31m[1m^[22m[39m
-     [90m 47 |[39m         expect(response[33m.[39mbody[33m.[39mmessage)[33m.[39mtoBe([32m'Corso già nei preferiti'[39m)[33m;[39m
-     [90m 48 |[39m     })[33m;[39m
-     [90m 49 |[39m[0m
-
-      at Object.<anonymous> (src/tests/favorites.test.js:46:33)
-
-  ● Favorites API › Should get user favorites
+  ● Security Middleware - Rate Limiting › IP Blacklisting › should maintain blacklist across different routes
 
     expect(received).toBe(expected) // Object.is equality
 
-    Expected: 200
-    Received: 404
+    Expected: 403
+    Received: 200
 
-    [0m [90m 53 |[39m             [33m.[39m[36mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer ${testToken}`[39m)[33m;[39m
-     [90m 54 |[39m
-    [31m[1m>[22m[39m[90m 55 |[39m         expect(response[33m.[39mstatus)[33m.[39mtoBe([35m200[39m)[33m;[39m
-     [90m    |[39m                                 [31m[1m^[22m[39m
-     [90m 56 |[39m         expect(response[33m.[39mbody[33m.[39msuccess)[33m.[39mtoBe([36mtrue[39m)[33m;[39m
-     [90m 57 |[39m         expect(response[33m.[39mbody[33m.[39mdata)[33m.[39mtoBeInstanceOf([33mArray[39m)[33m;[39m
-     [90m 58 |[39m         expect(response[33m.[39mbody[33m.[39mdata[33m.[39mlength)[33m.[39mtoBe([35m1[39m)[33m;[39m[0m
+    [0m [90m 223 |[39m
+     [90m 224 |[39m             responses[33m.[39mforEach(response [33m=>[39m {
+    [31m[1m>[22m[39m[90m 225 |[39m                 expect(response[33m.[39mstatus)[33m.[39mtoBe([35m403[39m)[33m;[39m
+     [90m     |[39m                                         [31m[1m^[22m[39m
+     [90m 226 |[39m                 expect(response[33m.[39mbody[33m.[39mmessage)[33m.[39mtoMatch([35m/Access denied due to repeated violations/[39m)[33m;[39m
+     [90m 227 |[39m             })[33m;[39m
+     [90m 228 |[39m         }[33m,[39m [35m30000[39m)[33m;[39m[0m
 
-      at Object.<anonymous> (src/tests/favorites.test.js:55:33)
+      at tests/security.test.js:225:41
+          at Array.forEach (<anonymous>)
+      at Object.<anonymous> (tests/security.test.js:224:23)
 
-  ● Favorites API › Should remove from favorites
-
-    expect(received).toBe(expected) // Object.is equality
-
-    Expected: 200
-    Received: 404
-
-    [0m [90m 65 |[39m             [33m.[39m[36mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer ${testToken}`[39m)[33m;[39m
-     [90m 66 |[39m
-    [31m[1m>[22m[39m[90m 67 |[39m         expect(response[33m.[39mstatus)[33m.[39mtoBe([35m200[39m)[33m;[39m
-     [90m    |[39m                                 [31m[1m^[22m[39m
-     [90m 68 |[39m         expect(response[33m.[39mbody[33m.[39msuccess)[33m.[39mtoBe([36mtrue[39m)[33m;[39m
-     [90m 69 |[39m     })[33m;[39m
-     [90m 70 |[39m })[33m;[39m[0m
-
-      at Object.<anonymous> (src/tests/favorites.test.js:67:33)
-
-  console.log
-    Directory backup creata in: C:\Users\eddyr\Desktop\codelearning\backups
-
-      at new BackupService (src/services/backupService.js:33:17)
-
-  console.log
-    Database connesso con successo
-
-      at BoundPool.<anonymous> (src/config/database.js:18:11)
-
-FAIL tests/favorites.test.js
-  Favorites API
-    × Should add a course to favorites (22 ms)
-    × Should prevent duplicate favorites (7 ms)
-    × Should get user favorites (7 ms)
-    × Should remove from favorites (8 ms)
-
-  ● Favorites API › Should add a course to favorites
-
-    expect(received).toBe(expected) // Object.is equality
-
-    Expected: 201
-    Received: 404
-
-    [0m [90m 34 |[39m             [33m.[39msend({ notes[33m:[39m [32m'Test note'[39m })[33m;[39m
-     [90m 35 |[39m
-    [31m[1m>[22m[39m[90m 36 |[39m         expect(response[33m.[39mstatus)[33m.[39mtoBe([35m201[39m)[33m;[39m
-     [90m    |[39m                                 [31m[1m^[22m[39m
-     [90m 37 |[39m         expect(response[33m.[39mbody[33m.[39msuccess)[33m.[39mtoBe([36mtrue[39m)[33m;[39m
-     [90m 38 |[39m     })[33m;[39m
-     [90m 39 |[39m[0m
-
-      at Object.<anonymous> (tests/favorites.test.js:36:33)
-
-  ● Favorites API › Should prevent duplicate favorites
-
-    expect(received).toBe(expected) // Object.is equality
-
-    Expected: 400
-    Received: 404
-
-    [0m [90m 44 |[39m             [33m.[39msend({ notes[33m:[39m [32m'Test note'[39m })[33m;[39m
-     [90m 45 |[39m
-    [31m[1m>[22m[39m[90m 46 |[39m         expect(response[33m.[39mstatus)[33m.[39mtoBe([35m400[39m)[33m;[39m
-     [90m    |[39m                                 [31m[1m^[22m[39m
-     [90m 47 |[39m         expect(response[33m.[39mbody[33m.[39mmessage)[33m.[39mtoBe([32m'Corso già nei preferiti'[39m)[33m;[39m
-     [90m 48 |[39m     })[33m;[39m
-     [90m 49 |[39m[0m
-
-      at Object.<anonymous> (tests/favorites.test.js:46:33)
-
-  ● Favorites API › Should get user favorites
-
-    expect(received).toBe(expected) // Object.is equality
-
-    Expected: 200
-    Received: 404
-
-    [0m [90m 53 |[39m             [33m.[39m[36mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer ${testToken}`[39m)[33m;[39m
-     [90m 54 |[39m
-    [31m[1m>[22m[39m[90m 55 |[39m         expect(response[33m.[39mstatus)[33m.[39mtoBe([35m200[39m)[33m;[39m
-     [90m    |[39m                                 [31m[1m^[22m[39m
-     [90m 56 |[39m         expect(response[33m.[39mbody[33m.[39msuccess)[33m.[39mtoBe([36mtrue[39m)[33m;[39m
-     [90m 57 |[39m         expect(response[33m.[39mbody[33m.[39mdata)[33m.[39mtoBeInstanceOf([33mArray[39m)[33m;[39m
-     [90m 58 |[39m         expect(response[33m.[39mbody[33m.[39mdata[33m.[39mlength)[33m.[39mtoBe([35m1[39m)[33m;[39m[0m
-
-      at Object.<anonymous> (tests/favorites.test.js:55:33)
-
-  ● Favorites API › Should remove from favorites
-
-    expect(received).toBe(expected) // Object.is equality
-
-    Expected: 200
-    Received: 404
-
-    [0m [90m 65 |[39m             [33m.[39m[36mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer ${testToken}`[39m)[33m;[39m
-     [90m 66 |[39m
-    [31m[1m>[22m[39m[90m 67 |[39m         expect(response[33m.[39mstatus)[33m.[39mtoBe([35m200[39m)[33m;[39m
-     [90m    |[39m                                 [31m[1m^[22m[39m
-     [90m 68 |[39m         expect(response[33m.[39mbody[33m.[39msuccess)[33m.[39mtoBe([36mtrue[39m)[33m;[39m
-     [90m 69 |[39m     })[33m;[39m
-     [90m 70 |[39m })[33m;[39m[0m
-
-      at Object.<anonymous> (tests/favorites.test.js:67:33)
-
-  console.log
-    Directory backup creata in: C:\Users\eddyr\Desktop\codelearning\backups
-
-      at new BackupService (src/services/backupService.js:33:17)
-
-PASS tests/integration/health.test.js
-  Health Check
-    √ GET / should return 200 (20 ms)
-
-FAIL tests/setup.js
-  ● Test suite failed to run
-
-    Your test suite must contain at least one test.
-
-      at onResult (node_modules/@jest/core/build/TestScheduler.js:133:18)
-      at node_modules/@jest/core/build/TestScheduler.js:254:19
-      at node_modules/emittery/index.js:363:13
-          at Array.map (<anonymous>)
-      at Emittery.emit (node_modules/emittery/index.js:361:23)
-
-Test Suites: 5 failed, 1 passed, 6 total
-Tests:       10 failed, 5 passed, 15 total
+Test Suites: 1 failed, 1 total
+Tests:       2 failed, 10 passed, 12 total
 Snapshots:   0 total
-Time:        3.272 s
-Ran all test suites.
+Time:        7.971 s, estimated 8 s
+Ran all test suites matching /tests\\security.test.js/i.

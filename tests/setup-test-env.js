@@ -5,6 +5,7 @@ import { jest } from '@jest/globals';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import path from 'path';
+import { redisClient } from '../src/config/redis.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -17,6 +18,21 @@ dotenv.config({
 // Configurazione globale per i test
 global.console.error = jest.fn();
 global.console.warn = jest.fn();
+
+// Configurazione Redis per i test (usando il mock)
+beforeAll(async () => {
+    if (!redisClient.isOpen) {
+        await redisClient.connect();
+    }
+});
+
+afterAll(async () => {
+    await redisClient.quit();
+});
+
+beforeEach(async () => {
+    await redisClient.flushAll();
+});
 
 // Setup per gestire le promise non gestite nei test
 process.on('unhandledRejection', (reason, promise) => {
