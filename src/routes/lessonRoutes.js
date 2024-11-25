@@ -9,14 +9,20 @@ const router = express.Router();
 router.get('/:id/detail', authenticateToken, async (req, res) => {
     try {
         const lessonId = parseInt(req.params.id);
-        
-        // Verifica che l'utente sia iscritto al corso
+        console.log('Attempting to fetch lesson:', {
+            lessonId,
+            userId: req.user.id
+        });
+
+        // Prima verifica che la lezione esista e prendi il corso associato
         const lessonCheck = await pool.query(`
             SELECT l.*, c.id as course_id
             FROM lessons l
             JOIN courses c ON l.course_id = c.id
             WHERE l.id = $1
         `, [lessonId]);
+
+        console.log('Lesson check result:', lessonCheck.rows);
 
         if (lessonCheck.rows.length === 0) {
             return res.status(404).json({
@@ -26,12 +32,20 @@ router.get('/:id/detail', authenticateToken, async (req, res) => {
         }
 
         const lesson = lessonCheck.rows[0];
+        console.log('Found lesson:', lesson);
 
+        // Verifica iscrizione al corso
         const enrollmentCheck = await pool.query(
             `SELECT id FROM course_enrollments 
              WHERE user_id = $1 AND course_id = $2`,
             [req.user.id, lesson.course_id]
         );
+
+        console.log('Enrollment check:', {
+            userId: req.user.id,
+            courseId: lesson.course_id,
+            found: enrollmentCheck.rows.length > 0
+        });
 
         if (enrollmentCheck.rows.length === 0) {
             return res.status(403).json({
@@ -53,10 +67,14 @@ router.get('/:id/detail', authenticateToken, async (req, res) => {
             data: lesson
         });
     } catch (error) {
-        console.error('Error fetching lesson:', error);
+        console.error('Error in lesson detail route:', {
+            error: error.message,
+            stack: error.stack
+        });
         res.status(500).json({
             success: false,
-            message: 'Errore nel recupero della lezione'
+            message: 'Errore nel recupero della lezione',
+            error: error.message
         });
     }
 });
@@ -68,9 +86,9 @@ router.post('/', authenticateToken, async (req, res) => {
             title, 
             content, 
             orderNumber,
-            templateType,
-            estimatedMinutes,
-            metaDescription,
+            templateType = 'theory',  // aggiungo default value
+            estimatedMinutes = 30,    // aggiungo default value
+            metaDescription = '',     // aggiungo default value
             contentFormat = 'markdown',
             status = 'draft'
         } = req.body;
@@ -88,8 +106,20 @@ router.post('/', authenticateToken, async (req, res) => {
             });
         }
 
+        // Aggiungo log per debug
+        console.log('Creating lesson with:', {
+            courseId,
+            title,
+            content: content?.substring(0, 50), // log solo primi 50 caratteri
+            orderNumber,
+            contentFormat,
+            metaDescription,
+            estimatedMinutes,
+            status
+        });
+
         // Sanitizza il contenuto
-        const sanitizedContent = sanitizeContent(content);
+        const sanitizedContent = sanitizeContent(content || '');
         
         const result = await pool.query(
             `INSERT INTO lessons (
@@ -123,7 +153,8 @@ router.post('/', authenticateToken, async (req, res) => {
         console.error('Error creating lesson:', error);
         res.status(500).json({
             success: false,
-            message: 'Errore nella creazione della lezione'
+            message: 'Errore nella creazione della lezione',
+            error: error.message  // aggiungo dettaglio errore per debug
         });
     }
 });

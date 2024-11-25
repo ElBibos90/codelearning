@@ -120,7 +120,8 @@ async function setupTestDatabase() {
                     meta_description TEXT,
                     estimated_minutes INTEGER DEFAULT 30,
                     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                    published_at TIMESTAMP WITH TIME ZONE
+                    published_at TIMESTAMP WITH TIME ZONE,
+                    UNIQUE(course_id, order_number)
                 );
 
                 CREATE TABLE course_enrollments (

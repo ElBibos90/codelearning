@@ -76,6 +76,16 @@ router.post('/:courseId', authenticateToken, async (req, res) => {
 // enrollmentRoutes.js
 router.get('/my-courses', authenticateToken, async (req, res) => {
     try {
+        const cacheKey = `enrollments:my-courses:${req.user.id}`;
+        
+        const cachedData = await getCachedData(cacheKey);
+        if (cachedData) {
+            return res.json({
+                success: true,
+                data: cachedData
+            });
+        }
+
         const result = await pool.query(`
             WITH course_progress AS (
                 SELECT 
@@ -108,6 +118,8 @@ router.get('/my-courses', authenticateToken, async (req, res) => {
             WHERE ce.user_id = $1
             ORDER BY ce.enrolled_at DESC
         `, [req.user.id]);
+
+        await cacheData(cacheKey, result.rows, 300);
 
         res.json({
             success: true,

@@ -17,7 +17,16 @@ const pool = new Pool({
 router.get('/:courseId', authenticateToken, async (req, res) => {
     try {
         const courseId = parseInt(req.params.courseId);
+        const cacheKey = `course:${courseId}:${req.user.id}`;
         
+        const cachedData = await getCachedData(cacheKey);
+        if (cachedData) {
+            return res.json({
+                success: true,
+                data: cachedData
+            });
+        }
+
         const result = await pool.query(`
             WITH enrollment_info AS (
                 SELECT 
@@ -68,13 +77,14 @@ router.get('/:courseId', authenticateToken, async (req, res) => {
             });
         }
 
-        // Formatta i dati per assicurare il corretto conteggio
         const courseData = {
             ...result.rows[0],
             completed_lessons: parseInt(result.rows[0].completed_lessons) || 0,
             total_lessons: parseInt(result.rows[0].total_lessons) || 0,
             lessons: result.rows[0].lessons || []
         };
+
+        await cacheData(cacheKey, courseData, 300);
 
         res.json({
             success: true,

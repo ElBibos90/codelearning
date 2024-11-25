@@ -127,6 +127,16 @@ const pool = new Pool({
  */
 router.get('/', authenticateToken, async (req, res) => {
     try {
+        const cacheKey = `profile:${req.user.id}`;
+        
+        const cachedData = await getCachedData(cacheKey);
+        if (cachedData) {
+            return res.json({
+                success: true,
+                data: cachedData
+            });
+        }
+
         // Query per i dati base dell'utente
         const userQuery = await pool.query(`
             SELECT email, created_at as member_since
@@ -184,6 +194,8 @@ router.get('/', authenticateToken, async (req, res) => {
                 total_lessons_completed: 0
             }
         };
+
+        await cacheData(cacheKey, response, 300);
 
         res.json({
             success: true,

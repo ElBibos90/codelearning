@@ -10,6 +10,8 @@ let testLesson;
 
 beforeAll(async () => {
     try {
+        console.log('Setting up test data...');
+        
         // Crea un utente di test
         const userResult = await pool.query(`
             INSERT INTO users (name, email, password, role)
@@ -18,6 +20,7 @@ beforeAll(async () => {
         `);
         testUser = userResult.rows[0];
         testToken = generateToken(testUser);
+        console.log('Created test user:', testUser);
 
         // Crea un corso di test
         const courseResult = await pool.query(`
@@ -26,15 +29,18 @@ beforeAll(async () => {
             RETURNING id;
         `);
         testCourse = courseResult.rows[0];
+        console.log('Created test course:', testCourse);
 
         // Crea un'iscrizione al corso per l'utente di test
         await pool.query(`
             INSERT INTO course_enrollments (user_id, course_id)
             VALUES ($1, $2)
         `, [testUser.id, testCourse.id]);
+        console.log('Created course enrollment');
 
     } catch (error) {
         console.error('Setup error:', error);
+        throw error;
     }
 });
 
@@ -46,19 +52,22 @@ describe('Lesson Routes Tests', () => {
             .send({
                 courseId: testCourse.id,
                 title: 'Test Lesson',
-                content: 'Test lesson content', // Aggiungiamo il contenuto
-                templateType: 'theory',
+                content: 'Test lesson content',
                 orderNumber: 1,
+                templateType: 'theory',
+                contentFormat: 'markdown',
+                metaDescription: 'Test description',
                 estimatedMinutes: 30,
-                metaDescription: 'Test lesson description',
-                status: 'draft',
-                contentFormat: 'markdown' // Specifichiamo il formato del contenuto
+                status: 'draft'
             });
-
+    
+        // Aggiungo log dettagliato dell'errore
         if (response.status !== 201) {
-            console.log('Response error:', response.body); // Per debugging
+            console.log('Test Failure Details:');
+            console.log('Status:', response.status);
+            console.log('Response:', response.body);
         }
-
+    
         expect(response.status).toBe(201);
         expect(response.body.success).toBe(true);
         expect(response.body.data.title).toBe('Test Lesson');
@@ -91,14 +100,28 @@ describe('Lesson Routes Tests', () => {
 
     test('Should get lesson details', async () => {
         if (!testLesson) {
-            console.log('Skipping get details test as no lesson was created');
+            console.log('Test lesson data:', testLesson);
+            console.log('Skip get details test as no lesson was created');
             return;
         }
-
+    
+        console.log('Getting lesson details for:', {
+            lessonId: testLesson.id,
+            userId: testUser.id,
+            courseId: testCourse.id
+        });
+    
         const response = await request(app)
             .get(`/api/lessons/${testLesson.id}/detail`)
             .set('Authorization', `Bearer ${testToken}`);
-
+    
+        if (response.status !== 200) {
+            console.log('Get Lesson Details Failed:');
+            console.log('Status:', response.status);
+            console.log('Response Body:', response.body);
+            console.log('Full Response:', response);
+        }
+    
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
         expect(response.body.data.title).toBe('Test Lesson');

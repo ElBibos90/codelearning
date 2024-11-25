@@ -245,6 +245,16 @@ router.get('/user', authenticateToken, async (req, res) => {
  */
 router.get('/admin/overview', authenticateToken, isAdmin, async (req, res) => {
     try {
+        const cacheKey = 'stats:admin:overview';
+        
+        const cachedData = await getCachedData(cacheKey);
+        if (cachedData) {
+            return res.json({
+                success: true,
+                data: cachedData
+            });
+        }
+
         const stats = await pool.query(`
             WITH course_stats AS (
                 SELECT 
@@ -287,6 +297,8 @@ router.get('/admin/overview', authenticateToken, isAdmin, async (req, res) => {
             CROSS JOIN recent_enrollments re
             GROUP BY cs.total_courses, cs.total_lessons, cs.total_enrollments, cs.completed_enrollments
         `);
+
+        await cacheData(cacheKey, stats.rows[0], 300);
 
         res.json({
             success: true,
@@ -333,48 +345,34 @@ router.get('/admin/overview', authenticateToken, isAdmin, async (req, res) => {
  */
 router.get('/course/:courseId', authenticateToken, async (req, res) => {
     try {
+        const cacheKey = `stats:course:${req.params.courseId}:${req.user.id}`;
+        
+        const cachedData = await getCachedData(cacheKey);
+        if (cachedData) {
+            return res.json({
+                success: true,
+                data: cachedData
+            });
+        }
+
         const courseStats = await pool.query(`
             WITH course_info AS (
                 SELECT 
-                    c.*,
-                    COUNT(DISTINCT ce.id) as total_enrollments,
-                    COUNT(DISTINCT CASE WHEN ce.completed = true THEN ce.id END) as completed_enrollments,
+                    c.id,
+                    c.title,
+                    c.description,
+                    COUNT(DISTINCT ce.user_id) as total_enrollments,
+                    COUNT(DISTINCT CASE WHEN ce.completed THEN ce.user_id END) as completed_enrollments,
                     COUNT(DISTINCT l.id) as total_lessons
                 FROM courses c
                 LEFT JOIN course_enrollments ce ON ce.course_id = c.id
                 LEFT JOIN lessons l ON l.course_id = c.id
                 WHERE c.id = $1
                 GROUP BY c.id
-            ),
-            user_progress AS (
-                SELECT
-                    COUNT(DISTINCT CASE WHEN lp.completed = true THEN lp.lesson_id END) as completed_lessons
-                FROM lessons l
-                LEFT JOIN lesson_progress lp ON lp.lesson_id = l.id AND lp.user_id = $2
-                WHERE l.course_id = $1
-            ),
-            lesson_completion_stats AS (
-                SELECT 
-                    l.title as lesson_title,
-                    COUNT(DISTINCT lp.user_id) as completion_count
-                FROM lessons l
-                LEFT JOIN lesson_progress lp ON lp.lesson_id = l.id AND lp.completed = true
-                WHERE l.course_id = $1
-                GROUP BY l.id, l.title
-                ORDER BY l.order_number
             )
-            SELECT 
-                ci.*,
-                up.completed_lessons as user_completed_lessons,
-                json_agg(lcs.*) as lesson_stats
-            FROM course_info ci
-            CROSS JOIN user_progress up
-            CROSS JOIN lesson_completion_stats lcs
-            GROUP BY ci.id, ci.title, ci.description, ci.difficulty_level, 
-                     ci.duration_hours, ci.created_at, ci.updated_at,
-                     ci.total_enrollments, ci.completed_enrollments, 
-                     ci.total_lessons, up.completed_lessons
-        `, [req.params.courseId, req.user.id]);
+            SELECT *
+            FROM course_info
+        `, [req.params.courseId]);
 
         if (courseStats.rows.length === 0) {
             return res.status(404).json({
@@ -383,11 +381,14 @@ router.get('/course/:courseId', authenticateToken, async (req, res) => {
             });
         }
 
+        await cacheData(cacheKey, courseStats.rows[0], 300);
+
         res.json({
             success: true,
             data: courseStats.rows[0]
         });
-    } catch (err) {
+    } catch (error) {
+        console.error('Stats Error:', error);
         res.status(500).json({
             success: false,
             message: 'Errore nel recupero delle statistiche del corso'
