@@ -3,6 +3,7 @@ import app from '../src/server.js';
 import { redisClient } from '../src/config/redis.js';
 import { generateToken } from '../src/middleware/auth.js';
 import { jest } from '@jest/globals';
+import { sanitizeContent } from '../src/utils/sanitize.js';
 
 describe('Test Environment', () => {
     it('should have correct test environment variables', () => {
@@ -251,5 +252,139 @@ describe('Security Middleware - Rate Limiting', () => {
 
             expect(response.status).not.toBe(403);
         }, 15000);
+    });
+});
+
+describe('Input Validation', () => {
+    let adminToken;
+    
+    beforeAll(() => {
+        adminToken = generateToken({ id: 1, email: 'admin@test.com', role: 'admin' });
+    });
+
+    test('should validate email format on register', async () => {
+        const response = await request(app)
+            .post('/api/auth/register')
+            .send({
+                name: 'Test User',
+                email: 'invalid-email',
+                password: 'password123'
+            });
+
+        expect(response.status).toBe(400);
+        expect(response.body.success).toBe(false);
+        expect(response.body.errors).toBeDefined();
+        expect(response.body.errors).toContainEqual(
+            expect.objectContaining({
+                path: 'email',
+                msg: 'Email non valida'
+            })
+        );
+    });
+
+    test('should validate password strength on register', async () => {
+        const response = await request(app)
+            .post('/api/auth/register')
+            .send({
+                name: 'Test User',
+                email: 'test@example.com',
+                password: '123'  // too weak
+            });
+
+        expect(response.status).toBe(400);
+        expect(response.body.success).toBe(false);
+        expect(response.body.errors).toBeDefined();
+        expect(response.body.errors).toContainEqual(
+            expect.objectContaining({
+                path: 'password',
+                msg: 'Password deve contenere almeno 8 caratteri, una lettera e un numero'
+            })
+        );
+    });
+
+    test('should validate course creation data', async () => {
+        const response = await request(app)
+            .post('/api/courses')
+            .set('Authorization', `Bearer ${adminToken}`)
+            .send({
+                title: '',  // empty title
+                description: 'Test Description',
+                difficulty_level: 'invalid_level',
+                duration_hours: -1
+            });
+
+        expect(response.status).toBe(400);
+        expect(response.body.success).toBe(false);
+        expect(response.body.errors).toBeDefined();
+    });
+});
+
+describe('Content Sanitization', () => {
+    let adminToken;
+    
+    beforeAll(() => {
+        adminToken = generateToken({ id: 1, email: 'admin@test.com', role: 'admin' });
+    });
+
+    test('should sanitize malicious HTML content', () => {
+        const maliciousContent = '<p>Normal text</p><script>alert("xss")</script><img src="x" onerror="alert(1)"/>';
+        const sanitized = sanitizeContent(maliciousContent);
+        
+        expect(sanitized).not.toContain('<script>');
+        expect(sanitized).not.toContain('onerror');
+        expect(sanitized).toContain('<p>Normal text</p>');
+    });
+
+    test('should preserve safe HTML elements and attributes', () => {
+        const safeContent = '<p class="text-large">Test</p><a href="https://example.com">Link</a>';
+        const sanitized = sanitizeContent(safeContent);
+        
+        expect(sanitized).toBe(safeContent);
+    });
+
+    test('should sanitize lesson content on creation', async () => {
+        // Prima creiamo un corso di test
+        const courseResponse = await request(app)
+            .post('/api/courses')
+            .set('Authorization', `Bearer ${adminToken}`)
+            .send({
+                title: 'Test Course',
+                description: 'Test Description',
+                difficulty_level: 'beginner',
+                duration_hours: 1
+            });
+
+        expect(courseResponse.status).toBe(201);
+        const courseId = courseResponse.body.data.id;
+
+        const response = await request(app)
+            .post('/api/lessons')
+            .set('Authorization', `Bearer ${adminToken}`)
+            .send({
+                courseId: courseId,
+                title: 'Test Lesson',
+                content: '<p>Safe content</p><script>alert("unsafe")</script>',
+                orderNumber: 1
+            });
+
+        expect(response.status).toBe(201);
+        expect(response.body.data.content).not.toContain('<script>');
+        expect(response.body.data.content).toContain('<p>Safe content</p>');
+    }, 30000);
+
+    test('should handle course description sanitization', async () => {
+        const response = await request(app)
+            .post('/api/courses')
+            .set('Authorization', `Bearer ${adminToken}`)
+            .send({
+                title: 'Test Course',
+                description: '<p>Description</p><iframe src="evil.com"></iframe>',
+                difficulty_level: 'beginner',
+                duration_hours: 1
+            });
+
+        expect(response.status).toBe(201);
+        expect(response.body.data.description).not.toContain('<iframe');
+        expect(response.body.data.description).toContain('<p>Description</p>');
     });
 });

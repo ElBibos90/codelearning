@@ -1,6 +1,7 @@
 import express from 'express';
 import { authenticateToken } from '../middleware/auth.js';
-import { lessonService } from '../services/lessonService.js';
+import { lessonValidation } from '../middleware/validators.js';
+import { sanitizeContent } from '../utils/sanitize.js';
 import { pool } from '../config/database.js';
 
 const router = express.Router();
@@ -62,32 +63,61 @@ router.get('/:id/detail', authenticateToken, async (req, res) => {
 
 router.post('/', authenticateToken, async (req, res) => {
     try {
-        const {
-            courseId,
-            title,
-            content,
-            contentFormat,
-            metaDescription,
-            estimatedMinutes,
+        const { 
+            courseId, 
+            title, 
+            content, 
             orderNumber,
-            templateType
+            templateType,
+            estimatedMinutes,
+            metaDescription,
+            contentFormat = 'markdown',
+            status = 'draft'
         } = req.body;
+        
+        // Verifica che il corso esista
+        const courseCheck = await pool.query(
+            'SELECT id FROM courses WHERE id = $1',
+            [courseId]
+        );
 
-        const lesson = await lessonService.createLesson({
-            courseId,
-            title,
-            content,
-            contentFormat,
-            metaDescription,
-            estimatedMinutes,
-            orderNumber,
-            authorId: req.user.id,
-            templateType
-        });
+        if (courseCheck.rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'Corso non trovato'
+            });
+        }
 
+        // Sanitizza il contenuto
+        const sanitizedContent = sanitizeContent(content);
+        
+        const result = await pool.query(
+            `INSERT INTO lessons (
+                course_id, 
+                title, 
+                content, 
+                order_number,
+                content_format,
+                meta_description,
+                estimated_minutes,
+                status
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+            RETURNING *`,
+            [
+                courseId,
+                title,
+                sanitizedContent,
+                orderNumber,
+                contentFormat,
+                metaDescription,
+                estimatedMinutes,
+                status
+            ]
+        );
+        
         res.status(201).json({
             success: true,
-            data: lesson
+            data: result.rows[0]
         });
     } catch (error) {
         console.error('Error creating lesson:', error);

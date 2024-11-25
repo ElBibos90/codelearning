@@ -4,6 +4,7 @@ import pkg from 'pg';
 const { Pool } = pkg;
 import dotenv from 'dotenv';
 import { generateToken, authenticateToken, isAdmin } from '../middleware/auth.js';
+import { registerValidation } from '../middleware/validators.js';
 
 dotenv.config();
 const router = express.Router();
@@ -278,6 +279,39 @@ router.post('/logout', authenticateToken, async (req, res) => {
     });
   } catch (error) {
     next(error);
+  }
+});
+
+router.post('/register', registerValidation, async (req, res) => {
+  try {
+      const { name, email, password } = req.body;
+      
+      // Verifica se l'email esiste già
+      const existingUser = await pool.query(
+          'SELECT id FROM users WHERE email = $1',
+          [email]
+      );
+
+      if (existingUser.rows.length > 0) {
+          return res.status(400).json({
+              success: false,
+              errors: [{ msg: 'Email già registrata' }]
+          });
+      }
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+      
+      const result = await pool.query(
+          'INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id, name, email',
+          [name, email, hashedPassword]
+      );
+
+      res.status(201).json({
+          success: true,
+          data: result.rows[0]
+      });
+  } catch (error) {
+      next(error);
   }
 });
 

@@ -3,6 +3,8 @@ import { authenticateToken, isAdmin } from '../middleware/auth.js';
 import pkg from 'pg';
 const { Pool } = pkg;
 import dotenv from 'dotenv';
+import { courseValidation } from '../middleware/validators.js';
+import { sanitizeContent } from '../utils/sanitize.js';
 
 dotenv.config();
 const router = express.Router();
@@ -158,51 +160,26 @@ router.get('/', authenticateToken, async (req, res) => {
 });
 
 // POST /courses - Crea nuovo corso (solo admin)
-router.post('/', authenticateToken, isAdmin, async (req, res) => {
+router.post('/', authenticateToken, isAdmin, courseValidation, async (req, res) => {
     try {
         const { title, description, difficulty_level, duration_hours } = req.body;
         
-        if (!title || !description || !difficulty_level || !duration_hours) {
-            return res.status(400).json({
-                success: false,
-                message: 'Tutti i campi sono obbligatori'
-            });
-        }
-
-        const validDifficultyLevels = ['beginner', 'intermediate', 'advanced'];
-        if (!validDifficultyLevels.includes(difficulty_level)) {
-            return res.status(400).json({
-                success: false,
-                message: 'Livello di difficoltà non valido'
-            });
-        }
-
-        const query = `
-            INSERT INTO courses (
-                title, 
-                description, 
-                difficulty_level, 
-                duration_hours,
-                created_at
-            )
-            VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP)
-            RETURNING *;
-        `;
+        // Sanitizza la descrizione
+        const sanitizedDescription = sanitizeContent(description);
         
-        const values = [title, description, difficulty_level, duration_hours];
-        const { rows } = await pool.query(query, values);
+        const result = await pool.query(
+            `INSERT INTO courses (title, description, difficulty_level, duration_hours)
+             VALUES ($1, $2, $3, $4)
+             RETURNING *`,
+            [title, sanitizedDescription, difficulty_level, duration_hours]
+        );
         
         res.status(201).json({
             success: true,
-            message: 'Corso creato con successo',
-            data: rows[0]
+            data: result.rows[0]
         });
     } catch (error) {
-        console.error('Error creating course:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Errore nella creazione del corso'
-        });
+        next(error);
     }
 });
 

@@ -1,0 +1,12 @@
+
+> codelearning@1.0.0 test
+> node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.config.js src/tests/security/security.test.js
+
+No tests found, exiting with code 1
+Run with `--passWithNoTests` to exit with code 0
+In C:\Users\Eddy\Desktop\Main
+  128 files checked.
+  testMatch: **/tests/**/*.js, **/src/**/*.test.js - 5 matches
+  testPathIgnorePatterns: \\node_modules\\ - 128 matches
+  testRegex:  - 0 matches
+Pattern: src\\tests\\security\\security.test.js - 0 matches

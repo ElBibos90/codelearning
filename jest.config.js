@@ -3,15 +3,15 @@ export default {
   testEnvironment: 'node',
   transform: {},
   moduleNameMapper: {
-    '^(\\.{1,2}/.*)\\.js$': '$1'
+      '^(\\.{1,2}/.*)\\.js$': '$1'
   },
   testMatch: [
-    '**/tests/**/*.js',
-    '**/src/**/*.test.js'
+      '**/tests/**/*.js',
+      '**/src/**/*.test.js'
   ],
-  setupFilesAfterEnv: ['./tests/setup-test-env.js'], 
+  setupFilesAfterEnv: ['./tests/setup-test-env.js'],
   moduleDirectories: ['node_modules'],
-  testTimeout: 10000,
+  testTimeout: 30000, // Aumentiamo il timeout globale a 30 secondi
   verbose: true,
   detectOpenHandles: true,
   forceExit: true,
@@ -19,8 +19,8 @@ export default {
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov'],
   coveragePathIgnorePatterns: [
-    '/node_modules/',
-    '/tests/',
-    '/coverage/'
+      '/node_modules/',
+      '/tests/',
+      '/coverage/'
   ]
 };

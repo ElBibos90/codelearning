@@ -6,26 +6,21 @@
   - [🟢] Configurare limiti per endpoint specifici
   - [🟢] Implementare blacklisting dinamica degli IP
   - [🟢] Aggiungere monitoring degli attacchi
-  - [🟡] TODO: Portare in produzione dopo testing completo
-  - [🟡] Verificare configurazione limiti per produzione
-  - [🟡] Testare su server di staging
-  - [🟡] Pianificare deployment con zero downtime
+  - [🟢] Portare in produzione dopo testing completo
+  - [🟢] Verificare configurazione limiti per produzione
+  - [🟢] Testare su server di staging
+  - [🟢] Pianificare deployment con zero downtime
 
-- [🟡] Validazione Input
+- [🟢] Validazione Input
   - [🟢] Implementare middleware di validazione globale
-  - [🟡] Aggiungere schemi di validazione per ogni endpoint
-  - [🔴] Validazione file upload
+  - [🟢] Aggiungere schemi di validazione per ogni endpoint
+  - [🟢] Validazione file upload
   - [🟢] Verificare se servono test Case specifici per la validazione
 
-- [🟡] Sanitizzazione
+- [🟢] Sanitizzazione
   - [🟢] Implementare sanitizzazione HTML per contenuto ricco
-  - [🟡] Sanitizzare parametri URL
-  - [🟡] Sanitizzare header personalizzati
-
-- [🟢] Protezione CSRF
-  - [🟢] Implementare token CSRF
-  - [🟢] Validare Origin/Referer headers
-  - [🟢] Aggiungere SameSite cookies
+  - [🟢] Sanitizzare parametri URL
+  - [🟢] Sanitizzare header personalizzati
 
 ## ⚡ Backend Performance
 

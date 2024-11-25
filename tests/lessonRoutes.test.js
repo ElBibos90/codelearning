@@ -46,12 +46,18 @@ describe('Lesson Routes Tests', () => {
             .send({
                 courseId: testCourse.id,
                 title: 'Test Lesson',
+                content: 'Test lesson content', // Aggiungiamo il contenuto
                 templateType: 'theory',
                 orderNumber: 1,
                 estimatedMinutes: 30,
                 metaDescription: 'Test lesson description',
-                status: 'draft'
+                status: 'draft',
+                contentFormat: 'markdown' // Specifichiamo il formato del contenuto
             });
+
+        if (response.status !== 201) {
+            console.log('Response error:', response.body); // Per debugging
+        }
 
         expect(response.status).toBe(201);
         expect(response.body.success).toBe(true);
