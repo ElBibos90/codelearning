@@ -4,6 +4,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
 import compression from 'compression'; // Aggiungo l'import
+import logger, { requestLogger, errorLogger } from './utils/logger.js';
 import userRoutes from './routes/userRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
@@ -58,6 +59,10 @@ const corsOptions = {
 };
 // Middleware di compressione prima degli altri middleware
 // In produzione usiamo una configurazione più aggressiva
+
+ // Logging middleware
+app.use(requestLogger);
+
 if (process.env.NODE_ENV === 'production') {
     app.use(compression({
       filter: shouldCompress,
@@ -157,23 +162,24 @@ app.get('/', (req, res) => {
     });
 });
 
-// Error handling
-app.use((err, req, res, next) => {
-    console.error(`[${new Date().toISOString()}] Errore:`, {
-        message: err.message,
-        stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
-        path: req.path,
-        method: req.method,
-        ip: req.ip,
-        user: req.user?.id
-    });
 
-    res.status(err.status || 500).json({ 
-        success: false, 
-        message: process.env.NODE_ENV === 'development' ? err.message : 'Si è verificato un errore!',
-        error: process.env.NODE_ENV === 'development' ? err.stack : undefined
-    });
-});
+ // Error logging middleware
+ app.use(errorLogger);
+ 
+ // Error handling middleware
+ app.use((err, req, res, next) => {
+     logger.error('Error Response:', {
+         status: err.status || 500,
+         message: err.message,
+         stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+     });
+ 
+     res.status(err.status || 500).json({
+         success: false,
+         message: process.env.NODE_ENV === 'development' ? err.message : 'Si è verificato un errore!',
+         error: process.env.NODE_ENV === 'development' ? err.stack : undefined
+     });
+ });
 
 // 404 handler
 app.use((req, res) => {
@@ -193,9 +199,9 @@ if (process.env.NODE_ENV !== 'test') {
 
     // Graceful shutdown
     const gracefulShutdown = () => {
-        console.log('Avvio shutdown graceful...');
+        logger.info('Starting graceful shutdown...');
         server.close(() => {
-            console.log('Server chiuso.');
+            logger.info('Server closed.');
             process.exit(0);
         });
     };

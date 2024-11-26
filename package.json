@@ -9,7 +9,7 @@
     "dev": "nodemon src/server.js",
     "test:setup": "node src/scripts/test/setupTestDb.js",
     "test:run": "node src/scripts/test/runTests.js",
-    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.config.js",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
     "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
     "test:full": "npm run test:setup && npm test",
@@ -51,7 +51,9 @@
     "sanitize-html": "^2.13.1",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
-    "uuid": "^11.0.3"
+    "uuid": "^11.0.3",
+    "winston": "^3.17.0",
+    "winston-daily-rotate-file": "^5.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.24.0",
@@ -65,6 +67,7 @@
     "jest": "^29.7.0",
     "nodemon": "^3.1.0",
     "redis": "^4.6.12",
+    "rimraf": "^6.0.1",
     "supertest": "^6.3.4"
   }
 }

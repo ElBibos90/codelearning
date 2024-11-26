@@ -36,7 +36,7 @@ beforeAll(async () => {
             INSERT INTO course_enrollments (user_id, course_id)
             VALUES ($1, $2)
         `, [testUser.id, testCourse.id]);
-        console.log('Created course enrollment');
+        //console.log('Created course enrollment');
 
     } catch (error) {
         console.error('Setup error:', error);

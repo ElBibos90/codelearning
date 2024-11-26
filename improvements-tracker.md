@@ -46,12 +46,12 @@
 
 ## 📊 Backend Logging & Monitoring
 
-- [🔴] Sistema di Logging
-  - [🔴] Configurare Winston/Pino
-  - [🔴] Implementare log rotation
-  - [🔴] Aggiungere log shipping
+- [🟢] Sistema di Logging
+  - [🟢] Configurare Winston/Pino
+  - [🟢] Implementare log rotation
+  - [🟢] Aggiungere log shipping
 
-- [🔴] Performance Monitoring
+- [🟡] Performance Monitoring
   - [🔴] Setup New Relic/DataDog
   - [🔴] Implementare custom metrics
   - [🔴] Configurare alerting

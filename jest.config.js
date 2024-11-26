@@ -21,6 +21,9 @@ export default {
   coveragePathIgnorePatterns: [
       '/node_modules/',
       '/tests/',
-      '/coverage/'
-  ]
+      '/coverage/',
+      '/logs/'
+  ],
+   // Opzioni per il cleanup dei file di test
+   globalTeardown: './tests/teardown.js'
 };
