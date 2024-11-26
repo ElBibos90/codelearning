@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import { courseValidation } from '../middleware/validators.js';
 import { sanitizeContent } from '../utils/sanitize.js';
 import { getCachedData, cacheData } from '../config/redis.js';
+import { getPaginationParams, encodeCursor } from '../utils/pagination.js';
 
 dotenv.config();
 const router = express.Router();
@@ -103,17 +104,20 @@ router.get('/:courseId', authenticateToken, async (req, res) => {
 // In courseRoutes.js
 router.get('/', authenticateToken, async (req, res) => {
     try {
-        // Check cache first
-        const cacheKey = `courses:all:${req.user.id}`;
+        const { cursor, limit } = getPaginationParams(req.query.cursor, req.query.limit);
+        
+        const cacheKey = `courses:${req.user.id}:${cursor || 'start'}:${limit}`;
         const cachedData = await getCachedData(cacheKey);
         
         if (cachedData) {
             return res.json({
                 success: true,
-                data: cachedData
+                data: cachedData.data,
+                pagination: cachedData.pagination
             });
         }
 
+        // Query ottimizzata con paginazione cursor-based
         const query = `
             WITH enrollment_info AS (
                 SELECT 
@@ -122,14 +126,6 @@ router.get('/', authenticateToken, async (req, res) => {
                     bool_or(ce.user_id = $1) as is_enrolled
                 FROM course_enrollments ce
                 GROUP BY ce.course_id
-            ),
-            lesson_progress_info AS (
-                SELECT
-                    l.course_id,
-                    COUNT(DISTINCT CASE WHEN lp.completed = true AND lp.user_id = $1 THEN lp.lesson_id END) as completed_lessons
-                FROM lessons l
-                LEFT JOIN lesson_progress lp ON lp.lesson_id = l.id
-                GROUP BY l.course_id
             ),
             lesson_counts AS (
                 SELECT 
@@ -142,37 +138,38 @@ router.get('/', authenticateToken, async (req, res) => {
                 c.*,
                 COALESCE(lc.total_lessons, 0) as total_lessons,
                 COALESCE(ei.enrolled_count, 0) as enrolled_count,
-                COALESCE(ei.is_enrolled, false) as is_enrolled,
-                COALESCE(lpi.completed_lessons, 0) as completed_lessons
+                COALESCE(ei.is_enrolled, false) as is_enrolled
             FROM courses c
             LEFT JOIN lesson_counts lc ON lc.course_id = c.id
             LEFT JOIN enrollment_info ei ON ei.course_id = c.id
-            LEFT JOIN lesson_progress_info lpi ON lpi.course_id = c.id
-            ORDER BY c.created_at DESC;
+            ${cursor ? 'WHERE c.id > $2' : ''}
+            ORDER BY c.id ASC
+            LIMIT $${cursor ? '3' : '2'}
         `;
-        
-        const { rows } = await pool.query(query, [req.user.id]);
-        
-        const formattedRows = rows.map(row => {
-            const totalLessons = parseInt(row.total_lessons) || 0;
-            const completedLessons = parseInt(row.completed_lessons) || 0;
-            
-            return {
-                ...row,
-                created_at: new Date(row.created_at).toISOString(),
-                updated_at: row.updated_at ? new Date(row.updated_at).toISOString() : null,
-                total_lessons: totalLessons,
-                completed_lessons: Math.min(completedLessons, totalLessons),
-                progress_percentage: totalLessons ? Math.min(100, Math.round((completedLessons / totalLessons) * 100)) : 0
-            };
-        });
 
-        // Cache the formatted results
-        await cacheData(cacheKey, formattedRows, 300); // cache for 5 minutes
-        
+        const values = cursor 
+            ? [req.user.id, cursor, limit]
+            : [req.user.id, limit];
+
+        const { rows } = await pool.query(query, values);
+
+        // Prepara i dati paginati
+        const lastItem = rows[rows.length - 1];
+        const nextCursor = rows.length === limit ? encodeCursor(lastItem.id) : null;
+
+        const result = {
+            data: rows,
+            pagination: {
+                nextCursor,
+                hasMore: !!nextCursor
+            }
+        };
+
+        await cacheData(cacheKey, result, 300);
+
         res.json({
             success: true,
-            data: formattedRows
+            ...result
         });
     } catch (error) {
         console.error('Error fetching courses:', error);

@@ -1,8 +1,10 @@
-import { pool } from '../../config/database.js';
-import fs from 'fs-extra';
-import path from 'path';
-import { fileURLToPath } from 'url';
+// src/scripts/db/migrate.js
+import dotenv from 'dotenv';
 import colors from 'colors';
+import { fileURLToPath } from 'url';
+import path from 'path';
+import fs from 'fs/promises';  // Corretto l'import di fs
+import { pool } from '../../config/database.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -31,25 +33,23 @@ async function migrate() {
         const executedMigrationNames = new Set(executedMigrations.map(m => m.name));
 
         // Leggi i file di migrazione
-        await fs.ensureDir(MIGRATIONS_DIR);
-        const migrationFiles = await fs.readdir(MIGRATIONS_DIR);
-        const pendingMigrations = migrationFiles
+        const migrationFiles = (await fs.readdir(MIGRATIONS_DIR))
             .filter(f => f.endsWith('.sql'))
+            .filter(f => !f.includes('_prod.sql')) // Escludi file di produzione
             .filter(f => !executedMigrationNames.has(f))
             .sort();
 
-        if (pendingMigrations.length === 0) {
+        if (migrationFiles.length === 0) {
             console.log('Nessuna nuova migrazione da eseguire'.green);
             return;
         }
 
-        console.log(`Trovate ${pendingMigrations.length} migrazioni da eseguire:`.yellow);
-        
-        // Esegui le migrazioni in transazione
-        await client.query('BEGIN');
+        console.log(`Trovate ${migrationFiles.length} migrazioni da eseguire:`.yellow);
 
-        for (const migrationFile of pendingMigrations) {
+        for (const migrationFile of migrationFiles) {
             try {
+                await client.query('BEGIN');
+                
                 console.log(`\nEsecuzione ${migrationFile}...`.cyan);
                 
                 const migrationPath = path.join(MIGRATIONS_DIR, migrationFile);
@@ -63,18 +63,18 @@ async function migrate() {
                     [migrationFile]
                 );
 
+                await client.query('COMMIT');
                 console.log(`✓ Migrazione ${migrationFile} completata`.green);
             } catch (error) {
+                await client.query('ROLLBACK');
                 console.error(`✗ Errore nella migrazione ${migrationFile}:`.red, error);
                 throw error;
             }
         }
 
-        await client.query('COMMIT');
         console.log('\n✓ Tutte le migrazioni completate con successo'.green);
 
     } catch (error) {
-        await client.query('ROLLBACK');
         console.error('✗ Errore durante le migrazioni:'.red, error);
         throw error;
     } finally {

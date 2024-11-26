@@ -3,6 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
+import compression from 'compression'; // Aggiungo l'import
 import userRoutes from './routes/userRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
@@ -28,6 +29,14 @@ if (process.env.NODE_ENV === 'test') {
     dotenv.config();
 }
 
+// Configurazione compressione
+const shouldCompress = (req, res) => {
+    if (req.headers['x-no-compression']) {
+        return false;
+    }
+    return compression.filter(req, res);
+};
+
 // Inizializzazione express
 const app = express();
 
@@ -47,7 +56,27 @@ const corsOptions = {
     credentials: true,
     maxAge: 600
 };
-
+// Middleware di compressione prima degli altri middleware
+// In produzione usiamo una configurazione più aggressiva
+if (process.env.NODE_ENV === 'production') {
+    app.use(compression({
+      filter: shouldCompress,
+      threshold: 1024, // Comprimi solo risposte più grandi di 1KB
+      level: 9, // Massima compressione in produzione
+      memLevel: 9,
+      strategy: 0,
+      windowBits: 15
+    }));
+  } else {
+app.use(compression({
+    filter: shouldCompress,
+    threshold: 0, // Comprimi tutto
+    level: 6, // Livello di compressione bilanciato
+    memLevel: 8,
+    strategy: 0,
+    windowBits: 15
+}));
+  }
 // Middleware di base
 app.use(cors(corsOptions));
 app.use(helmet({
