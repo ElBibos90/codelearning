@@ -3,6 +3,7 @@ import { authenticateToken } from '../middleware/auth.js';
 import pkg from 'pg';
 const { Pool } = pkg;
 import dotenv from 'dotenv';
+import { getCachedData, cacheData } from '../config/redis.js';
 
 dotenv.config();
 
@@ -129,7 +130,8 @@ router.get('/my-courses', authenticateToken, async (req, res) => {
         console.error('Error fetching enrolled courses:', error);
         res.status(500).json({
             success: false,
-            message: 'Errore nel recupero dei corsi'
+            message: 'Errore nel recupero dei corsi',
+            error: error.message
         });
     }
 });

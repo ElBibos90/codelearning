@@ -2,6 +2,7 @@ import express from 'express';
 import pg from 'pg';
 import { authenticateToken, isAdmin } from '../middleware/auth.js';
 import dotenv from 'dotenv';
+import { getCachedData, cacheData } from '../config/redis.js';
 
 dotenv.config();
 
@@ -391,7 +392,8 @@ router.get('/course/:courseId', authenticateToken, async (req, res) => {
         console.error('Stats Error:', error);
         res.status(500).json({
             success: false,
-            message: 'Errore nel recupero delle statistiche del corso'
+            message: 'Errore nel recupero delle statistiche del corso',
+            error: error.message
         });
     }
 });

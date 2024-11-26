@@ -24,10 +24,10 @@
 
 ## ⚡ Backend Performance
 
-- [🔴] Caching Redis
-  - [🔴] Cache per contenuti statici
-  - [🔴] Cache per risultati di query frequenti
-  - [🔴] Cache per sessioni utente
+- [🟢] Caching Redis
+  - [🟢] Cache per contenuti statici
+  - [🟢] Cache per risultati di query frequenti
+  - [🟢] Cache per sessioni utente
 
 - [🔴] Compressione
   - [🔴] Implementare gzip/brotli

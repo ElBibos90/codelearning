@@ -1,0 +1,197 @@
+
+> codelearning@1.0.0 test
+> node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.config.js tests/integration/cache.test.js should cache dashboard overview response
+
+  console.log
+    Directory backup creata in: C:\Users\Eddy\Desktop\Main\backups
+
+      at new BackupService (src/services/backupService.js:33:17)
+
+(node:12236) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+  console.log
+    Database connesso con successo
+
+      at BoundPool.<anonymous> (src/config/database.js:18:11)
+
+  console.log
+    Attempting to fetch lesson: { lessonId: 2, userId: 3 }
+
+      at src/routes/lessonRoutes.js:12:17
+
+  console.log
+    Lesson check result: [
+      {
+        id: 2,
+        course_id: 2,
+        title: 'Test Lesson',
+        content: 'Test Content',
+        content_format: 'markdown',
+        order_number: 1,
+        video_url: null,
+        status: 'draft',
+        version: 1,
+        last_edited_by: null,
+        last_edited_at: null,
+        meta_description: null,
+        estimated_minutes: 30,
+        created_at: 2024-11-26T08:04:16.791Z,
+        published_at: null
+      }
+    ]
+
+      at src/routes/lessonRoutes.js:25:17
+
+  console.log
+    Found lesson: {
+      id: 2,
+      course_id: 2,
+      title: 'Test Lesson',
+      content: 'Test Content',
+      content_format: 'markdown',
+      order_number: 1,
+      video_url: null,
+      status: 'draft',
+      version: 1,
+      last_edited_by: null,
+      last_edited_at: null,
+      meta_description: null,
+      estimated_minutes: 30,
+      created_at: 2024-11-26T08:04:16.791Z,
+      published_at: null
+    }
+
+      at src/routes/lessonRoutes.js:35:17
+
+  console.log
+    Enrollment check: { userId: 3, courseId: 2, found: true }
+
+      at src/routes/lessonRoutes.js:44:17
+
+  console.log
+    Attempting to fetch lesson: { lessonId: 2, userId: 3 }
+
+      at src/routes/lessonRoutes.js:12:17
+
+  console.log
+    Lesson check result: [
+      {
+        id: 2,
+        course_id: 2,
+        title: 'Test Lesson',
+        content: 'Test Content',
+        content_format: 'markdown',
+        order_number: 1,
+        video_url: null,
+        status: 'draft',
+        version: 1,
+        last_edited_by: null,
+        last_edited_at: null,
+        meta_description: null,
+        estimated_minutes: 30,
+        created_at: 2024-11-26T08:04:16.791Z,
+        published_at: null
+      }
+    ]
+
+      at src/routes/lessonRoutes.js:25:17
+
+  console.log
+    Found lesson: {
+      id: 2,
+      course_id: 2,
+      title: 'Test Lesson',
+      content: 'Test Content',
+      content_format: 'markdown',
+      order_number: 1,
+      video_url: null,
+      status: 'draft',
+      version: 1,
+      last_edited_by: null,
+      last_edited_at: null,
+      meta_description: null,
+      estimated_minutes: 30,
+      created_at: 2024-11-26T08:04:16.791Z,
+      published_at: null
+    }
+
+      at src/routes/lessonRoutes.js:35:17
+
+  console.log
+    Enrollment check: { userId: 3, courseId: 2, found: true }
+
+      at src/routes/lessonRoutes.js:44:17
+
+  console.log
+    Profile Error: {
+      success: false,
+      message: 'Errore nel recupero del profilo',
+      error: 'la relazione "user_profiles" non esiste'
+    }
+
+      at Object.<anonymous> (tests/integration/cache.test.js:147:25)
+
+  console.log
+    My Courses Error: { success: false, message: 'Errore nel recupero dei corsi' }
+
+      at Object.<anonymous> (tests/integration/cache.test.js:187:25)
+
+FAIL tests/integration/cache.test.js
+  Test Environment
+    √ should have correct test environment variables
+    √ should mock console.error and console.warn
+  Cache Integration Tests
+    Course Detail Cache
+      √ should cache course detail response (94 ms)
+    Lesson Detail Cache
+      √ should cache lesson detail response (31 ms)
+    Dashboard Overview Cache
+      √ should cache dashboard overview response (62 ms)
+    Course Stats Cache
+      √ should cache course stats response (47 ms)
+    Profile Cache
+      × should cache profile response (47 ms)
+    Admin Overview Cache
+      √ should cache admin overview response (16 ms)
+    My Courses Cache
+      × should cache my courses response (16 ms)
+
+  ● Cache Integration Tests › Profile Cache › should cache profile response
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 500
+
+    [0m [90m 148 |[39m             }
+     [90m 149 |[39m
+    [31m[1m>[22m[39m[90m 150 |[39m             expect(firstResponse[33m.[39mstatus)[33m.[39mtoBe([35m200[39m)[33m;[39m
+     [90m     |[39m                                          [31m[1m^[22m[39m
+     [90m 151 |[39m             [36mconst[39m secondResponse [33m=[39m [36mawait[39m request(app)
+     [90m 152 |[39m                 [33m.[39m[36mget[39m([32m'/api/profile'[39m)
+     [90m 153 |[39m                 [33m.[39m[36mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer ${testToken}`[39m)[33m;[39m[0m
+
+      at Object.<anonymous> (tests/integration/cache.test.js:150:42)
+
+  ● Cache Integration Tests › My Courses Cache › should cache my courses response
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 500
+
+    [0m [90m 188 |[39m             }
+     [90m 189 |[39m
+    [31m[1m>[22m[39m[90m 190 |[39m             expect(firstResponse[33m.[39mstatus)[33m.[39mtoBe([35m200[39m)[33m;[39m
+     [90m     |[39m                                          [31m[1m^[22m[39m
+     [90m 191 |[39m             [36mconst[39m secondResponse [33m=[39m [36mawait[39m request(app)
+     [90m 192 |[39m                 [33m.[39m[36mget[39m([32m'/api/enrollments/my-courses'[39m)
+     [90m 193 |[39m                 [33m.[39m[36mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer ${testToken}`[39m)[33m;[39m[0m
+
+      at Object.<anonymous> (tests/integration/cache.test.js:190:42)
+
+Test Suites: 1 failed, 1 total
+Tests:       2 failed, 7 passed, 9 total
+Snapshots:   0 total
+Time:        1.766 s, estimated 2 s
+Ran all test suites matching /tests\\integration\\cache.test.js|should cache dashboard overview response/i.
