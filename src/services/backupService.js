@@ -30,7 +30,7 @@ const pool = new Pool({
 class BackupService {
     constructor() {
         fs.ensureDirSync(config.backupDir);
-        console.log(`Directory backup creata in: ${config.backupDir}`);
+        //console.log(`Directory backup creata in: ${config.backupDir}`);
         
         // Verifica l'esistenza dei file pg_dump e pg_restore
         const pgDumpPath = path.join(POSTGRESQL_BIN, 'pg_dump.exe');

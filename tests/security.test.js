@@ -43,7 +43,7 @@ describe('Security Middleware - Rate Limiting', () => {
 
     describe('Authentication Rate Limiting', () => {
         test('should limit login attempts', async () => {
-            console.log('Starting rate limit test');
+            //console.log('Starting rate limit test');
             const attempts = [];
 
             for (let i = 0; i < 10; i++) {

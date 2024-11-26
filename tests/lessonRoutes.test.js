@@ -10,7 +10,7 @@ let testLesson;
 
 beforeAll(async () => {
     try {
-        console.log('Setting up test data...');
+        //console.log('Setting up test data...');
         
         // Crea un utente di test
         const userResult = await pool.query(`
@@ -20,7 +20,7 @@ beforeAll(async () => {
         `);
         testUser = userResult.rows[0];
         testToken = generateToken(testUser);
-        console.log('Created test user:', testUser);
+        //console.log('Created test user:', testUser);
 
         // Crea un corso di test
         const courseResult = await pool.query(`
@@ -29,7 +29,7 @@ beforeAll(async () => {
             RETURNING id;
         `);
         testCourse = courseResult.rows[0];
-        console.log('Created test course:', testCourse);
+        //console.log('Created test course:', testCourse);
 
         // Crea un'iscrizione al corso per l'utente di test
         await pool.query(`
@@ -105,11 +105,11 @@ describe('Lesson Routes Tests', () => {
             return;
         }
     
-        console.log('Getting lesson details for:', {
-            lessonId: testLesson.id,
-            userId: testUser.id,
-            courseId: testCourse.id
-        });
+        // console.log('Getting lesson details for:', {
+        //     lessonId: testLesson.id,
+        //     userId: testUser.id,
+        //     courseId: testCourse.id
+        // });
     
         const response = await request(app)
             .get(`/api/lessons/${testLesson.id}/detail`)

@@ -6,22 +6,23 @@ PS C:\Users\Eddy\Desktop\Main> Get-ChildItem -Path "C:\Users\Eddy\Desktop\Main" 
 
 Mode                 LastWriteTime         Length Name
 ----                 -------------         ------ ----
-d-----        22/11/2024     17:31                backups
+d-----        26/11/2024     10:02                backups
 d-----        22/11/2024     17:31                client
-d-----        22/11/2024     17:31                migrations
-d-----        25/11/2024     10:42                node_modules
+d-----        26/11/2024     09:18                coverage
+d-----        26/11/2024     10:05                migrations
+d-----        26/11/2024     10:12                node_modules
 d-----        25/11/2024     15:43                src
-d-----        25/11/2024     16:49                tests
+d-----        26/11/2024     09:53                tests
 -a----        25/11/2024     10:47            917 .env
 -a----        25/11/2024     10:47            871 .env.test
 -a----        22/11/2024     09:15            674 .gitignore
 -a----        25/11/2024     10:47            239 babel.config.json
--a----        25/11/2024     11:19          20830 Geriarchy.txt
--a----        25/11/2024     15:41           5849 improvements-tracker.md
+-a----        26/11/2024     10:02           5849 improvements-tracker.md       
 -a----        25/11/2024     15:33            659 jest.config.js
--a----        25/11/2024     15:16            493 Log.txt
--a----        25/11/2024     10:47         292485 package-lock.json
--a----        25/11/2024     10:47           2891 package.json
+-a----        26/11/2024     09:18           9858 Log.txt
+-a----        26/11/2024     10:12         294282 package-lock.json
+-a----        26/11/2024     10:12           2775 package.json
+-a----        26/11/2024     09:41           6457 risultato.txt
 
 
     Directory: C:\Users\Eddy\Desktop\Main\backups
@@ -29,9 +30,14 @@ d-----        25/11/2024     16:49                tests
 
 Mode                 LastWriteTime         Length Name
 ----                 -------------         ------ ----
--a----        22/11/2024     17:31          51118 backup-2024-11-21T19-58-44-375Z.sql      
--a----        22/11/2024     17:31          51145 backup-2024-11-21T19-58-44-804Z.sql      
--a----        22/11/2024     17:31          51288 backup-2024-11-21T20-26-56-042Z.sql      
+-a----        22/11/2024     17:31          51118 backup-2024-11-21T19-58-44-375
+                                                  Z.sql
+-a----        22/11/2024     17:31          51145 backup-2024-11-21T19-58-44-804
+                                                  Z.sql
+-a----        22/11/2024     17:31          51288 backup-2024-11-21T20-26-56-042
+                                                  Z.sql
+-a----        26/11/2024     10:02          52954 backup-2024-11-26T09-02-40-433
+                                                  Z.sql
 
 
     Directory: C:\Users\Eddy\Desktop\Main\client
@@ -179,14 +185,14 @@ d-----        22/11/2024     17:31                components
 -a----        22/11/2024     17:31           9984 AdminCourseManager.jsx
 
 
-    Directory: C:\Users\Eddy\Desktop\Main\client\src\features\admin\components
+    Directory: C:\Users\Eddy\Desktop\Main\client\src\features\admin\components   
 
 
 Mode                 LastWriteTime         Length Name
 ----                 -------------         ------ ----
 -a----        22/11/2024     17:31           4830 AdminLayout.jsx
 -a----        22/11/2024     17:31           5984 CourseForm.jsx
--a----        22/11/2024     17:31           3712 DraggableLessonList.jsx
+-a----        22/11/2024     17:31           3712 DraggableLessonList.jsx        
 -a----        22/11/2024     17:31           4178 LessonEditor.jsx
 -a----        22/11/2024     17:31          12966 LessonEditorDialog.jsx
 -a----        22/11/2024     17:31           5500 LessonForm.jsx
@@ -248,7 +254,7 @@ d-----        22/11/2024     17:31                components
 -a----        22/11/2024     17:31           3947 LessonNavigation.jsx
 
 
-    Directory: C:\Users\Eddy\Desktop\Main\client\src\features\lessons\components
+    Directory: C:\Users\Eddy\Desktop\Main\client\src\features\lessons\components 
 
 
 Mode                 LastWriteTime         Length Name
@@ -297,13 +303,126 @@ d-----        19/11/2024     20:09                slices
 -a----        22/11/2024     17:31            203 index.js
 
 
+    Directory: C:\Users\Eddy\Desktop\Main\coverage
+
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d-----        26/11/2024     09:18                lcov-report
+-a----        26/11/2024     09:18          20165 lcov.info
+
+
+    Directory: C:\Users\Eddy\Desktop\Main\coverage\lcov-report
+
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d-----        26/11/2024     09:18                src
+-a----        26/11/2024     09:18           5618 base.css
+-a----        26/11/2024     09:18           2742 block-navigation.js
+-a----        26/11/2024     09:18            445 favicon.png
+-a----        26/11/2024     09:18           8708 index.html
+-a----        26/11/2024     09:18            677 prettify.css
+-a----        26/11/2024     09:18          17592 prettify.js
+-a----        26/11/2024     09:18            138 sort-arrow-sprite.png
+-a----        26/11/2024     09:18           6377 sorter.js
+
+
+    Directory: C:\Users\Eddy\Desktop\Main\coverage\lcov-report\src
+
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d-----        26/11/2024     09:18                config
+d-----        26/11/2024     09:18                middleware
+d-----        26/11/2024     09:18                models
+d-----        26/11/2024     09:18                routes
+d-----        26/11/2024     09:18                services
+d-----        26/11/2024     09:18                utils
+-a----        26/11/2024     09:18           4554 index.html
+-a----        26/11/2024     09:18          27534 server.js.html
+
+
+    Directory: C:\Users\Eddy\Desktop\Main\coverage\lcov-report\src\config        
+
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----        26/11/2024     09:18           5963 database.js.html
+-a----        26/11/2024     09:18           6655 index.html
+-a----        26/11/2024     09:18          16651 redis.js.html
+-a----        26/11/2024     09:18           5382 redisClient.js.html
+-a----        26/11/2024     09:18          25587 swagger.js.html
+
+
+    Directory: C:\Users\Eddy\Desktop\Main\coverage\lcov-report\src\middleware    
+
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----        26/11/2024     09:18           9913 auth.js.html
+-a----        26/11/2024     09:18           5980 index.html
+-a----        26/11/2024     09:18          22950 security.js.html
+-a----        26/11/2024     09:18          11359 validators.js.html
+
+
+    Directory: C:\Users\Eddy\Desktop\Main\coverage\lcov-report\src\models        
+
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----        26/11/2024     09:18          13798 favoriteModel.js.html
+-a----        26/11/2024     09:18           5259 index.html
+-a----        26/11/2024     09:18          13471 userModel.js.html
+
+
+    Directory: C:\Users\Eddy\Desktop\Main\coverage\lcov-report\src\routes        
+
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----        26/11/2024     09:18          38374 adminRoutes.js.html
+-a----        26/11/2024     09:18          43828 authRoutes.js.html
+-a----        26/11/2024     09:18          10400 backupRoutes.js.html
+-a----        26/11/2024     09:18          47834 commentRoutes.js.html
+-a----        26/11/2024     09:18          49480 courseRoutes.js.html
+-a----        26/11/2024     09:18          49142 dashboardRoutes.js.html        
+-a----        26/11/2024     09:18          44054 donationRoutes.js.html        
+-a----        26/11/2024     09:18          37411 enrollmentRoutes.js.html       
+-a----        26/11/2024     09:18          14754 favoriteRoutes.js.html
+-a----        26/11/2024     09:18          12934 index.html
+-a----        26/11/2024     09:18          27903 lessonRoutes.js.html
+-a----        26/11/2024     09:18          55054 profileRoutes.js.html
+-a----        26/11/2024     09:18          59067 statsRoutes.js.html
+-a----        26/11/2024     09:18           6089 userRoutes.js.html
+
+
+    Directory: C:\Users\Eddy\Desktop\Main\coverage\lcov-report\src\services      
+
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----        26/11/2024     09:18          41574 backupService.js.html
+-a----        26/11/2024     09:18          15198 donationService.js.html        
+-a----        26/11/2024     09:18           5275 index.html
+
+
+    Directory: C:\Users\Eddy\Desktop\Main\coverage\lcov-report\src\utils
+
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----        26/11/2024     09:18           4552 index.html
+-a----        26/11/2024     09:18           6674 sanitize.js.html
+
+
     Directory: C:\Users\Eddy\Desktop\Main\migrations
 
 
 Mode                 LastWriteTime         Length Name
 ----                 -------------         ------ ----
--a----        22/11/2024     17:31            548 20241120_add_course_favorites.sql
--a----        22/11/2024     17:31           2657 20241121_production_update.sql
+-a----        26/11/2024     10:05            539 20241126_add_indexes.sql       
+-a----        26/11/2024     10:06           1413 20241126_add_indexes_prod.sql  
 
 
     Directory: C:\Users\Eddy\Desktop\Main\src
@@ -311,18 +430,18 @@ Mode                 LastWriteTime         Length Name
 
 Mode                 LastWriteTime         Length Name
 ----                 -------------         ------ ----
-d-----        25/11/2024     15:52                config
+d-----        26/11/2024     09:18                config
 d-----        22/11/2024     17:31                constants
 d-----        19/11/2024     20:12                controllers
 d-----        25/11/2024     15:19                middleware
 d-----        22/11/2024     17:31                models
 d-----        19/11/2024     20:12                root
-d-----        22/11/2024     17:31                routes
+d-----        26/11/2024     09:18                routes
 d-----        25/11/2024     10:47                scripts
 d-----        22/11/2024     17:31                services
-d-----        22/11/2024     17:31                utils
+d-----        26/11/2024     09:50                utils
 d-----        25/11/2024     15:13                validators
--a----        25/11/2024     10:47           5992 server.js
+-a----        26/11/2024     10:02           6886 server.js
 
 
     Directory: C:\Users\Eddy\Desktop\Main\src\config
@@ -332,8 +451,8 @@ Mode                 LastWriteTime         Length Name
 ----                 -------------         ------ ----
 d-----        25/11/2024     09:43                __mocks__
 -a----        25/11/2024     10:47            537 database.js
--a----        25/11/2024     15:52           2403 redis.js
--a----        25/11/2024     15:52            418 redisClient.js
+-a----        26/11/2024     09:18           2403 redis.js
+-a----        26/11/2024     09:18            418 redisClient.js
 -a----        22/11/2024     17:31           6112 swagger.js
 
 
@@ -381,14 +500,14 @@ Mode                 LastWriteTime         Length Name
 -a----        25/11/2024     15:21           8564 authRoutes.js
 -a----        22/11/2024     17:31           1554 backupRoutes.js
 -a----        22/11/2024     17:31           9811 commentRoutes.js
--a----        25/11/2024     16:39          11461 courseRoutes.js
--a----        22/11/2024     17:31           9436 dashboardRoutes.js
+-a----        26/11/2024     09:53          11226 courseRoutes.js
+-a----        26/11/2024     09:18          10569 dashboardRoutes.js
 -a----        22/11/2024     17:31           9368 donationRoutes.js
--a----        22/11/2024     17:31           8089 enrollmentRoutes.js
+-a----        26/11/2024     09:18           8534 enrollmentRoutes.js
 -a----        22/11/2024     17:31           2567 favoriteRoutes.js
--a----        25/11/2024     15:39           5339 lessonRoutes.js
--a----        22/11/2024     17:31          12080 profileRoutes.js
--a----        22/11/2024     17:31          13527 statsRoutes.js
+-a----        26/11/2024     09:18           6475 lessonRoutes.js
+-a----        26/11/2024     09:18          12544 profileRoutes.js
+-a----        26/11/2024     09:18          13132 statsRoutes.js
 -a----        22/11/2024     17:31            533 userRoutes.js
 
 
@@ -397,18 +516,18 @@ Mode                 LastWriteTime         Length Name
 
 Mode                 LastWriteTime         Length Name
 ----                 -------------         ------ ----
-d-----        22/11/2024     17:31                db
+d-----        26/11/2024     09:57                db
 d-----        22/11/2024     17:31                maintenance
-d-----        25/11/2024     11:06                test
+d-----        26/11/2024     09:18                test
 d-----        22/11/2024     17:31                validation
--a----        22/11/2024     17:31           1080 addLastAccessedColumn.js
--a----        22/11/2024     17:31            812 checkTablesStructure.js
+-a----        22/11/2024     17:31           1080 addLastAccessedColumn.js       
+-a----        22/11/2024     17:31            812 checkTablesStructure.js        
 -a----        22/11/2024     17:31           1766 createAdmin.js
--a----        22/11/2024     17:31           1684 createCommentsSchema.js
+-a----        22/11/2024     17:31           1684 createCommentsSchema.js        
 -a----        22/11/2024     17:31           1718 createCommentsTable.js
 -a----        22/11/2024     17:31           2857 createCoursesSchema.js
--a----        22/11/2024     17:31           1115 createDonationsTable.js
--a----        22/11/2024     17:31           2715 createLessonResources.js
+-a----        22/11/2024     17:31           1115 createDonationsTable.js        
+-a----        22/11/2024     17:31           2715 createLessonResources.js       
 -a----        22/11/2024     17:31           1803 createUser.js
 -a----        22/11/2024     17:31            659 deleteUsers.js
 -a----        25/11/2024     10:47           5990 initDatabase.js
@@ -426,8 +545,9 @@ d-----        22/11/2024     17:31                validation
 
 Mode                 LastWriteTime         Length Name
 ----                 -------------         ------ ----
+-a----        26/11/2024     09:57            895 applyIndexes.js
 -a----        22/11/2024     17:31           5555 backup.js
--a----        22/11/2024     17:31           3195 migrate.js
+-a----        26/11/2024     10:08           3249 migrate.js
 -a----        22/11/2024     17:31           4346 verify.js
 
 
@@ -438,7 +558,7 @@ Mode                 LastWriteTime         Length Name
 ----                 -------------         ------ ----
 -a----        22/11/2024     17:31           7004 cleanup.js
 -a----        22/11/2024     17:31           5768 healthCheck.js
--a----        22/11/2024     17:31           1853 setupMaintenanceTables.js
+-a----        22/11/2024     17:31           1853 setupMaintenanceTables.js      
 -a----        22/11/2024     17:31           2133 testAllJobs.js
 
 
@@ -448,7 +568,7 @@ Mode                 LastWriteTime         Length Name
 Mode                 LastWriteTime         Length Name
 ----                 -------------         ------ ----
 -a----        22/11/2024     17:31           1502 runTests.js
--a----        22/11/2024     17:31           9288 setupTestDb.js
+-a----        26/11/2024     09:18          10491 setupTestDb.js
 
 
     Directory: C:\Users\Eddy\Desktop\Main\src\scripts\validation
@@ -477,6 +597,7 @@ Mode                 LastWriteTime         Length Name
 Mode                 LastWriteTime         Length Name
 ----                 -------------         ------ ----
 -a----        22/11/2024     17:31            426 dbUtils.js
+-a----        26/11/2024     09:51            586 pagination.js
 -a----        25/11/2024     15:26            837 sanitize.js
 -a----        22/11/2024     17:31            723 testDbManager.js
 
@@ -495,12 +616,13 @@ Mode                 LastWriteTime         Length Name
 Mode                 LastWriteTime         Length Name
 ----                 -------------         ------ ----
 d-----        22/11/2024     17:23                auth
-d-----        25/11/2024     16:49                integration
+d-----        26/11/2024     09:18                integration
 d-----        22/11/2024     17:30                middleware
--a----        25/11/2024     16:49           1926 courseRoutes.test.js
+-a----        26/11/2024     09:18           1926 courseRoutes.test.js
 -a----        25/11/2024     10:47           2806 favorites.test.js
--a----        25/11/2024     15:38           4352 lessonRoutes.test.js
--a----        25/11/2024     15:33          15071 security.test.js
+-a----        26/11/2024     09:18           5183 lessonRoutes.test.js
+-a----        26/11/2024     09:53           2955 pagination.test.js
+-a----        26/11/2024     09:18          15865 security.test.js
 -a----        25/11/2024     10:47           1716 setup-test-env.js
 
 
@@ -509,7 +631,6 @@ d-----        22/11/2024     17:30                middleware
 
 Mode                 LastWriteTime         Length Name
 ----                 -------------         ------ ----
+-a----        26/11/2024     09:18           7776 cache.test.js
 -a----        25/11/2024     10:47            344 health.test.js
 
-
-PS C:\Users\Eddy\Desktop\Main> 

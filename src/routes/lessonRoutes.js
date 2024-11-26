@@ -9,10 +9,10 @@ const router = express.Router();
 router.get('/:id/detail', authenticateToken, async (req, res) => {
     try {
         const lessonId = parseInt(req.params.id);
-        console.log('Attempting to fetch lesson:', {
-            lessonId,
-            userId: req.user.id
-        });
+        // console.log('Attempting to fetch lesson:', {
+        //     lessonId,
+        //     userId: req.user.id
+        // });
 
         // Prima verifica che la lezione esista e prendi il corso associato
         const lessonCheck = await pool.query(`
@@ -22,7 +22,7 @@ router.get('/:id/detail', authenticateToken, async (req, res) => {
             WHERE l.id = $1
         `, [lessonId]);
 
-        console.log('Lesson check result:', lessonCheck.rows);
+        //console.log('Lesson check result:', lessonCheck.rows);
 
         if (lessonCheck.rows.length === 0) {
             return res.status(404).json({
@@ -32,7 +32,7 @@ router.get('/:id/detail', authenticateToken, async (req, res) => {
         }
 
         const lesson = lessonCheck.rows[0];
-        console.log('Found lesson:', lesson);
+        //console.log('Found lesson:', lesson);
 
         // Verifica iscrizione al corso
         const enrollmentCheck = await pool.query(
@@ -41,11 +41,11 @@ router.get('/:id/detail', authenticateToken, async (req, res) => {
             [req.user.id, lesson.course_id]
         );
 
-        console.log('Enrollment check:', {
-            userId: req.user.id,
-            courseId: lesson.course_id,
-            found: enrollmentCheck.rows.length > 0
-        });
+        // console.log('Enrollment check:', {
+        //     userId: req.user.id,
+        //     courseId: lesson.course_id,
+        //     found: enrollmentCheck.rows.length > 0
+        // });
 
         if (enrollmentCheck.rows.length === 0) {
             return res.status(403).json({
@@ -107,16 +107,16 @@ router.post('/', authenticateToken, async (req, res) => {
         }
 
         // Aggiungo log per debug
-        console.log('Creating lesson with:', {
-            courseId,
-            title,
-            content: content?.substring(0, 50), // log solo primi 50 caratteri
-            orderNumber,
-            contentFormat,
-            metaDescription,
-            estimatedMinutes,
-            status
-        });
+        // console.log('Creating lesson with:', {
+        //     courseId,
+        //     title,
+        //     content: content?.substring(0, 50), // log solo primi 50 caratteri
+        //     orderNumber,
+        //     contentFormat,
+        //     metaDescription,
+        //     estimatedMinutes,
+        //     status
+        // });
 
         // Sanitizza il contenuto
         const sanitizedContent = sanitizeContent(content || '');

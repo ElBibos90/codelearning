@@ -15,7 +15,7 @@ export const pool = new Pool({
 
 // Test della connessione
 pool.on('connect', () => {
-  console.log('Database connesso con successo');
+  //console.log('Database connesso con successo');
 });
 
 pool.on('error', (err) => {
