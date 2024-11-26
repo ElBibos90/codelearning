@@ -2,6 +2,7 @@ import express from 'express';
 import pg from 'pg';
 import { authenticateToken } from '../middleware/auth.js';
 import dotenv from 'dotenv';
+import { getCachedData, cacheData } from '../config/redis.js';
 
 dotenv.config();
 const router = express.Router();
@@ -127,17 +128,30 @@ const pool = new Pool({
  */
 router.get('/', authenticateToken, async (req, res) => {
     try {
+        const cacheKey = `profile:${req.user.id}`;
+        
+        const cachedData = await getCachedData(cacheKey);
+        if (cachedData) {
+            return res.json({
+                success: true,
+                data: cachedData
+            });
+        }
+
         // Query per i dati base dell'utente
         const userQuery = await pool.query(`
-            SELECT email, created_at as member_since
+            SELECT 
+                email, 
+                created_at as member_since
             FROM users 
             WHERE id = $1
         `, [req.user.id]);
 
         // Query per il profilo
         const profileQuery = await pool.query(`
-            SELECT full_name, bio, avatar_url, linkedin_url, github_url, 
-                   website_url, skills, interests
+            SELECT 
+                full_name, bio, avatar_url, linkedin_url, github_url, 
+                website_url, skills, interests
             FROM user_profiles
             WHERE user_id = $1
         `, [req.user.id]);
@@ -185,15 +199,18 @@ router.get('/', authenticateToken, async (req, res) => {
             }
         };
 
+        await cacheData(cacheKey, response, 300);
+
         res.json({
             success: true,
             data: response
         });
-    } catch (err) {
-        console.error('Errore nel recupero del profilo:', err);
+    } catch (error) {
+        console.error('Profile Error:', error);
         res.status(500).json({
             success: false,
-            message: 'Errore nel recupero del profilo'
+            message: 'Errore nel recupero del profilo',
+            error: error.message
         });
     }
 });

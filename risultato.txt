@@ -3,11 +3,11 @@
 > node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.config.js tests/integration/cache.test.js should cache dashboard overview response
 
   console.log
-    Directory backup creata in: C:\Users\eddyr\Desktop\CodeLearning\backups
+    Directory backup creata in: C:\Users\Eddy\Desktop\Main\backups
 
       at new BackupService (src/services/backupService.js:33:17)
 
-(node:33236) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(node:12236) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
 (Use `node --trace-warnings ...` to show where the warning was created)
   console.log
     Database connesso con successo
@@ -15,15 +15,15 @@
       at BoundPool.<anonymous> (src/config/database.js:18:11)
 
   console.log
-    Attempting to fetch lesson: { lessonId: 13, userId: 16 }
+    Attempting to fetch lesson: { lessonId: 2, userId: 3 }
 
       at src/routes/lessonRoutes.js:12:17
 
   console.log
     Lesson check result: [
       {
-        id: 13,
-        course_id: 16,
+        id: 2,
+        course_id: 2,
         title: 'Test Lesson',
         content: 'Test Content',
         content_format: 'markdown',
@@ -35,7 +35,7 @@
         last_edited_at: null,
         meta_description: null,
         estimated_minutes: 30,
-        created_at: 2024-11-25T20:16:40.370Z,
+        created_at: 2024-11-26T08:04:16.791Z,
         published_at: null
       }
     ]
@@ -44,8 +44,8 @@
 
   console.log
     Found lesson: {
-      id: 13,
-      course_id: 16,
+      id: 2,
+      course_id: 2,
       title: 'Test Lesson',
       content: 'Test Content',
       content_format: 'markdown',
@@ -57,27 +57,27 @@
       last_edited_at: null,
       meta_description: null,
       estimated_minutes: 30,
-      created_at: 2024-11-25T20:16:40.370Z,
+      created_at: 2024-11-26T08:04:16.791Z,
       published_at: null
     }
 
       at src/routes/lessonRoutes.js:35:17
 
   console.log
-    Enrollment check: { userId: 16, courseId: 16, found: true }
+    Enrollment check: { userId: 3, courseId: 2, found: true }
 
       at src/routes/lessonRoutes.js:44:17
 
   console.log
-    Attempting to fetch lesson: { lessonId: 13, userId: 16 }
+    Attempting to fetch lesson: { lessonId: 2, userId: 3 }
 
       at src/routes/lessonRoutes.js:12:17
 
   console.log
     Lesson check result: [
       {
-        id: 13,
-        course_id: 16,
+        id: 2,
+        course_id: 2,
         title: 'Test Lesson',
         content: 'Test Content',
         content_format: 'markdown',
@@ -89,7 +89,7 @@
         last_edited_at: null,
         meta_description: null,
         estimated_minutes: 30,
-        created_at: 2024-11-25T20:16:40.370Z,
+        created_at: 2024-11-26T08:04:16.791Z,
         published_at: null
       }
     ]
@@ -98,8 +98,8 @@
 
   console.log
     Found lesson: {
-      id: 13,
-      course_id: 16,
+      id: 2,
+      course_id: 2,
       title: 'Test Lesson',
       content: 'Test Content',
       content_format: 'markdown',
@@ -111,46 +111,25 @@
       last_edited_at: null,
       meta_description: null,
       estimated_minutes: 30,
-      created_at: 2024-11-25T20:16:40.370Z,
+      created_at: 2024-11-26T08:04:16.791Z,
       published_at: null
     }
 
       at src/routes/lessonRoutes.js:35:17
 
   console.log
-    Enrollment check: { userId: 16, courseId: 16, found: true }
+    Enrollment check: { userId: 3, courseId: 2, found: true }
 
       at src/routes/lessonRoutes.js:44:17
 
   console.log
-    Dashboard Overview Error: {
+    Profile Error: {
       success: false,
-      message: 'Errore nel recupero della dashboard',
-      error: 'getCachedData is not defined'
+      message: 'Errore nel recupero del profilo',
+      error: 'la relazione "user_profiles" non esiste'
     }
-
-      at Object.<anonymous> (tests/integration/cache.test.js:107:25)
-
-  console.log
-    Course Stats Error: {
-      success: false,
-      message: 'Errore nel recupero delle statistiche del corso'
-    }
-
-      at Object.<anonymous> (tests/integration/cache.test.js:127:25)
-
-  console.log
-    Profile Error: { success: false, message: 'Errore nel recupero del profilo' }
 
       at Object.<anonymous> (tests/integration/cache.test.js:147:25)
-
-  console.log
-    Admin Overview Error: {
-      success: false,
-      message: 'Errore nel recupero delle statistiche amministrative'
-    }
-
-      at Object.<anonymous> (tests/integration/cache.test.js:167:25)
 
   console.log
     My Courses Error: { success: false, message: 'Errore nel recupero dei corsi' }
@@ -159,57 +138,23 @@
 
 FAIL tests/integration/cache.test.js
   Test Environment
-    √ should have correct test environment variables (3 ms)
-    √ should mock console.error and console.warn (1 ms)
+    √ should have correct test environment variables
+    √ should mock console.error and console.warn
   Cache Integration Tests
     Course Detail Cache
-      √ should cache course detail response (93 ms)
+      √ should cache course detail response (94 ms)
     Lesson Detail Cache
-      √ should cache lesson detail response (43 ms)
+      √ should cache lesson detail response (31 ms)
     Dashboard Overview Cache
-      × should cache dashboard overview response (18 ms)
+      √ should cache dashboard overview response (62 ms)
     Course Stats Cache
-      × should cache course stats response (9 ms)
+      √ should cache course stats response (47 ms)
     Profile Cache
-      × should cache profile response (12 ms)
+      × should cache profile response (47 ms)
     Admin Overview Cache
-      × should cache admin overview response (9 ms)
+      √ should cache admin overview response (16 ms)
     My Courses Cache
-      × should cache my courses response (11 ms)
-
-  ● Cache Integration Tests › Dashboard Overview Cache › should cache dashboard overview response
-
-    expect(received).toBe(expected) // Object.is equality
-
-    Expected: 200
-    Received: 500
-
-    [0m [90m 108 |[39m             }
-     [90m 109 |[39m
-    [31m[1m>[22m[39m[90m 110 |[39m             expect(firstResponse[33m.[39mstatus)[33m.[39mtoBe([35m200[39m)[33m;[39m
-     [90m     |[39m                                          [31m[1m^[22m[39m
-     [90m 111 |[39m             [36mconst[39m secondResponse [33m=[39m [36mawait[39m request(app)
-     [90m 112 |[39m                 [33m.[39m[36mget[39m([32m'/api/dashboard/overview'[39m)
-     [90m 113 |[39m                 [33m.[39m[36mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer ${testToken}`[39m)[33m;[39m[0m
-
-      at Object.<anonymous> (tests/integration/cache.test.js:110:42)
-
-  ● Cache Integration Tests › Course Stats Cache › should cache course stats response
-
-    expect(received).toBe(expected) // Object.is equality
-
-    Expected: 200
-    Received: 500
-
-    [0m [90m 128 |[39m             }
-     [90m 129 |[39m
-    [31m[1m>[22m[39m[90m 130 |[39m             expect(firstResponse[33m.[39mstatus)[33m.[39mtoBe([35m200[39m)[33m;[39m
-     [90m     |[39m                                          [31m[1m^[22m[39m
-     [90m 131 |[39m             [36mconst[39m secondResponse [33m=[39m [36mawait[39m request(app)
-     [90m 132 |[39m                 [33m.[39m[36mget[39m([32m`/api/stats/course/${testCourse.id}`[39m)
-     [90m 133 |[39m                 [33m.[39m[36mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer ${testToken}`[39m)[33m;[39m[0m
-
-      at Object.<anonymous> (tests/integration/cache.test.js:130:42)
+      × should cache my courses response (16 ms)
 
   ● Cache Integration Tests › Profile Cache › should cache profile response
 
@@ -227,23 +172,6 @@ FAIL tests/integration/cache.test.js
      [90m 153 |[39m                 [33m.[39m[36mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer ${testToken}`[39m)[33m;[39m[0m
 
       at Object.<anonymous> (tests/integration/cache.test.js:150:42)
-
-  ● Cache Integration Tests › Admin Overview Cache › should cache admin overview response
-
-    expect(received).toBe(expected) // Object.is equality
-
-    Expected: 200
-    Received: 500
-
-    [0m [90m 168 |[39m             }
-     [90m 169 |[39m
-    [31m[1m>[22m[39m[90m 170 |[39m             expect(firstResponse[33m.[39mstatus)[33m.[39mtoBe([35m200[39m)[33m;[39m
-     [90m     |[39m                                          [31m[1m^[22m[39m
-     [90m 171 |[39m             [36mconst[39m secondResponse [33m=[39m [36mawait[39m request(app)
-     [90m 172 |[39m                 [33m.[39m[36mget[39m([32m'/api/stats/admin/overview'[39m)
-     [90m 173 |[39m                 [33m.[39m[36mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer ${adminToken}`[39m)[33m;[39m[0m
-
-      at Object.<anonymous> (tests/integration/cache.test.js:170:42)
 
   ● Cache Integration Tests › My Courses Cache › should cache my courses response
 
@@ -263,7 +191,7 @@ FAIL tests/integration/cache.test.js
       at Object.<anonymous> (tests/integration/cache.test.js:190:42)
 
 Test Suites: 1 failed, 1 total
-Tests:       5 failed, 4 passed, 9 total
+Tests:       2 failed, 7 passed, 9 total
 Snapshots:   0 total
-Time:        1.684 s, estimated 2 s
+Time:        1.766 s, estimated 2 s
 Ran all test suites matching /tests\\integration\\cache.test.js|should cache dashboard overview response/i.

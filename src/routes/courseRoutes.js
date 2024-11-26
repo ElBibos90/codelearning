@@ -5,6 +5,7 @@ const { Pool } = pkg;
 import dotenv from 'dotenv';
 import { courseValidation } from '../middleware/validators.js';
 import { sanitizeContent } from '../utils/sanitize.js';
+import { getCachedData, cacheData } from '../config/redis.js';
 
 dotenv.config();
 const router = express.Router();
@@ -16,7 +17,16 @@ const pool = new Pool({
 router.get('/:courseId', authenticateToken, async (req, res) => {
     try {
         const courseId = parseInt(req.params.courseId);
+        const cacheKey = `course:${courseId}:${req.user.id}`;
         
+        const cachedData = await getCachedData(cacheKey);
+        if (cachedData) {
+            return res.json({
+                success: true,
+                data: cachedData
+            });
+        }
+
         const result = await pool.query(`
             WITH enrollment_info AS (
                 SELECT 
@@ -67,13 +77,14 @@ router.get('/:courseId', authenticateToken, async (req, res) => {
             });
         }
 
-        // Formatta i dati per assicurare il corretto conteggio
         const courseData = {
             ...result.rows[0],
             completed_lessons: parseInt(result.rows[0].completed_lessons) || 0,
             total_lessons: parseInt(result.rows[0].total_lessons) || 0,
             lessons: result.rows[0].lessons || []
         };
+
+        await cacheData(cacheKey, courseData, 300);
 
         res.json({
             success: true,
@@ -92,6 +103,17 @@ router.get('/:courseId', authenticateToken, async (req, res) => {
 // In courseRoutes.js
 router.get('/', authenticateToken, async (req, res) => {
     try {
+        // Check cache first
+        const cacheKey = `courses:all:${req.user.id}`;
+        const cachedData = await getCachedData(cacheKey);
+        
+        if (cachedData) {
+            return res.json({
+                success: true,
+                data: cachedData
+            });
+        }
+
         const query = `
             WITH enrollment_info AS (
                 SELECT 
@@ -132,7 +154,6 @@ router.get('/', authenticateToken, async (req, res) => {
         const { rows } = await pool.query(query, [req.user.id]);
         
         const formattedRows = rows.map(row => {
-            // Calcoliamo il progresso in modo sicuro
             const totalLessons = parseInt(row.total_lessons) || 0;
             const completedLessons = parseInt(row.completed_lessons) || 0;
             
@@ -141,10 +162,13 @@ router.get('/', authenticateToken, async (req, res) => {
                 created_at: new Date(row.created_at).toISOString(),
                 updated_at: row.updated_at ? new Date(row.updated_at).toISOString() : null,
                 total_lessons: totalLessons,
-                completed_lessons: Math.min(completedLessons, totalLessons), // Assicuriamoci che completed non superi il totale
+                completed_lessons: Math.min(completedLessons, totalLessons),
                 progress_percentage: totalLessons ? Math.min(100, Math.round((completedLessons / totalLessons) * 100)) : 0
             };
         });
+
+        // Cache the formatted results
+        await cacheData(cacheKey, formattedRows, 300); // cache for 5 minutes
         
         res.json({
             success: true,

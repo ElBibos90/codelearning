@@ -353,10 +353,17 @@ describe('Content Sanitization', () => {
                 difficulty_level: 'beginner',
                 duration_hours: 1
             });
-
+    
+        // Log dettagliato in caso di errore del corso
+        if (courseResponse.status !== 201) {
+            console.log('Course Creation Failed:');
+            console.log('Status:', courseResponse.status);
+            console.log('Response:', courseResponse.body);
+        }
+    
         expect(courseResponse.status).toBe(201);
         const courseId = courseResponse.body.data.id;
-
+    
         const response = await request(app)
             .post('/api/lessons')
             .set('Authorization', `Bearer ${adminToken}`)
@@ -364,9 +371,21 @@ describe('Content Sanitization', () => {
                 courseId: courseId,
                 title: 'Test Lesson',
                 content: '<p>Safe content</p><script>alert("unsafe")</script>',
-                orderNumber: 1
+                orderNumber: 1,
+                templateType: 'theory',
+                contentFormat: 'markdown',
+                metaDescription: 'Test description',
+                estimatedMinutes: 30,
+                status: 'draft'
             });
-
+    
+        // Log dettagliato in caso di errore della lezione
+        if (response.status !== 201) {
+            console.log('Lesson Creation Failed:');
+            console.log('Status:', response.status);
+            console.log('Response:', response.body);
+        }
+    
         expect(response.status).toBe(201);
         expect(response.body.data.content).not.toContain('<script>');
         expect(response.body.data.content).toContain('<p>Safe content</p>');

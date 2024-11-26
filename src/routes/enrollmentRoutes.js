@@ -3,6 +3,7 @@ import { authenticateToken } from '../middleware/auth.js';
 import pkg from 'pg';
 const { Pool } = pkg;
 import dotenv from 'dotenv';
+import { getCachedData, cacheData } from '../config/redis.js';
 
 dotenv.config();
 
@@ -76,6 +77,16 @@ router.post('/:courseId', authenticateToken, async (req, res) => {
 // enrollmentRoutes.js
 router.get('/my-courses', authenticateToken, async (req, res) => {
     try {
+        const cacheKey = `enrollments:my-courses:${req.user.id}`;
+        
+        const cachedData = await getCachedData(cacheKey);
+        if (cachedData) {
+            return res.json({
+                success: true,
+                data: cachedData
+            });
+        }
+
         const result = await pool.query(`
             WITH course_progress AS (
                 SELECT 
@@ -109,6 +120,8 @@ router.get('/my-courses', authenticateToken, async (req, res) => {
             ORDER BY ce.enrolled_at DESC
         `, [req.user.id]);
 
+        await cacheData(cacheKey, result.rows, 300);
+
         res.json({
             success: true,
             data: result.rows
@@ -117,7 +130,8 @@ router.get('/my-courses', authenticateToken, async (req, res) => {
         console.error('Error fetching enrolled courses:', error);
         res.status(500).json({
             success: false,
-            message: 'Errore nel recupero dei corsi'
+            message: 'Errore nel recupero dei corsi',
+            error: error.message
         });
     }
 });

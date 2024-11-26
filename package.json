@@ -1,3 +1,4 @@
+
 {
   "name": "codelearning",
   "version": "1.0.0",
@@ -63,19 +64,5 @@
     "nodemon": "^3.1.0",
     "supertest": "^6.3.4",
     "redis": "^4.6.12"
-  },
-  "jest": {
-    "testEnvironment": "node",
-    "transform": {},
-    "moduleNameMapper": {
-      "^(\\.{1,2}/.*)\\.js$": "$1"
-    },
-    "testMatch": [
-      "**/tests/**/*.js",
-      "**/src/**/*.test.js"
-    ],
-    "setupFiles": [
-      "./tests/setup.js"
-    ]
   }
 }

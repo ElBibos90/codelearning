@@ -10,15 +10,16 @@ d-----        22/11/2024     17:31                backups
 d-----        22/11/2024     17:31                client
 d-----        22/11/2024     17:31                migrations
 d-----        25/11/2024     10:42                node_modules
-d-----        25/11/2024     10:47                src
-d-----        25/11/2024     11:07                tests
+d-----        25/11/2024     15:43                src
+d-----        25/11/2024     16:49                tests
 -a----        25/11/2024     10:47            917 .env
 -a----        25/11/2024     10:47            871 .env.test
 -a----        22/11/2024     09:15            674 .gitignore
 -a----        25/11/2024     10:47            239 babel.config.json
--a----        25/11/2024     11:09          21061 Geriarchy.txt
--a----        25/11/2024     11:08           6003 improvements-tracker.md
--a----        25/11/2024     10:47            602 jest.config.js
+-a----        25/11/2024     11:19          20830 Geriarchy.txt
+-a----        25/11/2024     15:41           5849 improvements-tracker.md
+-a----        25/11/2024     15:33            659 jest.config.js
+-a----        25/11/2024     15:16            493 Log.txt
 -a----        25/11/2024     10:47         292485 package-lock.json
 -a----        25/11/2024     10:47           2891 package.json
 
@@ -310,17 +311,17 @@ Mode                 LastWriteTime         Length Name
 
 Mode                 LastWriteTime         Length Name
 ----                 -------------         ------ ----
-d-----        25/11/2024     10:47                config
+d-----        25/11/2024     15:52                config
 d-----        22/11/2024     17:31                constants
 d-----        19/11/2024     20:12                controllers
-d-----        25/11/2024     11:07                middleware
+d-----        25/11/2024     15:19                middleware
 d-----        22/11/2024     17:31                models
 d-----        19/11/2024     20:12                root
 d-----        22/11/2024     17:31                routes
 d-----        25/11/2024     10:47                scripts
 d-----        22/11/2024     17:31                services
-d-----        25/11/2024     11:12                tests
 d-----        22/11/2024     17:31                utils
+d-----        25/11/2024     15:13                validators
 -a----        25/11/2024     10:47           5992 server.js
 
 
@@ -331,7 +332,8 @@ Mode                 LastWriteTime         Length Name
 ----                 -------------         ------ ----
 d-----        25/11/2024     09:43                __mocks__
 -a----        25/11/2024     10:47            537 database.js
--a----        25/11/2024     10:47           2169 redis.js
+-a----        25/11/2024     15:52           2403 redis.js
+-a----        25/11/2024     15:52            418 redisClient.js
 -a----        22/11/2024     17:31           6112 swagger.js
 
 
@@ -358,6 +360,7 @@ Mode                 LastWriteTime         Length Name
 ----                 -------------         ------ ----
 -a----        22/11/2024     17:31           1260 auth.js
 -a----        25/11/2024     10:47           4340 security.js
+-a----        25/11/2024     15:20           1992 validators.js
 
 
     Directory: C:\Users\Eddy\Desktop\Main\src\models
@@ -375,15 +378,15 @@ Mode                 LastWriteTime         Length Name
 Mode                 LastWriteTime         Length Name
 ----                 -------------         ------ ----
 -a----        22/11/2024     17:31           6687 adminRoutes.js
--a----        22/11/2024     17:31           7573 authRoutes.js
+-a----        25/11/2024     15:21           8564 authRoutes.js
 -a----        22/11/2024     17:31           1554 backupRoutes.js
 -a----        22/11/2024     17:31           9811 commentRoutes.js
--a----        22/11/2024     17:31          11773 courseRoutes.js
+-a----        25/11/2024     16:39          11461 courseRoutes.js
 -a----        22/11/2024     17:31           9436 dashboardRoutes.js
 -a----        22/11/2024     17:31           9368 donationRoutes.js
 -a----        22/11/2024     17:31           8089 enrollmentRoutes.js
 -a----        22/11/2024     17:31           2567 favoriteRoutes.js
--a----        22/11/2024     17:31           4357 lessonRoutes.js
+-a----        25/11/2024     15:39           5339 lessonRoutes.js
 -a----        22/11/2024     17:31          12080 profileRoutes.js
 -a----        22/11/2024     17:31          13527 statsRoutes.js
 -a----        22/11/2024     17:31            533 userRoutes.js
@@ -474,8 +477,16 @@ Mode                 LastWriteTime         Length Name
 Mode                 LastWriteTime         Length Name
 ----                 -------------         ------ ----
 -a----        22/11/2024     17:31            426 dbUtils.js
--a----        22/11/2024     17:31            655 sanitize.js
+-a----        25/11/2024     15:26            837 sanitize.js
 -a----        22/11/2024     17:31            723 testDbManager.js
+
+
+    Directory: C:\Users\Eddy\Desktop\Main\src\validators
+
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----        25/11/2024     15:13           2122 schemas.js
 
 
     Directory: C:\Users\Eddy\Desktop\Main\tests
@@ -484,11 +495,12 @@ Mode                 LastWriteTime         Length Name
 Mode                 LastWriteTime         Length Name
 ----                 -------------         ------ ----
 d-----        22/11/2024     17:23                auth
-d-----        25/11/2024     10:47                integration
+d-----        25/11/2024     16:49                integration
 d-----        22/11/2024     17:30                middleware
+-a----        25/11/2024     16:49           1926 courseRoutes.test.js
 -a----        25/11/2024     10:47           2806 favorites.test.js
--a----        25/11/2024     10:47           4059 lessonRoutes.test.js
--a----        25/11/2024     10:47          10092 security.test.js
+-a----        25/11/2024     15:38           4352 lessonRoutes.test.js
+-a----        25/11/2024     15:33          15071 security.test.js
 -a----        25/11/2024     10:47           1716 setup-test-env.js
 
 
@@ -498,3 +510,6 @@ d-----        22/11/2024     17:30                middleware
 Mode                 LastWriteTime         Length Name
 ----                 -------------         ------ ----
 -a----        25/11/2024     10:47            344 health.test.js
+
+
+PS C:\Users\Eddy\Desktop\Main> 

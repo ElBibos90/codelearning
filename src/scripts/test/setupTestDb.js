@@ -120,8 +120,33 @@ async function setupTestDatabase() {
                     meta_description TEXT,
                     estimated_minutes INTEGER DEFAULT 30,
                     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                    published_at TIMESTAMP WITH TIME ZONE
+                    published_at TIMESTAMP WITH TIME ZONE,
+                    UNIQUE(course_id, order_number)
                 );
+
+                CREATE TABLE IF NOT EXISTS user_profiles (
+                user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+                full_name VARCHAR(255),
+                bio TEXT,
+                avatar_url TEXT,
+                linkedin_url TEXT,
+                github_url TEXT,
+                website_url TEXT,
+                skills TEXT[],
+                interests TEXT[],
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+            );
+
+            CREATE TABLE IF NOT EXISTS user_preferences (
+                user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+                notification_email BOOLEAN DEFAULT true,
+                preferred_difficulty VARCHAR(20) DEFAULT 'beginner',
+                theme VARCHAR(20) DEFAULT 'light',
+                language VARCHAR(10) DEFAULT 'it',
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+            );
 
                 CREATE TABLE course_enrollments (
                     id SERIAL PRIMARY KEY,

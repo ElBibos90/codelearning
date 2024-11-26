@@ -3,6 +3,7 @@ import pkg from 'pg';
 const { Pool } = pkg;
 import { authenticateToken } from '../middleware/auth.js';
 import dotenv from 'dotenv';
+import { getCachedData, cacheData } from '../config/redis.js';
 
 dotenv.config();
 const router = express.Router();
@@ -145,44 +146,70 @@ const pool = new Pool({
  */
 router.get('/overview', authenticateToken, async (req, res, next) => {
   try {
-    // Recupera informazioni dettagliate dell'utente
-    const userQuery = `
-      SELECT 
-        id, 
-        name, 
-        email, 
-        role, 
-        created_at,
-        last_login
-      FROM users 
-      WHERE id = $1
-    `;
-    
-    const userResult = await pool.query(userQuery, [req.user.id]);
-    const user = userResult.rows[0];
-
-    res.json({
-      success: true,
-      dashboard: {
-        user: {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-          memberSince: user.created_at,
-          lastLogin: user.last_login
-        },
-        stats: {
-          totalCorsi: 0,        // Da implementare
-          corsiCompleti: 0,     // Da implementare
-          corsiInCorso: 0,      // Da implementare
-          ultimoAccesso: user.last_login
-        }
+      const cacheKey = `dashboard:${req.user.id}`;
+      
+      const cachedData = await getCachedData(cacheKey);
+      if (cachedData) {
+          return res.json({
+              success: true,
+              dashboard: cachedData
+          });
       }
-    });
 
+      const userQuery = await pool.query(`
+          SELECT 
+              id, 
+              name, 
+              email, 
+              role, 
+              created_at,
+              last_login
+          FROM users 
+          WHERE id = $1
+      `, [req.user.id]);
+
+      const statsQuery = await pool.query(`
+          SELECT 
+              COUNT(DISTINCT ce.course_id) as total_courses,
+              COUNT(DISTINCT CASE WHEN ce.completed THEN ce.course_id END) as completed_courses,
+              COUNT(DISTINCT CASE WHEN NOT ce.completed THEN ce.course_id END) as ongoing_courses
+          FROM course_enrollments ce
+          WHERE ce.user_id = $1
+      `, [req.user.id]);
+
+      const user = userQuery.rows[0];
+      const stats = statsQuery.rows[0];
+
+      const dashboardData = {
+          user: {
+              id: user.id,
+              name: user.name,
+              email: user.email,
+              role: user.role,
+              memberSince: user.created_at,
+              lastLogin: user.last_login
+          },
+          stats: {
+              totalCorsi: parseInt(stats.total_courses) || 0,
+              corsiCompleti: parseInt(stats.completed_courses) || 0,
+              corsiInCorso: parseInt(stats.ongoing_courses) || 0,
+              ultimoAccesso: user.last_login
+          }
+      };
+
+      await cacheData(cacheKey, dashboardData, 300);
+
+      res.json({
+          success: true,
+          dashboard: dashboardData
+      });
   } catch (error) {
-    next(error);
+      console.error('Dashboard Error:', error);
+      res.status(500).json({
+          success: false,
+          message: 'Errore nel recupero della dashboard',
+          error: error.message
+      });
   }
 });
 
