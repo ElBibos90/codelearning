@@ -1,7 +1,4 @@
-// src/config/redis.js
-import client, { connectRedis } from './redisClient.js';
-
-class RedisMock {
+class InMemoryCache {
     constructor() {
         this.data = new Map();
         this.isOpen = true;
@@ -64,12 +61,7 @@ class RedisMock {
     }
 }
 
-export const redisClient = process.env.NODE_ENV === 'test' ? new RedisMock() : client;
-
-// Inizializza Redis se non in ambiente test
-if (process.env.NODE_ENV !== 'test') {
-    connectRedis().catch(console.error);
-}
+export const redisClient = new InMemoryCache();
 
 export const cacheData = async (key, data, timeExp = 3600) => {
     try {
@@ -87,7 +79,7 @@ export const getCachedData = async (key) => {
         return data ? JSON.parse(data) : null;
     } catch (error) {
         console.error('Cache Error:', error);
-        return null;
+        return false;
     }
 };
 
