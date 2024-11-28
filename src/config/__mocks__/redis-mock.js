@@ -1,14 +1,32 @@
-// src/config/redis.js
-import client, { connectRedis } from './redisClient.js';
-
+// src/config/__mocks__/redis-mock.js
 class RedisMock {
     constructor() {
         this.data = new Map();
         this.isOpen = true;
+        this.listeners = new Map();
+    }
+
+    on(event, callback) {
+        if (!this.listeners.has(event)) {
+            this.listeners.set(event, []);
+        }
+        this.listeners.get(event).push(callback);
+        return this;
+    }
+
+    emit(event, ...args) {
+        const callbacks = this.listeners.get(event) || [];
+        callbacks.forEach(callback => callback(...args));
+        return this;
     }
 
     async connect() {
         this.isOpen = true;
+        return true;
+    }
+
+    async disconnect() {
+        this.isOpen = false;
         return true;
     }
 
@@ -64,39 +82,4 @@ class RedisMock {
     }
 }
 
-export const redisClient = process.env.NODE_ENV === 'test' ? new RedisMock() : client;
-
-// Inizializza Redis se non in ambiente test
-if (process.env.NODE_ENV !== 'test') {
-    connectRedis().catch(console.error);
-}
-
-export const cacheData = async (key, data, timeExp = 3600) => {
-    try {
-        await redisClient.set(key, JSON.stringify(data), { EX: timeExp });
-        return true;
-    } catch (error) {
-        console.error('Cache Error:', error);
-        return false;
-    }
-};
-
-export const getCachedData = async (key) => {
-    try {
-        const data = await redisClient.get(key);
-        return data ? JSON.parse(data) : null;
-    } catch (error) {
-        console.error('Cache Error:', error);
-        return null;
-    }
-};
-
-export const deleteCachedData = async (key) => {
-    try {
-        await redisClient.del(key);
-        return true;
-    } catch (error) {
-        console.error('Cache Error:', error);
-        return false;
-    }
-};
+export const createClient = () => new RedisMock();
