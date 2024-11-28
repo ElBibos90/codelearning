@@ -1,0 +1,34 @@
+image: node:18
+
+definitions:
+  services:
+    postgres:
+      image: postgres:13
+      environment:
+        POSTGRES_DB: 'codelearning_test'
+        POSTGRES_PASSWORD: 'postgres'
+    redis:
+      image: redis
+
+pipelines:
+  default:
+    - step:
+        name: Test
+        caches:
+          - node
+        services:
+          - postgres
+          - redis
+        script:
+          - npm ci
+          - npm run test:setup
+          - npm test
+          - npm run test:coverage
+        artifacts:
+          - coverage/**
+          - test-results/**
+        env:
+          DATABASE_URL: 'postgresql://postgres:postgres@localhost:5432/codelearning_test'
+          JWT_SECRET: 'test-secret'
+          REDIS_URL: 'redis://localhost:6379'
+          NODE_ENV: 'test'
