@@ -1,4 +1,3 @@
-// src/middleware/validators.js
 import { body, validationResult } from 'express-validator';
 
 export const validateRequest = (req, res, next) => {
@@ -18,7 +17,7 @@ export const registerValidation = [
         .withMessage('Email non valida'),
     body('password')
         .isLength({ min: 8 })
-        .matches(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/)
+        .matches(/^(?=.*[A-Za-z])(?=.*\d)/)  // Modificato il regex per matchare almeno una lettera e un numero
         .withMessage('Password deve contenere almeno 8 caratteri, una lettera e un numero'),
     body('name')
         .trim()

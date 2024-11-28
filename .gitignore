@@ -4,9 +4,13 @@
 #     https://www.atlassian.com/git/tutorials/saving-changes/gitignore
 
 # Node artifact files
+coverage/
+test-results/
+__snapshots__/
+*.log
+.env
+.env.test
 node_modules/
-dist/
-logs/
 
 # Compiled Java class files
 *.class

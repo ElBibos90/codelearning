@@ -51,7 +51,7 @@
   - [🟢] Implementare log rotation
   - [🟢] Aggiungere log shipping
 
-- [🟡] Performance Monitoring
+- [🔴] Performance Monitoring
   - [🔴] Setup New Relic/DataDog
   - [🔴] Implementare custom metrics
   - [🔴] Configurare alerting
@@ -63,20 +63,20 @@
 
 ## 🧪 Backend Testing
 
-- [🔴] Unit Testing
-  - [🔴] Aumentare copertura al 80%
-  - [🔴] Implementare test helpers
-  - [🔴] Aggiungere snapshot testing
+- [🟡] Unit Testing
+  - [🟢] Aumentare copertura al 80%
+  - [🟢] Implementare test helpers
+  - [🟡] Aggiungere snapshot testing
 
-- [🔴] Integration Testing
-  - [🔴] Setup test environment
-  - [🔴] Implementare test database
-  - [🔴] Aggiungere CI pipeline
+- [🟡] Integration Testing
+  - [🟢] Setup test environment
+  - [🟢] Implementare test database
+  - [🟡] Aggiungere CI pipeline
 
-- [🔴] E2E Testing
-  - [🔴] Configurare test suite
-  - [🔴] Implementare test scenarios
-  - [🔴] Setup test reporting
+- [🟡] E2E Testing
+  - [🟢] Configurare test suite
+  - [🟡] Implementare test scenarios
+  - [🟡] Setup test reporting
 
 ## 🏗️ Backend Architecture
 
