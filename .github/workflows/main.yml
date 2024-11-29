@@ -27,6 +27,9 @@ env:
 jobs:
   test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
 
     services:
       postgres:
@@ -84,6 +87,10 @@ jobs:
   deploy:
     needs: test
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
     if: github.ref == 'refs/heads/develop' && success()
 
     steps:
@@ -91,7 +98,6 @@ jobs:
       with:
         fetch-depth: 0
         token: ${{ secrets.GITHUB_TOKEN }}
-        ref: develop
         
     - name: Configure Git
       run: |
@@ -109,6 +115,7 @@ jobs:
         
     - name: Merge develop into prod
       run: |
+        git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
         git fetch origin
         git checkout prod || git checkout -b prod origin/prod
         git pull origin prod
