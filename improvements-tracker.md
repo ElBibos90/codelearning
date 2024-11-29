@@ -51,15 +51,16 @@
   - [🟢] Implementare log rotation
   - [🟢] Aggiungere log shipping
 
-- [🔴] Performance Monitoring
-  - [🔴] Setup New Relic/DataDog
-  - [🔴] Implementare custom metrics
+- [🟡] Performance Monitoring
+  - [🟢] Implementare metriche base (codice pronto)
+  - [🔴] Setup monitoring in produzione
+  - [🔴] Scegliere e implementare soluzione cloud gratuita per il deployment
   - [🔴] Configurare alerting
 
-- [🔴] Error Handling
-  - [🔴] Implementare error boundary globale
-  - [🔴] Migliorare logging degli errori
-  - [🔴] Aggiungere error reporting service
+- [🟢] Error Handling
+  - [🟢] Implementare error boundary globale
+  - [🟢] Migliorare logging degli errori
+  - [🟢] Aggiungere error reporting service
 
 ## 🧪 Backend Testing
 
@@ -77,6 +78,40 @@
   - [🟢] Configurare test suite
   - [🟢] Implementare test scenarios
   - [🟢] Setup test reporting
+
+## 🔧 Backend Configurations & Refactoring
+
+- [🔴] Centralizzazione Configurazioni
+  - [🔴] Creare src/config/environments.js
+  - [🔴] Aggiornare file con dotenv:
+    - src/server.js
+    - src/config/database.js
+    - src/config/redis.js
+    - src/config/swagger.js
+    - src/scripts/db/backup.js
+    - src/scripts/test/setupTestDb.js
+    - src/scripts/maintenance/healthCheck.js
+  - [🔴] Aggiornare file con process.env:
+    - src/middleware/auth.js
+    - src/middleware/security.js
+    - src/routes/adminRoutes.js
+    - src/routes/authRoutes.js
+    - src/routes/backupRoutes.js
+    - src/routes/courseRoutes.js
+    - src/utils/logger.js
+  - [🔴] Rimuovere dotenv.config() ridondanti
+  - [🔴] Standardizzare l'uso dei percorsi
+  - [🔴] Validare configurazioni in produzione
+
+- [🔴] Testing delle Configurazioni
+  - [🔴] Creare test per environments.js
+  - [🔴] Verificare configurazioni in tutti gli ambienti
+  - [🔴] Testare validazione configurazioni
+
+- [🔴] Documentazione
+  - [🔴] Aggiornare README con nuove configurazioni
+  - [🔴] Documentare variabili per ogni ambiente
+  - [🔴] Aggiungere esempi di configurazione
 
 ## 🏗️ Backend Architecture
 

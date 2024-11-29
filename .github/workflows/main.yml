@@ -32,6 +32,10 @@ jobs:
       pull-requests: write
 
     services:
+      prometheus:
+        image: prom/prometheus:latest
+        ports:
+          - 9090:9090
       postgres:
         image: postgres:13
         env:

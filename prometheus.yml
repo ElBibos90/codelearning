@@ -1,0 +1,9 @@
+# prometheus.yml
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'codelearning'
+    static_configs:
+      - targets: ['localhost:5000']
+    metrics_path: '/api/monitoring/metrics'
