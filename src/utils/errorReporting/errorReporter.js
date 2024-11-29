@@ -1,6 +1,6 @@
 import logger from '../logger.js';
 
-class ErrorReporter {
+export  class ErrorReporter {
     constructor() {
         this.shouldReport = process.env.NODE_ENV === 'production';
         this.batchSize = 10;
@@ -72,13 +72,17 @@ class ErrorReporter {
         }
     }
 
-    async persistErrors(errors) {
-        // Qui implementeremo la persistenza degli errori
-        // Per ora solo log
-        logger.info(`Persisting ${errors.length} errors`);
-
-        // TODO: Implementare persistenza nel database
-        // TODO: Implementare invio a servizio di monitoring esterno
+    async persistErrors() {
+        try {
+            // Simula l'invio degli errori
+            if (this.errorQueue.length > 0) {
+                console.log('Persisting errors:', this.errorQueue);
+                this.errorQueue = []; // Resetta la coda dopo l'invio
+            }
+        } catch (e) {
+            logger.error('Failed to persist errors, retrying...');
+            setTimeout(() => this.persistErrors(), this.batchTimeout); // Retry
+        }
     }
 }
 

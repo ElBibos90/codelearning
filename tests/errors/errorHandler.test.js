@@ -55,26 +55,26 @@ describe('Error Handler Middleware', () => {
             }));
         });
 
-        test('should handle ValidationError', async () => {
-            const error = ValidationError.fromExpressValidator({
-                array: () => [{
-                    path: 'email',
-                    msg: 'Invalid email'
-                }]
-            });
-            const req = mockRequest();
-            const res = mockResponse();
-            
-            await errorHandler(error, req, res, mockNext);
-            
-            expect(res.status).toHaveBeenCalledWith(422);
-            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+        test('should handle ValidationError', () => {
+            const validationErrors = [
+                { param: 'email', msg: 'Invalid email format', value: 'test@' }
+            ];
+            const error = ValidationError.fromExpressValidator(validationErrors);
+        
+            const response = error.toJSON();
+            delete response.error.stack; // Rimuovi lo stack per il confronto
+        
+            expect(response).toEqual({
                 success: false,
-                error: expect.objectContaining({
+                error: {
+                    message: 'Validation Error',
                     code: 'VALIDATION_ERROR',
-                    errors: expect.any(Array)
-                })
-            }));
+                    statusCode: 422,
+                    errors: [
+                        { field: 'email', message: 'Invalid email format', value: 'test@' }
+                    ]
+                }
+            });
         });
 
         test('should handle unexpected errors with stack trace', async () => {

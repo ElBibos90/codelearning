@@ -1,27 +1,221 @@
 
 > codelearning@1.0.0 test
-> node --experimental-vm-modules node_modules/jest/bin/jest.js tests/utils/logger.test.js
+> node --experimental-vm-modules node_modules/jest/bin/jest.js --no-cache
 
-(node:9532) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(node:5596) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
 (Use `node --trace-warnings ...` to show where the warning was created)
-PASS tests/utils/logger.test.js (5.093 s)
+PASS tests/security.test.js (8.876 s)
   Test Environment
-    √ should have correct test environment variables
-    √ should mock console.error and console.warn (16 ms)
-    √ should have correct test environment variables
-    √ should mock console.error and console.warn
-  Logger
-    √ should create log directory if it does not exist (124 ms)
-    √ should log successful requests (672 ms)
-    √ should log error requests (642 ms)
-    √ should use different log levels based on environment (108 ms)
-    √ should handle request duration logging (735 ms)
-    √ should properly format log messages (624 ms)
-    √ should handle multiple simultaneous logs (1157 ms)
+    √ should have correct test environment variables (3 ms)
+    √ should mock console.error and console.warn (2 ms)
+    √ should have correct test environment variables (5 ms)
+    √ should mock console.error and console.warn (1 ms)
+  Security Middleware - Rate Limiting
+    Authentication Rate Limiting
+      √ should limit login attempts (824 ms)
+      √ should track login attempts separately by IP (642 ms)
+    Admin Routes Rate Limiting
+      √ should apply stricter limits to admin routes (762 ms)
+    API Rate Limiting
+      √ should apply general rate limits to API routes (1175 ms)
+      √ should track rate limits separately for different routes (423 ms)
+    IP Blacklisting
+      √ should blacklist IP after repeated violations (1521 ms)
+      √ should maintain blacklist across different routes (1504 ms)
+      √ should track violations separately by IP (326 ms)
+  Input Validation
+    √ should validate email format on register (20 ms)
+    √ should validate password strength on register (14 ms)
+    √ should validate course creation data (13 ms)
+  Content Sanitization
+    √ should sanitize malicious HTML content (5 ms)
+    √ should preserve safe HTML elements and attributes (1 ms)
+    √ should sanitize lesson content on creation (32 ms)
+    √ should handle course description sanitization (14 ms)
 
-Test Suites: 1 passed, 1 total
-Tests:       11 passed, 11 total
+PASS tests/integration/cache.test.js
+  Test Environment
+    √ should have correct test environment variables (3 ms)
+    √ should mock console.error and console.warn (2 ms)
+  Cache Integration Tests
+    Course Detail Cache
+      √ should cache course detail response (79 ms)
+    Lesson Detail Cache
+      √ should cache lesson detail response (37 ms)
+    Dashboard Overview Cache
+      √ should cache dashboard overview response (58 ms)
+    Course Stats Cache
+      √ should cache course stats response (57 ms)
+    Profile Cache
+      √ should cache profile response (60 ms)
+    Admin Overview Cache
+      √ should cache admin overview response (26 ms)
+    My Courses Cache
+      √ should cache my courses response (57 ms)
+
+PASS tests/errors/errorHandler.test.js
+  Test Environment
+    √ should have correct test environment variables (3 ms)
+    √ should mock console.error and console.warn (2 ms)
+  Error Handler Middleware
+    Development Mode
+      √ should handle AppError with full details (6 ms)
+      √ should handle ValidationError (2 ms)
+      √ should handle unexpected errors with stack trace (2 ms)
+    Production Mode
+      √ should handle operational errors without stack trace (2 ms)
+      √ should sanitize unexpected errors (1 ms)
+      √ should report non-operational errors (2 ms)
+    Not Found Handler
+      √ should create not found error (5 ms)
+    Unhandled Rejection Handler
+      √ should handle unhandled rejections (1 ms)
+
+PASS tests/utils/logger.test.js
+  Test Environment
+    √ should have correct test environment variables (3 ms)
+    √ should mock console.error and console.warn (1 ms)
+    √ should have correct test environment variables (1 ms)
+    √ should mock console.error and console.warn (1 ms)
+  Logger
+    √ should create log directory if it does not exist (112 ms)
+    √ should log successful requests (641 ms)
+    √ should log error requests (641 ms)
+    √ should use different log levels based on environment (110 ms)
+    √ should handle request duration logging (733 ms)
+    √ should properly format log messages (625 ms)
+    √ should handle multiple simultaneous logs (1156 ms)
+
+PASS tests/lessonRoutes.test.js
+  Test Environment
+    √ should have correct test environment variables (3 ms)
+    √ should mock console.error and console.warn (1 ms)
+  Lesson Routes Tests
+    √ Should create a new lesson with theory template (45 ms)
+    √ Should update lesson status (17 ms)
+    √ Should get lesson details (17 ms)
+
+PASS tests/courseRoutes.test.js
+  Test Environment
+    √ should have correct test environment variables (3 ms)
+    √ should mock console.error and console.warn (2 ms)
+  Course Management
+    √ should create a new course (75 ms)
+    √ should prevent non-admin from creating course (15 ms)
+    √ should get course list (17 ms)
+    √ should get course details (15 ms)
+    √ should update course (16 ms)
+    √ should delete course (15 ms)
+    √ should handle invalid course ID (14 ms)
+  Course Cache
+    √ should cache course list (25 ms)
+
+FAIL tests/errors/errorReporter.test.js
+  ● Test suite failed to run
+
+    SyntaxError: The requested module '../../src/utils/errorReporting/errorReporter' does not provide an export named 'default'
+
+      at Runtime.linkAndEvaluateModule (node_modules/jest-runtime/build/index.js:708:5)
+
+PASS tests/authRoutes.test.js
+  Test Environment
+    √ should have correct test environment variables (2 ms)
+    √ should mock console.error and console.warn (1 ms)
+  Authentication Routes
+    √ should register new user (133 ms)
+    √ should login existing user (77 ms)
+    √ should reject invalid credentials (76 ms)
+    √ should reject invalid email format (14 ms)
+    √ should reject weak passwords (12 ms)
+    √ should prevent duplicate email registration (15 ms)
+
+PASS tests/snapshots/responses.test.js
+  Test Environment
+    √ should have correct test environment variables (2 ms)
+    √ should mock console.error and console.warn (2 ms)
+  API Response Snapshots
+    √ GET /api/courses should match snapshot (61 ms)
+    √ Error response should match snapshot (17 ms)
+    √ Validation error should match snapshot (25 ms)
+    √ Success response should match snapshot (106 ms)
+
+PASS tests/errors/ValidationError.test.js
+  Test Environment
+    √ should have correct test environment variables (3 ms)
+    √ should mock console.error and console.warn (2 ms)
+  ValidationError
+    √ should create validation error with errors array (1 ms)
+    √ should create from express-validator errors (1 ms)
+    √ should create from joi errors (7 ms)
+    √ should create from zod errors (1 ms)
+    √ should add errors dynamically (1 ms)
+    √ should check if has errors (1 ms)
+    √ should get errors by field (2 ms)
+
+PASS tests/pagination.test.js
+  Test Environment
+    √ should have correct test environment variables (3 ms)
+    √ should mock console.error and console.warn (1 ms)
+  Pagination Tests
+    √ should return first page of courses with next cursor (62 ms)
+    √ should return next page using cursor (26 ms)
+    √ should handle last page correctly (15 ms)
+
+PASS tests/favorites.test.js
+  Test Environment
+    √ should have correct test environment variables (3 ms)
+    √ should mock console.error and console.warn (2 ms)
+  Favorites API
+    √ Should add a course to favorites (40 ms)
+    √ Should prevent duplicate favorites (17 ms)
+    √ Should get user favorites (49 ms)
+    √ Should remove from favorites (14 ms)
+
+PASS tests/errors/AppError.test.js
+  Test Environment
+    √ should have correct test environment variables (2 ms)
+    √ should mock console.error and console.warn (2 ms)
+  AppError
+    √ should create basic error with defaults (1 ms)
+    √ should create error with custom properties (2 ms)
+    √ should convert to JSON correctly (1 ms)
+    √ should identify operational errors (1 ms)
+    √ should create specific error types (2 ms)
+    √ should include stack trace in development (3 ms)
+
+PASS tests/errors/DatabaseError.test.js
+  Test Environment
+    √ should have correct test environment variables (3 ms)
+    √ should mock console.error and console.warn (1 ms)
+  DatabaseError
+    √ should create basic database error (1 ms)
+    √ should parse PostgreSQL errors (1 ms)
+    √ should identify unique violation errors (1 ms)
+    √ should identify foreign key violation errors (1 ms)
+    √ should identify connection errors (1 ms)
+    √ should handle JSON serialization (4 ms)
+    √ should handle missing PostgreSQL error (1 ms)
+
+PASS tests/setup-test-env.js
+  Test Environment
+    √ should have correct test environment variables (3 ms)
+    √ should mock console.error and console.warn (2 ms)
+
+PASS tests/teardown.js
+  Test Environment
+    √ should have correct test environment variables (3 ms)
+    √ should mock console.error and console.warn (2 ms)
+
+PASS tests/integration/health.test.js
+  Test Environment
+    √ should have correct test environment variables (3 ms)
+    √ should mock console.error and console.warn (2 ms)
+  Health Check
+    √ GET / should return 200 (79 ms)
+
+Test Suites: 1 failed, 16 passed, 17 total
+Tests:       122 passed, 122 total
 Snapshots:   0 total
-Time:        5.14 s
-Ran all test suites matching /tests\\utils\\logger.test.js/i.
-Warning: Error in test teardown: EPERM: operation not permitted, unlink 'C:\Users\Eddy\Desktop\Main\logs\2024-11-26-application.log'
+Time:        24.343 s
+Ran all test suites.
+Warning: Error in test teardown: EPERM: operation not permitted, unlink 'C:\Users\Eddy\Desktop\Main\logs\2024-11-29-application.log'

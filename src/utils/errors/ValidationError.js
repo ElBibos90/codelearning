@@ -2,19 +2,38 @@ import AppError from './AppError.js';
 
 class ValidationError extends AppError {
     constructor(message, errors = []) {
-        super(message, 422, 'VALIDATION_ERROR', { errors });
+        super(message);
+        this.statusCode = 422;
+        this.code = 'VALIDATION_ERROR';
         this.errors = errors;
         this.name = 'ValidationError';
     }
 
-    static fromExpressValidator(validationErrors) {
-        const errors = validationErrors.array().map(err => ({
-            field: err.path,
-            message: err.msg,
-            value: err.value
-        }));
+    toJSON() {
+        return {
+            success: false,
+            error: {
+                message: this.message,
+                code: this.code,
+                statusCode: this.statusCode,
+                errors: this.errors,
+                ...(process.env.NODE_ENV === 'development' && { stack: this.stack })
+            }
+        };
+    }
 
-        return new ValidationError('Errore di validazione', errors);
+    static fromExpressValidator(validationErrors) {
+        const errors = Array.isArray(validationErrors) 
+            ? validationErrors 
+            : validationErrors.array ? validationErrors.array() : [validationErrors];
+    
+        const formattedErrors = errors.map(err => ({
+            field: err.param || err.field || err.path || 'unknown',
+            message: err.msg || err.message || 'Validation error',
+            value: err.value || null
+        }));
+    
+        return new ValidationError('Validation Error', formattedErrors);
     }
 
     static fromJoi(joiError) {
@@ -35,13 +54,6 @@ class ValidationError extends AppError {
         }));
 
         return new ValidationError('Errore di validazione', errors);
-    }
-
-    toJSON() {
-        return {
-            ...super.toJSON(),
-            errors: this.errors
-        };
     }
 
     addError(field, message, value = undefined) {
