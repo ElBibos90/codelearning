@@ -1,3 +1,4 @@
+import { jest } from '@jest/globals';
 import DatabaseError from '../../src/utils/errors/DatabaseError.js';
 
 describe('DatabaseError', () => {

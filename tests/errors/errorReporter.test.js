@@ -1,3 +1,4 @@
+import { jest } from '@jest/globals';
 import { errorReporter } from '../../src/utils/errorReporting/errorReporter.js';
 import logger from '../../src/utils/logger.js';
 

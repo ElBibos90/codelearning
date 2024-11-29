@@ -1,3 +1,4 @@
+import { jest } from '@jest/globals';
 import AppError from '../../src/utils/errors/AppError.js';
 
 describe('AppError', () => {

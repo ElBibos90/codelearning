@@ -1,3 +1,4 @@
+import { jest } from '@jest/globals';
 import ValidationError from '../../src/utils/errors/ValidationError.js';
 
 describe('ValidationError', () => {

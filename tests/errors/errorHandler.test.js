@@ -1,3 +1,4 @@
+import { jest } from '@jest/globals';
 import { errorHandler, notFoundHandler, unhandledRejectionHandler, uncaughtExceptionHandler } from '../../src/utils/errors/errorHandler.js';
 import AppError from '../../src/utils/errors/AppError.js';
 import ValidationError from '../../src/utils/errors/ValidationError.js';
