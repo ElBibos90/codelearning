@@ -2,17 +2,18 @@ import request from 'supertest';
 import app from '../../src/server.js';
 import { pool } from '../../src/config/database.js';
 import { generateToken } from '../../src/middleware/auth.js';
+import bcrypt from 'bcryptjs';
 
 let testUser;
 let testToken;
 
 beforeAll(async () => {
-    const userResult = await pool.query(`
-        INSERT INTO users (name, email, password, role)
-        VALUES ('Test User', 'test@example.com', 'password123', 'user')
-        RETURNING id, email, role;
-    `);
-    testUser = userResult.rows[0];
+    const hashedPassword = await bcrypt.hash('password123', 10);
+    const result = await pool.query(
+        'INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id, email',
+        ['Test User', 'test@example.com', hashedPassword]
+    );
+    testUser = result.rows[0];
     testToken = generateToken(testUser);
 
     // Create test course
@@ -29,7 +30,8 @@ describe('API Response Snapshots', () => {
             .set('Authorization', `Bearer ${testToken}`);
 
         expect(response.status).toBe(200);
-        expect(response.body).toMatchSnapshot({
+        expect(response.body).toEqual({
+            success: true,
             data: expect.any(Array),
             pagination: expect.any(Object)
         });
@@ -41,7 +43,10 @@ describe('API Response Snapshots', () => {
             .set('Authorization', `Bearer ${testToken}`);
 
         expect(response.status).toBe(404);
-        expect(response.body).toMatchSnapshot();
+        expect(response.body).toEqual({
+            success: false,
+            message: 'Corso non trovato'
+        });
     });
 
     test('Validation error should match snapshot', async () => {
@@ -54,7 +59,19 @@ describe('API Response Snapshots', () => {
             });
 
         expect(response.status).toBe(400);
-        expect(response.body).toMatchSnapshot();
+        expect(response.body).toEqual({
+            success: false,
+            errors: expect.arrayContaining([
+                expect.objectContaining({
+                    msg: 'Email non valida',
+                    path: 'email'
+                }),
+                expect.objectContaining({
+                    msg: 'Password deve contenere almeno 8 caratteri, una lettera e un numero',
+                    path: 'password'
+                })
+            ])
+        });
     });
 
     test('Success response should match snapshot', async () => {
@@ -66,8 +83,13 @@ describe('API Response Snapshots', () => {
             });
 
         expect(response.status).toBe(200);
-        expect(response.body).toMatchSnapshot({
-            token: expect.any(String)
+        expect(response.body).toEqual({
+            success: true,
+            message: expect.any(String),
+            token: expect.any(String),
+            user: expect.objectContaining({
+                email: 'test@example.com'
+            })
         });
     });
 });
