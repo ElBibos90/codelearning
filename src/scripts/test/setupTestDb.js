@@ -12,10 +12,10 @@ const { Pool } = pkg;
 dotenv.config({ path: path.resolve(__dirname, '../../../.env.test') });
 
 const mainPool = new Pool({
-    user: process.env.DB_USER,
-    host: process.env.DB_HOST,
+    user: process.env.POSTGRES_USER || 'postgres',
+    host: process.env.POSTGRES_HOST || 'localhost',
     database: 'postgres',
-    password: process.env.DB_PASSWORD,
+    password: process.env.POSTGRES_PASSWORD || 'postgres',
     port: process.env.DB_PORT,
 });
 
@@ -52,10 +52,10 @@ async function setupTestDatabase() {
 
             // Connessione al database di test
             testPool = new Pool({
-                user: process.env.DB_USER,
-                host: process.env.DB_HOST,
+                user: process.env.DB_USER || 'postgres',
+                host: process.env.DB_HOST || 'localhost',
                 database: 'codelearning_test',
-                password: process.env.DB_PASSWORD,
+                password: process.env.DB_PASSWORD || 'postgres',
                 port: process.env.DB_PORT,
             });
 

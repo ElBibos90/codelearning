@@ -9,8 +9,15 @@ on:
 env:
   NODE_VERSION: '18'
   POSTGRES_DB: codelearning_test
+  POSTGRES_USER: postgres
   POSTGRES_PASSWORD: postgres
+  POSTGRES_HOST: localhost
   DATABASE_URL: postgresql://postgres:postgres@localhost:5432/codelearning_test
+  DB_USER: postgres
+  DB_HOST: localhost
+  DB_NAME: codelearning_test
+  DB_PASSWORD: postgres
+  DB_PORT: 5432
   JWT_SECRET: test-secret
   REDIS_URL: redis://localhost:6379
   NODE_ENV: test
@@ -24,6 +31,7 @@ jobs:
         image: postgres:13
         env:
           POSTGRES_DB: codelearning_test
+          POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
         ports:
           - 5432:5432
@@ -55,7 +63,11 @@ jobs:
         run: npm ci
 
       - name: Setup test database
-        run: npm run test:setup
+        run: |
+          PGPASSWORD=${{ env.POSTGRES_PASSWORD }} psql -h localhost -U postgres -c "SELECT 'Database connection successful' AS connection_test;"
+          npm run test:setup
+        env:
+          PGPASSWORD: postgres
 
       - name: Run tests
         run: npm test
