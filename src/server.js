@@ -3,7 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
-import compression from 'compression'; // Aggiungo l'import
+import compression from 'compression';
 import logger, { requestLogger, errorLogger } from './utils/logger.js';
 import userRoutes from './routes/userRoutes.js';
 import authRoutes from './routes/authRoutes.js';
@@ -22,6 +22,11 @@ import { specs } from './config/swagger.js';
 import adminRoutes from './routes/adminRoutes.js';
 import favoriteRoutes from './routes/favoriteRoutes.js';
 import { securityMiddleware } from './middleware/security.js';
+import { errorHandler, notFoundHandler, unhandledRejectionHandler, uncaughtExceptionHandler } from './utils/errors/errorHandler.js';
+
+// Gestione uncaught exceptions e unhandled rejections
+process.on('uncaughtException', uncaughtExceptionHandler);
+process.on('unhandledRejection', unhandledRejectionHandler);
 
 // Configurazione dotenv - carica il file .env appropriato
 if (process.env.NODE_ENV === 'test') {
@@ -57,31 +62,31 @@ const corsOptions = {
     credentials: true,
     maxAge: 600
 };
-// Middleware di compressione prima degli altri middleware
-// In produzione usiamo una configurazione più aggressiva
 
- // Logging middleware
+// Logging middleware
 app.use(requestLogger);
 
+// Middleware di compressione prima degli altri middleware
 if (process.env.NODE_ENV === 'production') {
     app.use(compression({
       filter: shouldCompress,
-      threshold: 1024, // Comprimi solo risposte più grandi di 1KB
-      level: 9, // Massima compressione in produzione
+      threshold: 1024,
+      level: 9,
       memLevel: 9,
       strategy: 0,
       windowBits: 15
     }));
-  } else {
-app.use(compression({
-    filter: shouldCompress,
-    threshold: 0, // Comprimi tutto
-    level: 6, // Livello di compressione bilanciato
-    memLevel: 8,
-    strategy: 0,
-    windowBits: 15
-}));
-  }
+} else {
+    app.use(compression({
+        filter: shouldCompress,
+        threshold: 0,
+        level: 6,
+        memLevel: 8,
+        strategy: 0,
+        windowBits: 15
+    }));
+}
+
 // Middleware di base
 app.use(cors(corsOptions));
 app.use(helmet({
@@ -162,39 +167,21 @@ app.get('/', (req, res) => {
     });
 });
 
+// Error logging middleware
+app.use(errorLogger);
 
- // Error logging middleware
- app.use(errorLogger);
- 
- // Error handling middleware
- app.use((err, req, res, next) => {
-     logger.error('Error Response:', {
-         status: err.status || 500,
-         message: err.message,
-         stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
-     });
- 
-     res.status(err.status || 500).json({
-         success: false,
-         message: process.env.NODE_ENV === 'development' ? err.message : 'Si è verificato un errore!',
-         error: process.env.NODE_ENV === 'development' ? err.stack : undefined
-     });
- });
+// Global error handling
+app.use(errorHandler);
 
-// 404 handler
-app.use((req, res) => {
-    res.status(404).json({
-        success: false,
-        message: 'Risorsa non trovata'
-    });
-});
+// 404 handler deve essere l'ultimo middleware prima dell'error handler
+app.use(notFoundHandler);
 
 // Server startup - solo se non in test
 let server;
 if (process.env.NODE_ENV !== 'test') {
     const PORT = process.env.PORT || 5000;
     server = app.listen(PORT, () => {
-        console.log(`Server in esecuzione sulla porta ${PORT}`);
+        logger.info(`Server in esecuzione sulla porta ${PORT}`);
     });
 
     // Graceful shutdown

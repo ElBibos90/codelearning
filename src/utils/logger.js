@@ -16,7 +16,34 @@ const logFormat = winston.format.combine(
     }),
     winston.format.errors({ stack: true }),
     winston.format.splat(),
-    winston.format.json()
+    winston.format.json(),
+    winston.format.printf(({ level, message, timestamp, ...meta }) => {
+        // Formattazione speciale per gli errori
+        if (meta.error) {
+            const error = meta.error;
+            return JSON.stringify({
+                timestamp,
+                level,
+                message,
+                error: {
+                    name: error.name,
+                    message: error.message,
+                    code: error.code,
+                    stack: error.stack,
+                    ...error
+                },
+                ...meta
+            }, null, 2);
+        }
+        
+        // Formattazione standard per altri log
+        return JSON.stringify({
+            timestamp,
+            level,
+            message,
+            ...meta
+        }, null, 2);
+    })
 );
 
 // Transport per file rotanti giornalieri
@@ -57,9 +84,7 @@ const logger = winston.createLogger({
             new winston.transports.Console({
                 format: winston.format.combine(
                     winston.format.colorize(),
-                    winston.format.printf(
-                        info => `${info.timestamp} ${info.level}: ${info.message}`
-                    )
+                    winston.format.simple()
                 )
             }),
             dailyRotateFileTransport,
@@ -81,7 +106,8 @@ export const requestLogger = (req, res, next) => {
             status: res.statusCode,
             duration: `${duration}ms`,
             userAgent: req.get('user-agent') || '',
-            ip: req.ip
+            ip: req.ip,
+            userId: req.user?.id || 'anonymous'
         };
 
         if (res.statusCode >= 400) {
@@ -96,19 +122,27 @@ export const requestLogger = (req, res, next) => {
 
 // Middleware per logging degli errori
 export const errorLogger = (err, req, res, next) => {
-    logger.error('Unhandled Error', {
+    const errorLog = {
         error: {
+            name: err.name,
             message: err.message,
-            stack: err.stack
+            code: err.code,
+            stack: err.stack,
+            statusCode: err.statusCode
         },
         request: {
             method: req.method,
             path: req.path,
             headers: req.headers,
             query: req.query,
-            body: req.body
-        }
-    });
+            body: req.body,
+            user: req.user?.id || 'anonymous'
+        },
+        timestamp: new Date().toISOString()
+    };
+
+    // Log dettagliato dell'errore
+    logger.error('Request Error:', errorLog);
 
     next(err);
 };
