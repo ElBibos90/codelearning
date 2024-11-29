@@ -1,10 +1,12 @@
+# .github/workflows/main.yml
+
 name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ develop, prod ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ develop, prod ]
 
 env:
   NODE_VERSION: '18'
@@ -25,6 +27,9 @@ env:
 jobs:
   test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
 
     services:
       postgres:
@@ -69,11 +74,8 @@ jobs:
         env:
           PGPASSWORD: postgres
 
-      - name: Run tests
-        run: npm test
-
-      - name: Generate coverage report
-        run: npm run test:coverage
+      - name: Run tests and generate coverage
+        run: npm test -- --coverage
 
       - name: Upload coverage reports
         uses: actions/upload-artifact@v4
@@ -81,3 +83,43 @@ jobs:
           name: coverage-report
           path: coverage/
           retention-days: 30
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+    if: github.ref == 'refs/heads/develop' && success()
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Configure Git
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        
+    - name: Create and push prod branch if not exists
+      run: |
+        if ! git ls-remote --heads origin prod; then
+          git checkout -b prod
+          git push -u origin prod
+        fi
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Merge develop into prod
+      run: |
+        git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
+        git fetch origin
+        git checkout prod || git checkout -b prod origin/prod
+        git pull origin prod
+        git merge --no-ff origin/develop -m "Merge develop into prod"
+        git push origin prod
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
