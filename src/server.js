@@ -23,6 +23,8 @@ import adminRoutes from './routes/adminRoutes.js';
 import favoriteRoutes from './routes/favoriteRoutes.js';
 import { securityMiddleware } from './middleware/security.js';
 import { errorHandler, notFoundHandler, unhandledRejectionHandler, uncaughtExceptionHandler } from './utils/errors/errorHandler.js';
+import { monitorRequest } from './middleware/monitoring.js';
+import monitoringRoutes from './routes/monitoringRoutes.js';
 
 // Gestione uncaught exceptions e unhandled rejections
 process.on('uncaughtException', uncaughtExceptionHandler);
@@ -87,6 +89,9 @@ if (process.env.NODE_ENV === 'production') {
     }));
 }
 
+// Aggiungi prima degli altri middleware
+app.use(monitorRequest);
+
 // Middleware di base
 app.use(cors(corsOptions));
 app.use(helmet({
@@ -143,6 +148,7 @@ app.use('/api/donations', donationRoutes);
 app.use('/api/backup', backupRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/favorites', favoriteRoutes);
+app.use('/api/monitoring', monitoringRoutes);
 
 // Swagger UI solo in development e production
 if (process.env.NODE_ENV !== 'test') {
