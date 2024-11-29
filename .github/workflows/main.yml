@@ -1,3 +1,5 @@
+# .github/workflows/main.yml
+
 name: CI/CD Pipeline
 
 on:
@@ -23,7 +25,6 @@ env:
   NODE_ENV: test
 
 jobs:
-
   test:
     runs-on: ubuntu-latest
 
@@ -83,14 +84,35 @@ jobs:
   deploy:
     needs: test
     runs-on: ubuntu-latest
-
-    if: ${{ success() }}
+    if: github.ref == 'refs/heads/develop' && success()
 
     steps:
     - uses: actions/checkout@v4
-
+      with:
+        fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
+        ref: develop
+        
+    - name: Configure Git
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        
+    - name: Create and push prod branch if not exists
+      run: |
+        if ! git ls-remote --heads origin prod; then
+          git checkout -b prod
+          git push -u origin prod
+        fi
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
     - name: Merge develop into prod
       run: |
-        git checkout prod
-        git merge develop
+        git fetch origin
+        git checkout prod || git checkout -b prod origin/prod
+        git pull origin prod
+        git merge --no-ff origin/develop -m "Merge develop into prod"
         git push origin prod
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
