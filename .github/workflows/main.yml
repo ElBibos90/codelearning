@@ -91,6 +91,6 @@ jobs:
 
     - name: Merge develop into prod
       run: |
-        git checkout main
+        git checkout prod
         git merge develop
-        git push main
+        git push origin prod
