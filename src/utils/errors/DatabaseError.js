@@ -1,4 +1,5 @@
 import AppError from './AppError.js';
+import { SERVER_CONFIG } from '../../config/environments.js';
 
 class DatabaseError extends AppError {
     constructor(message, pgError = null) {
@@ -96,7 +97,7 @@ class DatabaseError extends AppError {
 
     toJSON() {
         const json = super.toJSON();
-        if (process.env.NODE_ENV === 'development') {
+        if (SERVER_CONFIG.isDevelopment) {
             json.error.pgError = this.pgError;
         }
         return json;

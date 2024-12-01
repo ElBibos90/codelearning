@@ -1,97 +1,12 @@
 import express from 'express';
 import bcrypt from 'bcryptjs';
-import pkg from 'pg';
-const { Pool } = pkg;
-import dotenv from 'dotenv';
+import { pool } from '../config/database.js';
 import { generateToken, authenticateToken, isAdmin } from '../middleware/auth.js';
 import { registerValidation } from '../middleware/validators.js';
+import { JWT_CONFIG, SERVER_CONFIG } from '../config/environments.js';
 
-dotenv.config();
 const router = express.Router();
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL
-});
-/**
- * @swagger
- * components:
- *   schemas:
- *     AuthError:
- *       type: object
- *       properties:
- *         success:
- *           type: boolean
- *         message:
- *           type: string
- */
- 
-/**
- * @swagger
- * tags:
- *   name: Authentication
- *   description: API per gestire l'autenticazione degli utenti
- */
-
-/**
- * @swagger
- * /api/auth/login:
- *   post:
- *     summary: Effettua il login di un utente
- *     tags: [Authentication]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - email
- *               - password
- *             properties:
- *               email:
- *                 type: string
- *                 format: email
- *               password:
- *                 type: string
- *                 format: password
- *     responses:
- *       '200':
- *         description: Login effettuato con successo
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 message:
- *                   type: string
- *                 user:
- *                   type: object
- *                   properties:
- *                     id:
- *                       type: integer
- *                     name:
- *                       type: string
- *                     email:
- *                       type: string
- *                     role:
- *                       type: string
- *                 token:
- *                   type: string
- *       '400':
- *         description: Dati mancanti
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/AuthError'
- *       '401':
- *         description: Credenziali non valide
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/AuthError'
- */
 router.post('/login', async (req, res, next) => {
   try {
     const { email, password } = req.body;
@@ -123,6 +38,12 @@ router.post('/login', async (req, res, next) => {
       });
     }
 
+    // Aggiorna last_login
+    await pool.query(
+      'UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = $1',
+      [user.id]
+    );
+
     const token = generateToken(user);
 
     res.json({ 
@@ -142,44 +63,6 @@ router.post('/login', async (req, res, next) => {
   }
 });
 
-/**
- * @swagger
- * /api/auth/profile:
- *   get:
- *     summary: Recupera il profilo dell'utente autenticato
- *     tags: [Authentication]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       '200':
- *         description: Profilo recuperato con successo
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 message:
- *                   type: string
- *                 user:
- *                   type: object
- *                   properties:
- *                     id:
- *                       type: integer
- *                     name:
- *                       type: string
- *                     email:
- *                       type: string
- *                     role:
- *                       type: string
- *       '401':
- *         description: Non autorizzato
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/AuthError'
- */
 router.get('/profile', authenticateToken, async (req, res) => {
   res.json({ 
     success: true,
@@ -188,50 +71,6 @@ router.get('/profile', authenticateToken, async (req, res) => {
   });
 });
 
-/**
- * @swagger
- * /api/auth/admin:
- *   get:
- *     summary: Route protetta solo per amministratori
- *     tags: [Authentication]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       '200':
- *         description: Accesso admin consentito
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 message:
- *                   type: string
- *                 user:
- *                   type: object
- *                   properties:
- *                     id:
- *                       type: integer
- *                     name:
- *                       type: string
- *                     email:
- *                       type: string
- *                     role:
- *                       type: string
- *       '401':
- *         description: Token non valido
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/AuthError'
- *       '403':
- *         description: Accesso negato
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/AuthError'
- */
 router.get('/admin', authenticateToken, isAdmin, (req, res) => {
   res.json({ 
     success: true,
@@ -240,39 +79,8 @@ router.get('/admin', authenticateToken, isAdmin, (req, res) => {
   });
 });
 
-/**
- * @swagger
- * /api/auth/logout:
- *   post:
- *     summary: Effettua il logout dell'utente
- *     tags: [Authentication]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       '200':
- *         description: Logout effettuato con successo
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 message:
- *                   type: string
- *       '401':
- *         description: Non autorizzato
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/AuthError'
- */
 router.post('/logout', authenticateToken, async (req, res) => {
   try {
-    // Se stai usando una blacklist di token, aggiungi il token corrente
-    // await redis.sadd('token_blacklist', req.token);
-    
-    // In ogni caso, rispondi con successo
     res.json({ 
       success: true,
       message: 'Logout effettuato con successo' 
@@ -282,36 +90,64 @@ router.post('/logout', authenticateToken, async (req, res) => {
   }
 });
 
-router.post('/register', registerValidation, async (req, res) => {
+router.post('/register', registerValidation, async (req, res, next) => {
   try {
-      const { name, email, password } = req.body;
+    const { name, email, password } = req.body;
       
-      // Verifica se l'email esiste già
-      const existingUser = await pool.query(
-          'SELECT id FROM users WHERE email = $1',
-          [email]
-      );
+    const existingUser = await pool.query(
+      'SELECT id FROM users WHERE email = $1',
+      [email]
+    );
 
-      if (existingUser.rows.length > 0) {
-          return res.status(400).json({
-              success: false,
-              errors: [{ msg: 'Email già registrata' }]
-          });
-      }
-
-      const hashedPassword = await bcrypt.hash(password, 10);
-      
-      const result = await pool.query(
-          'INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id, name, email',
-          [name, email, hashedPassword]
-      );
-
-      res.status(201).json({
-          success: true,
-          data: result.rows[0]
+    if (existingUser.rows.length > 0) {
+      return res.status(400).json({
+        success: false,
+        errors: [{ msg: 'Email già registrata' }]
       });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+      
+    const result = await pool.query(
+      'INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id, name, email',
+      [name, email, hashedPassword]
+    );
+
+    res.status(201).json({
+      success: true,
+      data: result.rows[0],
+      message: 'Registrazione completata con successo'
+    });
   } catch (error) {
-      next(error);
+    next(error);
+  }
+});
+
+// Refresh token route
+router.post('/refresh', async (req, res) => {
+  try {
+    const { refreshToken } = req.body;
+    if (!refreshToken) {
+      return res.status(400).json({
+        success: false,
+        message: 'Refresh token non fornito'
+      });
+    }
+
+    // Verifica e rinnova il token
+    const user = jwt.verify(refreshToken, JWT_CONFIG.secret);
+    const newToken = generateToken(user);
+
+    res.json({
+      success: true,
+      token: newToken
+    });
+  } catch (error) {
+    res.status(401).json({
+      success: false,
+      message: 'Refresh token non valido o scaduto'
+    });
   }
 });
 

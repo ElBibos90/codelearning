@@ -2,13 +2,18 @@ import request from 'supertest';
 import app from '../src/server.js';
 import { redisClient } from '../src/config/redis.js';
 import { generateToken } from '../src/middleware/auth.js';
-import { jest } from '@jest/globals';
 import { sanitizeContent } from '../src/utils/sanitize.js';
+import { SERVER_CONFIG, DB_CONFIG } from '../src/config/environments.js';
+
+let testUser;
+let testAdmin;
+let testToken;
+let adminToken;
 
 describe('Test Environment', () => {
     it('should have correct test environment variables', () => {
-        expect(process.env.NODE_ENV).toBe('test');
-        expect(process.env.DATABASE_URL).toBeDefined();
+        expect(SERVER_CONFIG.isTest).toBe(true);
+        expect(DB_CONFIG.url).toBeDefined();
     });
 
     it('should mock console.error and console.warn', () => {
@@ -18,12 +23,9 @@ describe('Test Environment', () => {
 });
 
 describe('Security Middleware - Rate Limiting', () => {
-    let adminToken;
-    let userToken;
-
     beforeAll(async () => {
         adminToken = generateToken({ id: 1, email: 'admin@test.com', role: 'admin' });
-        userToken = generateToken({ id: 2, email: 'user@test.com', role: 'user' });
+        testToken = generateToken({ id: 2, email: 'user@test.com', role: 'user' });
         
         if (!redisClient.isOpen) {
             await redisClient.connect();
@@ -43,7 +45,6 @@ describe('Security Middleware - Rate Limiting', () => {
 
     describe('Authentication Rate Limiting', () => {
         test('should limit login attempts', async () => {
-            //console.log('Starting rate limit test');
             const attempts = [];
 
             for (let i = 0; i < 10; i++) {
@@ -124,7 +125,7 @@ describe('Security Middleware - Rate Limiting', () => {
                     request(app)
                         .get('/api/courses')
                         .set('X-Forwarded-For', '192.168.1.4')
-                        .set('Authorization', `Bearer ${userToken}`)
+                        .set('Authorization', `Bearer ${testToken}`)
                 );
                 await new Promise(resolve => setTimeout(resolve, 50));
             }
@@ -142,7 +143,7 @@ describe('Security Middleware - Rate Limiting', () => {
                         request(app)
                             .get(path)
                             .set('X-Forwarded-For', '192.168.1.5')
-                            .set('Authorization', `Bearer ${userToken}`)
+                            .set('Authorization', `Bearer ${testToken}`)
                     );
                     await new Promise(resolve => setTimeout(resolve, 50));
                 }
@@ -182,7 +183,7 @@ describe('Security Middleware - Rate Limiting', () => {
             const response = await request(app)
                 .get('/api/courses')
                 .set('X-Forwarded-For', testIp)
-                .set('Authorization', `Bearer ${userToken}`);
+                .set('Authorization', `Bearer ${testToken}`);
 
             expect(response.status).toBe(403);
             expect(response.body.message).toMatch(/Access denied due to repeated violations/);
@@ -211,15 +212,15 @@ describe('Security Middleware - Rate Limiting', () => {
                 request(app)
                     .get('/api/courses')
                     .set('X-Forwarded-For', testIp)
-                    .set('Authorization', `Bearer ${userToken}`),
+                    .set('Authorization', `Bearer ${testToken}`),
                 request(app)
                     .get('/api/lessons/1')
                     .set('X-Forwarded-For', testIp)
-                    .set('Authorization', `Bearer ${userToken}`),
+                    .set('Authorization', `Bearer ${testToken}`),
                 request(app)
                     .get('/api/profile')
                     .set('X-Forwarded-For', testIp)
-                    .set('Authorization', `Bearer ${userToken}`)
+                    .set('Authorization', `Bearer ${testToken}`)
             ]);
 
             responses.forEach(response => {
@@ -248,7 +249,7 @@ describe('Security Middleware - Rate Limiting', () => {
             const response = await request(app)
                 .get('/api/courses')
                 .set('X-Forwarded-For', ip2)
-                .set('Authorization', `Bearer ${userToken}`);
+                .set('Authorization', `Bearer ${testToken}`);
 
             expect(response.status).not.toBe(403);
         }, 15000);
@@ -256,12 +257,6 @@ describe('Security Middleware - Rate Limiting', () => {
 });
 
 describe('Input Validation', () => {
-    let adminToken;
-    
-    beforeAll(() => {
-        adminToken = generateToken({ id: 1, email: 'admin@test.com', role: 'admin' });
-    });
-
     test('should validate email format on register', async () => {
         const response = await request(app)
             .post('/api/auth/register')
@@ -319,13 +314,7 @@ describe('Input Validation', () => {
     });
 });
 
-describe('Content Sanitization', () => {
-    let adminToken;
-    
-    beforeAll(() => {
-        adminToken = generateToken({ id: 1, email: 'admin@test.com', role: 'admin' });
-    });
-
+describe('Content Sanitization', () => {    
     test('should sanitize malicious HTML content', () => {
         const maliciousContent = '<p>Normal text</p><script>alert("xss")</script><img src="x" onerror="alert(1)"/>';
         const sanitized = sanitizeContent(maliciousContent);
@@ -354,13 +343,6 @@ describe('Content Sanitization', () => {
                 duration_hours: 1
             });
     
-        // Log dettagliato in caso di errore del corso
-        if (courseResponse.status !== 201) {
-            console.log('Course Creation Failed:');
-            console.log('Status:', courseResponse.status);
-            console.log('Response:', courseResponse.body);
-        }
-    
         expect(courseResponse.status).toBe(201);
         const courseId = courseResponse.body.data.id;
     
@@ -378,13 +360,6 @@ describe('Content Sanitization', () => {
                 estimatedMinutes: 30,
                 status: 'draft'
             });
-    
-        // Log dettagliato in caso di errore della lezione
-        if (response.status !== 201) {
-            console.log('Lesson Creation Failed:');
-            console.log('Status:', response.status);
-            console.log('Response:', response.body);
-        }
     
         expect(response.status).toBe(201);
         expect(response.body.data.content).not.toContain('<script>');

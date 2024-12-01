@@ -2,6 +2,7 @@ import AppError from '../errors/AppError.js';
 import ValidationError from '../errors/ValidationError.js';
 import DatabaseError from '../errors/DatabaseError.js';
 import AuthError from '../errors/AuthError.js';
+import { SERVER_CONFIG } from '../../config/environments.js';
 
 export function formatError(error) {
     // Se è già un AppError, usa il suo formato
@@ -17,7 +18,7 @@ export function formatError(error) {
                 message: 'Errore di sintassi nella richiesta',
                 code: 'SYNTAX_ERROR',
                 statusCode: 400,
-                details: process.env.NODE_ENV === 'development' ? error.message : undefined
+                details: SERVER_CONFIG.isDevelopment ? error.message : undefined
             }
         };
     }
@@ -40,7 +41,7 @@ export function formatError(error) {
                 message: 'Errore interno del server',
                 code: 'INTERNAL_ERROR',
                 statusCode: 500,
-                stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+                stack: SERVER_CONFIG.isDevelopment ? error.stack : undefined
             }
         };
     }
@@ -64,7 +65,7 @@ export function formatError(error) {
             message: error.message || 'Si è verificato un errore',
             code: error.code || 'UNKNOWN_ERROR',
             statusCode: error.statusCode || 500,
-            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+            stack: SERVER_CONFIG.isDevelopment ? error.stack : undefined
         }
     };
 }
@@ -73,7 +74,7 @@ export function sanitizeErrorForResponse(error) {
     const formatted = formatError(error);
     
     // In produzione rimuovi informazioni sensibili
-    if (process.env.NODE_ENV === 'production') {
+    if (SERVER_CONFIG.isProduction) {
         delete formatted.error.stack;
         delete formatted.error.detail;
         delete formatted.error.hint;

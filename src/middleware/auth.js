@@ -1,8 +1,5 @@
-// src/middleware/auth.js
 import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv';
-
-dotenv.config();
+import { JWT_CONFIG } from '../config/environments.js';
 
 export const generateToken = (user) => {
   return jwt.sign(
@@ -11,8 +8,8 @@ export const generateToken = (user) => {
       email: user.email,
       role: user.role 
     },
-    process.env.JWT_SECRET,
-    { expiresIn: '24h' }
+    JWT_CONFIG.secret,
+    { expiresIn: JWT_CONFIG.expiresIn }
   );
 };
 
@@ -28,7 +25,7 @@ export const authenticateToken = async (req, res, next) => {
       });
     }
 
-    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    jwt.verify(token, JWT_CONFIG.secret, (err, user) => {
       if (err) {
         return res.status(403).json({ 
           success: false,

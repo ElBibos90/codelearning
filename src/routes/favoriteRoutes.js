@@ -1,17 +1,11 @@
 import express from 'express';
 import { authenticateToken } from '../middleware/auth.js';
 import { favoriteModel } from '../models/favoriteModel.js';
+import { SERVER_CONFIG } from '../config/environments.js';
+
 
 const router = express.Router();
 
-/**
- * @swagger
- * /api/favorites:
- *   get:
- *     summary: Recupera i corsi preferiti dell'utente
- *     security:
- *       - bearerAuth: []
- */
 router.get('/', authenticateToken, async (req, res) => {
     try {
         const favorites = await favoriteModel.getUserFavorites(req.user.id);
@@ -20,6 +14,9 @@ router.get('/', authenticateToken, async (req, res) => {
             data: favorites
         });
     } catch (error) {
+        if (!SERVER_CONFIG.isTest) {
+            console.error('Error fetching favorites:', error);
+        }
         res.status(500).json({
             success: false,
             message: 'Errore nel recupero dei preferiti'
@@ -27,14 +24,6 @@ router.get('/', authenticateToken, async (req, res) => {
     }
 });
 
-/**
- * @swagger
- * /api/favorites/{courseId}:
- *   post:
- *     summary: Aggiunge un corso ai preferiti
- *     security:
- *       - bearerAuth: []
- */
 router.post('/:courseId', authenticateToken, async (req, res) => {
     try {
         const { courseId } = req.params;
@@ -53,6 +42,9 @@ router.post('/:courseId', authenticateToken, async (req, res) => {
                 message: error.message
             });
         }
+        if (!SERVER_CONFIG.isTest) {
+            console.error('Error adding favorite:', error);
+        }
         res.status(500).json({
             success: false,
             message: 'Errore nell\'aggiunta ai preferiti'
@@ -60,14 +52,6 @@ router.post('/:courseId', authenticateToken, async (req, res) => {
     }
 });
 
-/**
- * @swagger
- * /api/favorites/{courseId}:
- *   delete:
- *     summary: Rimuove un corso dai preferiti
- *     security:
- *       - bearerAuth: []
- */
 router.delete('/:courseId', authenticateToken, async (req, res) => {
     try {
         const { courseId } = req.params;
@@ -83,11 +67,33 @@ router.delete('/:courseId', authenticateToken, async (req, res) => {
                 message: error.message
             });
         } else {
+            if (!SERVER_CONFIG.isTest) {
+                console.error('Error removing favorite:', error);
+            }
             res.status(500).json({
                 success: false,
                 message: 'Errore nella rimozione dai preferiti'
             });
         }
+    }
+});
+
+router.get('/check/:courseId', authenticateToken, async (req, res) => {
+    try {
+        const { courseId } = req.params;
+        const isFavorite = await favoriteModel.isFavorite(req.user.id, courseId);
+        res.json({
+            success: true,
+            data: { isFavorite }
+        });
+    } catch (error) {
+        if (!SERVER_CONFIG.isTest) {
+            console.error('Error checking favorite status:', error);
+        }
+        res.status(500).json({
+            success: false,
+            message: 'Errore nel controllo dello stato preferito'
+        });
     }
 });
 

@@ -1,88 +1,11 @@
 import express from 'express';
-import pg from 'pg';
-import dotenv from 'dotenv';
+import { pool } from '../config/database.js';
 import { authenticateToken } from '../middleware/auth.js';
+import { SERVER_CONFIG } from '../config/environments.js';
 
-dotenv.config();
-const { Pool } = pg;
+
 const router = express.Router();
 
-const pool = new Pool({
-    connectionString: process.env.DATABASE_URL
-});
-
-/**
- * @swagger
- * components:
- *   schemas:
- *     Comment:
- *       type: object
- *       properties:
- *         id:
- *           type: integer
- *           description: ID del commento
- *         content:
- *           type: string
- *           description: Contenuto del commento
- *         created_at:
- *           type: string
- *           format: date-time
- *           description: Data di creazione
- *         updated_at:
- *           type: string
- *           format: date-time
- *           description: Data di ultima modifica
- *         parent_id:
- *           type: integer
- *           nullable: true
- *           description: ID del commento padre (per risposte)
- *         user_name:
- *           type: string
- *           description: Nome dell'utente che ha scritto il commento
- */
-
-/**
- * @swagger
- * tags:
- *   name: Comments
- *   description: API per la gestione dei commenti
- */
-
-/**
- * @swagger
- * /api/comments/lesson/{lessonId}:
- *   get:
- *     summary: Recupera tutti i commenti di una lezione
- *     tags: [Comments]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: lessonId
- *         schema:
- *           type: integer
- *         required: true
- *         description: ID della lezione
- *     responses:
- *       200:
- *         description: Lista dei commenti recuperata con successo
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 data:
- *                   type: array
- *                   items:
- *                     $ref: '#/components/schemas/Comment'
- *       401:
- *         description: Non autorizzato
- *       500:
- *         description: Errore del server
- */
 router.get('/lesson/:lessonId', authenticateToken, async (req, res) => {
     try {
         const { lessonId } = req.params;
@@ -105,7 +28,9 @@ router.get('/lesson/:lessonId', authenticateToken, async (req, res) => {
             data: rows
         });
     } catch (error) {
-        console.error('Error fetching comments:', error);
+        if (!SERVER_CONFIG.isTest) {
+            console.error('Error fetching comments:', error);
+        }
         res.status(500).json({ 
             success: false,
             message: 'Errore nel recupero dei commenti'
@@ -113,54 +38,6 @@ router.get('/lesson/:lessonId', authenticateToken, async (req, res) => {
     }
 });
 
-/**
- * @swagger
- * /api/comments/lesson/{lessonId}:
- *   post:
- *     summary: Aggiunge un nuovo commento
- *     tags: [Comments]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: lessonId
- *         schema:
- *           type: integer
- *         required: true
- *         description: ID della lezione
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - content
- *             properties:
- *               content:
- *                 type: string
- *                 description: Contenuto del commento
- *               parentId:
- *                 type: integer
- *                 description: ID del commento padre (opzionale)
- *     responses:
- *       201:
- *         description: Commento creato con successo
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 data:
- *                   $ref: '#/components/schemas/Comment'
- *       401:
- *         description: Non autorizzato
- *       500:
- *         description: Errore del server
- */
 router.post('/lesson/:lessonId', authenticateToken, async (req, res) => {
     try {
         const { lessonId } = req.params;
@@ -178,7 +55,9 @@ router.post('/lesson/:lessonId', authenticateToken, async (req, res) => {
             data: rows[0]
         });
     } catch (error) {
-        console.error('Error creating comment:', error);
+        if (!SERVER_CONFIG.isTest) {
+            console.error('Error creating comment:', error);
+        }
         res.status(500).json({ 
             success: false,
             message: 'Errore nella creazione del commento'
@@ -186,53 +65,6 @@ router.post('/lesson/:lessonId', authenticateToken, async (req, res) => {
     }
 });
 
-/**
- * @swagger
- * /api/comments/{commentId}:
- *   put:
- *     summary: Modifica un commento esistente
- *     tags: [Comments]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: commentId
- *         schema:
- *           type: integer
- *         required: true
- *         description: ID del commento da modificare
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - content
- *             properties:
- *               content:
- *                 type: string
- *                 description: Nuovo contenuto del commento
- *     responses:
- *       200:
- *         description: Commento aggiornato con successo
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 data:
- *                   $ref: '#/components/schemas/Comment'
- *       401:
- *         description: Non autorizzato
- *       404:
- *         description: Commento non trovato o non autorizzato
- *       500:
- *         description: Errore del server
- */
 router.put('/:commentId', authenticateToken, async (req, res) => {
     try {
         const { commentId } = req.params;
@@ -259,7 +91,9 @@ router.put('/:commentId', authenticateToken, async (req, res) => {
             data: rows[0]
         });
     } catch (error) {
-        console.error('Error updating comment:', error);
+        if (!SERVER_CONFIG.isTest) {
+            console.error('Error updating comment:', error);
+        }
         res.status(500).json({ 
             success: false,
             message: 'Errore nell\'aggiornamento del commento'
@@ -267,42 +101,6 @@ router.put('/:commentId', authenticateToken, async (req, res) => {
     }
 });
 
-/**
- * @swagger
- * /api/comments/{commentId}:
- *   delete:
- *     summary: Elimina un commento (soft delete)
- *     tags: [Comments]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: commentId
- *         schema:
- *           type: integer
- *         required: true
- *         description: ID del commento da eliminare
- *     responses:
- *       200:
- *         description: Commento eliminato con successo
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: Commento eliminato con successo
- *       401:
- *         description: Non autorizzato
- *       404:
- *         description: Commento non trovato o non autorizzato
- *       500:
- *         description: Errore del server
- */
 router.delete('/:commentId', authenticateToken, async (req, res) => {
     try {
         const { commentId } = req.params;
@@ -328,7 +126,9 @@ router.delete('/:commentId', authenticateToken, async (req, res) => {
             message: 'Commento eliminato con successo'
         });
     } catch (error) {
-        console.error('Error deleting comment:', error);
+        if (!SERVER_CONFIG.isTest) {
+            console.error('Error deleting comment:', error);
+        }
         res.status(500).json({ 
             success: false,
             message: 'Errore nell\'eliminazione del commento'

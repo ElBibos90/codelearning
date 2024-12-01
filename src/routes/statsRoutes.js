@@ -1,160 +1,26 @@
 import express from 'express';
-import pg from 'pg';
+import { pool } from '../config/database.js';
 import { authenticateToken, isAdmin } from '../middleware/auth.js';
-import dotenv from 'dotenv';
 import { getCachedData, cacheData } from '../config/redis.js';
+import { SERVER_CONFIG } from '../config/environments.js';
 
-dotenv.config();
 
 const router = express.Router();
-const { Pool } = pg;
 
-const pool = new Pool({
-    connectionString: process.env.DATABASE_URL
-});
-
-/**
- * @swagger
- * components:
- *   schemas:
- *     UserStats:
- *       type: object
- *       properties:
- *         total_courses_enrolled:
- *           type: integer
- *           description: Numero totale di corsi a cui l'utente è iscritto
- *         completed_courses:
- *           type: integer
- *           description: Numero di corsi completati
- *         completed_lessons:
- *           type: integer
- *           description: Numero totale di lezioni completate
- *         recent_activities:
- *           type: array
- *           items:
- *             type: object
- *             properties:
- *               lesson_title:
- *                 type: string
- *               course_title:
- *                 type: string
- *               completed_at:
- *                 type: string
- *                 format: date-time
- *         ongoing_courses:
- *           type: array
- *           items:
- *             type: object
- *             properties:
- *               title:
- *                 type: string
- *               course_id:
- *                 type: integer
- *               total_lessons:
- *                 type: integer
- *               completed_lessons:
- *                 type: integer
- * 
- *     AdminOverview:
- *       type: object
- *       properties:
- *         total_courses:
- *           type: integer
- *           description: Numero totale di corsi sulla piattaforma
- *         total_lessons:
- *           type: integer
- *           description: Numero totale di lezioni
- *         total_enrollments:
- *           type: integer
- *           description: Numero totale di iscrizioni
- *         completed_enrollments:
- *           type: integer
- *           description: Numero di corsi completati dagli utenti
- *         popular_courses:
- *           type: array
- *           items:
- *             type: object
- *             properties:
- *               title:
- *                 type: string
- *               enrollment_count:
- *                 type: integer
- *               completion_rate:
- *                 type: number
- *                 format: float
- *         recent_enrollments:
- *           type: array
- *           items:
- *             type: object
- *             properties:
- *               user_email:
- *                 type: string
- *               course_title:
- *                 type: string
- *               enrolled_at:
- *                 type: string
- *                 format: date-time
- * 
- *     CourseStats:
- *       type: object
- *       properties:
- *         course_info:
- *           type: object
- *           properties:
- *             total_enrollments:
- *               type: integer
- *             completed_enrollments:
- *               type: integer
- *             total_lessons:
- *               type: integer
- *         user_completed_lessons:
- *           type: integer
- *         lesson_stats:
- *           type: array
- *           items:
- *             type: object
- *             properties:
- *               lesson_title:
- *                 type: string
- *               completion_count:
- *                 type: integer
- */
-
-/**
- * @swagger
- * tags:
- *   name: Statistics
- *   description: API per le statistiche della piattaforma
- */
-
-/**
- * @swagger
- * /api/stats/user:
- *   get:
- *     summary: Recupera statistiche dell'utente
- *     tags: [Statistics]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Statistiche recuperate con successo
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 data:
- *                   $ref: '#/components/schemas/UserStats'
- *       401:
- *         description: Non autorizzato
- *       500:
- *         description: Errore nel recupero delle statistiche
- */
 router.get('/user', authenticateToken, async (req, res) => {
     try {
+        const cacheKey = `stats:user:${req.user.id}`;
+        
+        if (!SERVER_CONFIG.isTest) {
+            const cachedData = await getCachedData(cacheKey);
+            if (cachedData) {
+                return res.json({
+                    success: true,
+                    data: cachedData
+                });
+            }
+        }
+
         const stats = await pool.query(`
             WITH user_stats AS (
                 SELECT 
@@ -200,17 +66,26 @@ router.get('/user', authenticateToken, async (req, res) => {
             GROUP BY us.total_courses_enrolled, us.completed_courses, us.completed_lessons
         `, [req.user.id]);
 
+        const result = stats.rows[0] || {
+            total_courses_enrolled: 0,
+            completed_courses: 0,
+            completed_lessons: 0,
+            recent_activities: [],
+            ongoing_courses: []
+        };
+
+        if (!SERVER_CONFIG.isTest) {
+            await cacheData(cacheKey, result, 300);
+        }
+
         res.json({
             success: true,
-            data: stats.rows[0] || {
-                total_courses_enrolled: 0,
-                completed_courses: 0,
-                completed_lessons: 0,
-                recent_activities: [],
-                ongoing_courses: []
-            }
+            data: result
         });
-    } catch (err) {
+    } catch (error) {
+        if (!SERVER_CONFIG.isTest) {
+            console.error('Stats Error:', error);
+        }
         res.status(500).json({
             success: false,
             message: 'Errore nel recupero delle statistiche'
@@ -218,42 +93,18 @@ router.get('/user', authenticateToken, async (req, res) => {
     }
 });
 
-/**
- * @swagger
- * /api/stats/admin/overview:
- *   get:
- *     summary: Recupera panoramica generale (solo admin)
- *     tags: [Statistics]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Panoramica recuperata con successo
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 data:
- *                   $ref: '#/components/schemas/AdminOverview'
- *       401:
- *         description: Non autorizzato
- *       403:
- *         description: Accesso negato (non admin)
- */
 router.get('/admin/overview', authenticateToken, isAdmin, async (req, res) => {
     try {
         const cacheKey = 'stats:admin:overview';
         
-        const cachedData = await getCachedData(cacheKey);
-        if (cachedData) {
-            return res.json({
-                success: true,
-                data: cachedData
-            });
+        if (!SERVER_CONFIG.isTest) {
+            const cachedData = await getCachedData(cacheKey);
+            if (cachedData) {
+                return res.json({
+                    success: true,
+                    data: cachedData
+                });
+            }
         }
 
         const stats = await pool.query(`
@@ -299,13 +150,18 @@ router.get('/admin/overview', authenticateToken, isAdmin, async (req, res) => {
             GROUP BY cs.total_courses, cs.total_lessons, cs.total_enrollments, cs.completed_enrollments
         `);
 
-        await cacheData(cacheKey, stats.rows[0], 300);
+        if (!SERVER_CONFIG.isTest) {
+            await cacheData(cacheKey, stats.rows[0], 300);
+        }
 
         res.json({
             success: true,
             data: stats.rows[0]
         });
-    } catch (err) {
+    } catch (error) {
+        if (!SERVER_CONFIG.isTest) {
+            console.error('Admin Stats Error:', error);
+        }
         res.status(500).json({
             success: false,
             message: 'Errore nel recupero delle statistiche amministrative'
@@ -313,47 +169,18 @@ router.get('/admin/overview', authenticateToken, isAdmin, async (req, res) => {
     }
 });
 
-/**
- * @swagger
- * /api/stats/course/{courseId}:
- *   get:
- *     summary: Recupera statistiche di un corso specifico
- *     tags: [Statistics]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: courseId
- *         required: true
- *         schema:
- *           type: integer
- *         description: ID del corso
- *     responses:
- *       200:
- *         description: Statistiche del corso recuperate con successo
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 data:
- *                   $ref: '#/components/schemas/CourseStats'
- *       404:
- *         description: Corso non trovato
- */
 router.get('/course/:courseId', authenticateToken, async (req, res) => {
     try {
         const cacheKey = `stats:course:${req.params.courseId}:${req.user.id}`;
         
-        const cachedData = await getCachedData(cacheKey);
-        if (cachedData) {
-            return res.json({
-                success: true,
-                data: cachedData
-            });
+        if (!SERVER_CONFIG.isTest) {
+            const cachedData = await getCachedData(cacheKey);
+            if (cachedData) {
+                return res.json({
+                    success: true,
+                    data: cachedData
+                });
+            }
         }
 
         const courseStats = await pool.query(`
@@ -382,18 +209,21 @@ router.get('/course/:courseId', authenticateToken, async (req, res) => {
             });
         }
 
-        await cacheData(cacheKey, courseStats.rows[0], 300);
+        if (!SERVER_CONFIG.isTest) {
+            await cacheData(cacheKey, courseStats.rows[0], 300);
+        }
 
         res.json({
             success: true,
             data: courseStats.rows[0]
         });
     } catch (error) {
-        console.error('Stats Error:', error);
+        if (!SERVER_CONFIG.isTest) {
+            console.error('Course Stats Error:', error);
+        }
         res.status(500).json({
             success: false,
-            message: 'Errore nel recupero delle statistiche del corso',
-            error: error.message
+            message: 'Errore nel recupero delle statistiche del corso'
         });
     }
 });

@@ -1,5 +1,3 @@
-// tests/setup-test-env.js
-
 import dotenv from 'dotenv';
 import { jest } from '@jest/globals';
 import { fileURLToPath } from 'url';

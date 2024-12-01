@@ -1,5 +1,6 @@
 // src/config/redis.js
 import client, { connectRedis } from './redisClient.js';
+import { REDIS_CONFIG, SERVER_CONFIG } from './environments.js';
 
 class RedisMock {
     constructor() {
@@ -64,10 +65,10 @@ class RedisMock {
     }
 }
 
-export const redisClient = process.env.NODE_ENV === 'test' ? new RedisMock() : client;
+export const redisClient = SERVER_CONFIG.isTest ? new RedisMock() : client;
 
 // Inizializza Redis se non in ambiente test
-if (process.env.NODE_ENV !== 'test') {
+if (!SERVER_CONFIG.isTest) {
     connectRedis().catch(console.error);
 }
 

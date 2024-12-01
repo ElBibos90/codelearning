@@ -1,0 +1,69 @@
+C:\Users\eddyr\Desktop\CodeLearning\codelearning\src\config\environments.js
+  11,17:     const env = process.env.NODE_ENV || 'development';
+  20,20:     port: parseInt(process.env.PORT || '5000', 10),
+  21,14:     nodeEnv: process.env.NODE_ENV || 'development',
+  22,18:     frontendUrl: process.env.FRONTEND_URL || 'http://localhost:3000',
+  23,20:     isDevelopment: process.env.NODE_ENV === 'development',
+  24,19:     isProduction: process.env.NODE_ENV === 'production',
+  25,13:     isTest: process.env.NODE_ENV === 'test',
+  26,14:     version: process.env.npm_package_version
+  31,10:     url: process.env.DATABASE_URL,
+  32,11:     user: process.env.DB_USER,
+  33,11:     host: process.env.DB_HOST,
+  34,15:     database: process.env.DB_NAME,
+  35,15:     password: process.env.DB_PASSWORD,
+  36,20:     port: parseInt(process.env.DB_PORT || '5432', 10),
+  48,10:     url: process.env.REDIS_URL || 'redis://localhost:6379',
+  49,15:     password: process.env.REDIS_PASSWORD || '',
+  59,13:     secret: process.env.JWT_SECRET,
+  60,16:     expiresIn: process.env.JWT_EXPIRE || '24h',
+  68,31:     rateLimitWindow: parseInt(process.env.RATE_LIMIT_WINDOW || '15', 10),
+  69,28:     rateLimitMax: parseInt(process.env.RATE_LIMIT_MAX || '100', 10),
+  70,35:     authRateLimitWindow: parseInt(process.env.AUTH_RATE_LIMIT_WINDOW || '60', 10),
+  71,32:     authRateLimitMax: parseInt(process.env.AUTH_RATE_LIMIT_MAX || '5', 10),
+  72,36:     adminRateLimitWindow: parseInt(process.env.ADMIN_RATE_LIMIT_WINDOW || '15', 10),
+  73,33:     adminRateLimitMax: parseInt(process.env.ADMIN_RATE_LIMIT_MAX || '30', 10),
+  82,20:     postgresqlBin: process.env.POSTGRESQL_BIN || 'C:\\Program Files\\PostgreSQL\\17\\bin',
+  83,16:     backupDir: process.env.BACKUP_DIR || './backups',
+  84,29:     retentionDays: parseInt(process.env.BACKUP_RETENTION_DAYS || '7', 10),
+  103,22:     allowedOrigins: (process.env.ALLOWED_ORIGINS || 'http://localhost:5173,http://localhost:3000').split(','),
+
+C:\Users\eddyr\Desktop\CodeLearning\codelearning\src\scripts\db\backup.js
+  43,27:                 env: { ...process.env, PGPASSWORD: DB_CONFIG.password },
+
+C:\Users\eddyr\Desktop\CodeLearning\codelearning\src\scripts\test\runTests.js
+  22,23:             env: { ...process.env, NODE_ENV: SERVER_CONFIG.nodeEnv }
+
+C:\Users\eddyr\Desktop\CodeLearning\codelearning\src\services\backupService.js
+  66,34:                 const env = { ...process.env, PGPASSWORD: DB_CONFIG.password };
+
+C:\Users\eddyr\Desktop\CodeLearning\codelearning\tests\errors\AppError.test.js
+  62,9:         process.env.NODE_ENV = 'development';
+  68,9:         process.env.NODE_ENV = 'test';
+
+C:\Users\eddyr\Desktop\CodeLearning\codelearning\tests\errors\DatabaseError.test.js
+  55,9:         process.env.NODE_ENV = 'development';
+  65,9:         process.env.NODE_ENV = 'production';
+  69,9:         process.env.NODE_ENV = 'test';
+
+C:\Users\eddyr\Desktop\CodeLearning\codelearning\tests\errors\errorHandler.test.js
+  37,13:             process.env.NODE_ENV = 'development';
+  100,13:             process.env.NODE_ENV = 'production';
+  172,17:             if (process.env.NODE_ENV === 'development') {
+  181,9:         process.env.NODE_ENV = 'test';
+
+C:\Users\eddyr\Desktop\CodeLearning\codelearning\tests\errors\errorReporter.test.js
+  38,38:         errorReporter.shouldReport = process.env.NODE_ENV === 'production';
+
+C:\Users\eddyr\Desktop\CodeLearning\codelearning\tests\utils\logger.test.js
+  26,16:         expect(process.env.NODE_ENV).toBe('test');
+  27,16:         expect(process.env.DATABASE_URL).toBeDefined();
+
+C:\Users\eddyr\Desktop\CodeLearning\codelearning\tests\security.test.js
+  10,16:         expect(process.env.NODE_ENV).toBe('test');
+  11,16:         expect(process.env.DATABASE_URL).toBeDefined();
+
+C:\Users\eddyr\Desktop\CodeLearning\codelearning\tests\setup-test-env.js
+  41,7:   if (process.env.NODE_ENV !== 'test') {
+  54,12:     expect(process.env.NODE_ENV).toBe('test');
+  55,12:     expect(process.env.DATABASE_URL).toBeDefined();

@@ -2,13 +2,14 @@
 import pkg from 'pg';
 const { Pool } = pkg;
 import bcrypt from 'bcryptjs';
-import dotenv from 'dotenv';
 
-dotenv.config();
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL
-});
+ const pool = new Pool({
+       user: DB_CONFIG.user,
+       host: DB_CONFIG.host,
+       database: DB_CONFIG.database,
+       password: DB_CONFIG.password,
+       port: DB_CONFIG.port
+   });
 
 async function createAdmin(name, email, password) {
   try {

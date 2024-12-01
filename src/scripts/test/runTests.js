@@ -2,6 +2,8 @@ import { spawn } from 'child_process';
 import colors from 'colors';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { SERVER_CONFIG } from '../../config/environments.js';
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -17,7 +19,7 @@ async function runTests() {
         // Poi esegue i test
         console.log('\nEsecuzione test...'.yellow);
         await runCommand('jest', ['--detectOpenHandles', '--forceExit'], {
-            env: { ...process.env, NODE_ENV: 'test' }
+            env: { NODE_ENV: SERVER_CONFIG.nodeEnv }
         });
 
         console.log('\n✓ Tutti i test completati con successo'.green);

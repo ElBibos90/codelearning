@@ -1,17 +1,20 @@
 import pg from 'pg';
-import dotenv from 'dotenv';
+import { DB_CONFIG } from '../config/environments.js';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-dotenv.config();
 const { Pool } = pg;
 
-const pool = new Pool({
-    connectionString: process.env.DATABASE_URL
-});
+ const pool = new Pool({
+         user: DB_CONFIG.user,
+         host: DB_CONFIG.host,
+         database: DB_CONFIG.database,
+         password: DB_CONFIG.password,
+         port: DB_CONFIG.port
+     });
 
 const createCommentsTable = async () => {
     try {

@@ -1,159 +1,24 @@
 import express from 'express';
-import pkg from 'pg';
-const { Pool } = pkg;
+import { pool } from '../config/database.js';
 import { authenticateToken } from '../middleware/auth.js';
-import dotenv from 'dotenv';
 import { getCachedData, cacheData } from '../config/redis.js';
+import { SERVER_CONFIG } from '../config/environments.js';
 
-dotenv.config();
+
 const router = express.Router();
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL
-});
-
-/**
- * @swagger
- * components:
- *   schemas:
- *     DashboardOverview:
- *       type: object
- *       properties:
- *         user:
- *           type: object
- *           properties:
- *             id:
- *               type: integer
- *               description: ID dell'utente
- *             name:
- *               type: string
- *               description: Nome dell'utente
- *             email:
- *               type: string
- *               description: Email dell'utente
- *             role:
- *               type: string
- *               description: Ruolo dell'utente
- *             memberSince:
- *               type: string
- *               format: date-time
- *               description: Data di registrazione
- *             lastLogin:
- *               type: string
- *               format: date-time
- *               description: Ultimo accesso
- *         stats:
- *           type: object
- *           properties:
- *             totalCorsi:
- *               type: integer
- *               description: Numero totale di corsi
- *             corsiCompleti:
- *               type: integer
- *               description: Numero di corsi completati
- *             corsiInCorso:
- *               type: integer
- *               description: Numero di corsi in corso
- *             ultimoAccesso:
- *               type: string
- *               format: date-time
- *               description: Data e ora dell'ultimo accesso
- * 
- *     UserProfile:
- *       type: object
- *       properties:
- *         id:
- *           type: integer
- *         name:
- *           type: string
- *         email:
- *           type: string
- *         role:
- *           type: string
- * 
- *     UserStats:
- *       type: object
- *       properties:
- *         tempoTotale:
- *           type: string
- *           description: Tempo totale trascorso sulla piattaforma
- *         ultimoAccesso:
- *           type: string
- *           format: date-time
- *           description: Data e ora dell'ultimo accesso
- *         sessioniCompletate:
- *           type: integer
- *           description: Numero di sessioni completate
- *         mediaPunteggio:
- *           type: number
- *           description: Media dei punteggi ottenuti
- */
-
-/**
- * @swagger
- * tags:
- *   name: Dashboard
- *   description: API per la gestione della dashboard utente
- */
-
-/**
- * @swagger
- * /api/dashboard/overview:
- *   get:
- *     summary: Recupera panoramica dashboard utente
- *     tags: [Dashboard]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Panoramica dashboard recuperata con successo
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 dashboard:
- *                   $ref: '#/components/schemas/DashboardOverview'
- *       401:
- *         description: Non autorizzato
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: false
- *                 message:
- *                   type: string
- *                   example: Token di accesso non valido
- *       500:
- *         description: Errore del server
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: false
- *                 message:
- *                   type: string
- *                   example: Errore durante il recupero della dashboard
- */
 router.get('/overview', authenticateToken, async (req, res, next) => {
   try {
       const cacheKey = `dashboard:${req.user.id}`;
       
-      const cachedData = await getCachedData(cacheKey);
-      if (cachedData) {
-          return res.json({
-              success: true,
-              dashboard: cachedData
-          });
+      if (!SERVER_CONFIG.isTest) {
+          const cachedData = await getCachedData(cacheKey);
+          if (cachedData) {
+              return res.json({
+                  success: true,
+                  dashboard: cachedData
+              });
+          }
       }
 
       const userQuery = await pool.query(`
@@ -197,14 +62,18 @@ router.get('/overview', authenticateToken, async (req, res, next) => {
           }
       };
 
-      await cacheData(cacheKey, dashboardData, 300);
+      if (!SERVER_CONFIG.isTest) {
+          await cacheData(cacheKey, dashboardData, 300);
+      }
 
       res.json({
           success: true,
           dashboard: dashboardData
       });
   } catch (error) {
-      console.error('Dashboard Error:', error);
+      if (!SERVER_CONFIG.isTest) {
+          console.error('Dashboard Error:', error);
+      }
       res.status(500).json({
           success: false,
           message: 'Errore nel recupero della dashboard',
@@ -213,60 +82,6 @@ router.get('/overview', authenticateToken, async (req, res, next) => {
   }
 });
 
-/**
- * @swagger
- * /api/dashboard/profile:
- *   put:
- *     summary: Aggiorna il profilo dell'utente
- *     tags: [Dashboard]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               name:
- *                 type: string
- *                 description: Nuovo nome dell'utente
- *               email:
- *                 type: string
- *                 format: email
- *                 description: Nuova email dell'utente
- *     responses:
- *       200:
- *         description: Profilo aggiornato con successo
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: Profilo aggiornato con successo
- *                 user:
- *                   $ref: '#/components/schemas/UserProfile'
- *       400:
- *         description: Dati non validi
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: false
- *                 message:
- *                   type: string
- *                   example: Nessun dato da aggiornare fornito
- *       401:
- *         description: Non autorizzato
- */
 router.put('/profile', authenticateToken, async (req, res, next) => {
   try {
     const { name, email } = req.body;
@@ -327,30 +142,6 @@ router.put('/profile', authenticateToken, async (req, res, next) => {
   }
 });
 
-/**
- * @swagger
- * /api/dashboard/stats:
- *   get:
- *     summary: Recupera le statistiche dell'utente
- *     tags: [Dashboard]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Statistiche recuperate con successo
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 stats:
- *                   $ref: '#/components/schemas/UserStats'
- *       401:
- *         description: Non autorizzato
- */
 router.get('/stats', authenticateToken, async (req, res, next) => {
   try {
     res.json({

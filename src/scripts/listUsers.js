@@ -1,12 +1,14 @@
 // src/scripts/listUsers.js
 import pkg from 'pg';
 const { Pool } = pkg;
-import dotenv from 'dotenv';
-
-dotenv.config();
+import { DB_CONFIG } from '../config/environments.js';
 
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL
+  user: DB_CONFIG.user,
+  host: DB_CONFIG.host,
+  database: DB_CONFIG.database,
+  password: DB_CONFIG.password,
+  port: DB_CONFIG.port
 });
 
 async function listUsers() {

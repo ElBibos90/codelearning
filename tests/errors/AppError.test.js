@@ -1,5 +1,6 @@
 import { jest } from '@jest/globals';
 import AppError from '../../src/utils/errors/AppError.js';
+import { SERVER_CONFIG } from '../../src/config/environments.js';
 
 describe('AppError', () => {
     test('should create basic error with defaults', () => {
@@ -59,12 +60,16 @@ describe('AppError', () => {
     });
 
     test('should include stack trace in development', () => {
-        process.env.NODE_ENV = 'development';
-        const error = new AppError('Stack test');
-        const json = error.toJSON();
+               const originalEnv = SERVER_CONFIG.nodeEnv;
+               const originalIsDev = SERVER_CONFIG.isDevelopment;
+               SERVER_CONFIG.nodeEnv = 'development';
+               SERVER_CONFIG.isDevelopment = true;
         
-        expect(json.error.stack).toBeDefined();
-        
-        process.env.NODE_ENV = 'test';
-    });
+                const error = new AppError('Stack test');
+                const json = error.toJSON();
+                expect(json.error.stack).toBeDefined();
+              
+               SERVER_CONFIG.nodeEnv = originalEnv;
+               SERVER_CONFIG.isDevelopment = originalIsDev;
+            });
 });

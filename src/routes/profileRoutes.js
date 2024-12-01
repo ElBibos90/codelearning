@@ -1,141 +1,24 @@
 import express from 'express';
-import pg from 'pg';
+import { pool } from '../config/database.js';
 import { authenticateToken } from '../middleware/auth.js';
-import dotenv from 'dotenv';
 import { getCachedData, cacheData } from '../config/redis.js';
+import { SERVER_CONFIG } from '../config/environments.js';
 
-dotenv.config();
+
 const router = express.Router();
-const { Pool } = pg;
 
-const pool = new Pool({
-    connectionString: process.env.DATABASE_URL
-});
-
-/**
- * @swagger
- * components:
- *   schemas:
- *     UserProfile:
- *       type: object
- *       properties:
- *         email:
- *           type: string
- *           format: email
- *           description: Email dell'utente
- *         member_since:
- *           type: string
- *           format: date-time
- *           description: Data di registrazione
- *         profile:
- *           type: object
- *           properties:
- *             full_name:
- *               type: string
- *               description: Nome completo dell'utente
- *             bio:
- *               type: string
- *               description: Biografia dell'utente
- *             avatar_url:
- *               type: string
- *               format: uri
- *               description: URL dell'avatar
- *             linkedin_url:
- *               type: string
- *               format: uri
- *               description: URL profilo LinkedIn
- *             github_url:
- *               type: string
- *               format: uri
- *               description: URL profilo GitHub
- *             website_url:
- *               type: string
- *               format: uri
- *               description: URL sito web personale
- *             skills:
- *               type: array
- *               items:
- *                 type: string
- *               description: Lista delle competenze
- *             interests:
- *               type: array
- *               items:
- *                 type: string
- *               description: Lista degli interessi
- *         preferences:
- *           type: object
- *           properties:
- *             notification_email:
- *               type: boolean
- *               description: Preferenza notifiche email
- *             preferred_difficulty:
- *               type: string
- *               enum: [beginner, intermediate, advanced]
- *               description: Livello di difficoltà preferito
- *             theme:
- *               type: string
- *               enum: [light, dark]
- *               description: Tema preferito
- *             language:
- *               type: string
- *               description: Lingua preferita
- *         stats:
- *           type: object
- *           properties:
- *             total_courses:
- *               type: integer
- *               description: Numero totale di corsi
- *             completed_courses:
- *               type: integer
- *               description: Numero di corsi completati
- *             total_lessons_completed:
- *               type: integer
- *               description: Numero totale di lezioni completate
- */
-
-/**
- * @swagger
- * tags:
- *   name: Profile
- *   description: API per la gestione del profilo utente
- */
-
-/**
- * @swagger
- * /api/profile:
- *   get:
- *     summary: Recupera il profilo completo dell'utente
- *     tags: [Profile]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Profilo recuperato con successo
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 data:
- *                   $ref: '#/components/schemas/UserProfile'
- *       401:
- *         description: Non autorizzato
- *       500:
- *         description: Errore nel recupero del profilo
- */
 router.get('/', authenticateToken, async (req, res) => {
     try {
         const cacheKey = `profile:${req.user.id}`;
         
-        const cachedData = await getCachedData(cacheKey);
-        if (cachedData) {
-            return res.json({
-                success: true,
-                data: cachedData
-            });
+        if (!SERVER_CONFIG.isTest) {
+            const cachedData = await getCachedData(cacheKey);
+            if (cachedData) {
+                return res.json({
+                    success: true,
+                    data: cachedData
+                });
+            }
         }
 
         // Query per i dati base dell'utente
@@ -199,14 +82,18 @@ router.get('/', authenticateToken, async (req, res) => {
             }
         };
 
-        await cacheData(cacheKey, response, 300);
+        if (!SERVER_CONFIG.isTest) {
+            await cacheData(cacheKey, response, 300);
+        }
 
         res.json({
             success: true,
             data: response
         });
     } catch (error) {
-        console.error('Profile Error:', error);
+        if (!SERVER_CONFIG.isTest) {
+            console.error('Profile Error:', error);
+        }
         res.status(500).json({
             success: false,
             message: 'Errore nel recupero del profilo',
@@ -215,62 +102,6 @@ router.get('/', authenticateToken, async (req, res) => {
     }
 });
 
-/**
- * @swagger
- * /api/profile:
- *   put:
- *     summary: Aggiorna il profilo dell'utente
- *     tags: [Profile]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               full_name:
- *                 type: string
- *               bio:
- *                 type: string
- *               avatar_url:
- *                 type: string
- *                 format: uri
- *               linkedin_url:
- *                 type: string
- *                 format: uri
- *               github_url:
- *                 type: string
- *                 format: uri
- *               website_url:
- *                 type: string
- *                 format: uri
- *               skills:
- *                 type: array
- *                 items:
- *                   type: string
- *               interests:
- *                 type: array
- *                 items:
- *                   type: string
- *     responses:
- *       200:
- *         description: Profilo aggiornato con successo
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: Profilo aggiornato con successo
- *       500:
- *         description: Errore nell'aggiornamento del profilo
- */
 router.put('/', authenticateToken, async (req, res) => {
     const {
         full_name,
@@ -309,8 +140,10 @@ router.put('/', authenticateToken, async (req, res) => {
             success: true,
             message: 'Profilo aggiornato con successo'
         });
-    } catch (err) {
-        console.error('Errore nell\'aggiornamento del profilo:', err);
+    } catch (error) {
+        if (!SERVER_CONFIG.isTest) {
+            console.error('Error updating profile:', error);
+        }
         res.status(500).json({
             success: false,
             message: 'Errore nell\'aggiornamento del profilo'
@@ -318,48 +151,6 @@ router.put('/', authenticateToken, async (req, res) => {
     }
 });
 
-/**
- * @swagger
- * /api/profile/preferences:
- *   put:
- *     summary: Aggiorna le preferenze dell'utente
- *     tags: [Profile]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               notification_email:
- *                 type: boolean
- *               preferred_difficulty:
- *                 type: string
- *                 enum: [beginner, intermediate, advanced]
- *               theme:
- *                 type: string
- *                 enum: [light, dark]
- *               language:
- *                 type: string
- *     responses:
- *       200:
- *         description: Preferenze aggiornate con successo
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: Preferenze aggiornate con successo
- *       500:
- *         description: Errore nell'aggiornamento delle preferenze
- */
 router.put('/preferences', authenticateToken, async (req, res) => {
     const {
         notification_email,
@@ -369,6 +160,21 @@ router.put('/preferences', authenticateToken, async (req, res) => {
     } = req.body;
 
     try {
+        // Valida le preferenze
+        if (preferred_difficulty && !['beginner', 'intermediate', 'advanced'].includes(preferred_difficulty)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Livello di difficoltà non valido'
+            });
+        }
+
+        if (theme && !['light', 'dark'].includes(theme)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Tema non valido'
+            });
+        }
+
         await pool.query(`
             INSERT INTO user_preferences (
                 user_id, notification_email, preferred_difficulty, 
@@ -390,8 +196,10 @@ router.put('/preferences', authenticateToken, async (req, res) => {
             success: true,
             message: 'Preferenze aggiornate con successo'
         });
-    } catch (err) {
-        console.error('Errore nell\'aggiornamento delle preferenze:', err);
+    } catch (error) {
+        if (!SERVER_CONFIG.isTest) {
+            console.error('Error updating preferences:', error);
+        }
         res.status(500).json({
             success: false,
             message: 'Errore nell\'aggiornamento delle preferenze'

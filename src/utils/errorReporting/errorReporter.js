@@ -1,8 +1,9 @@
 import logger from '../logger.js';
+import { SERVER_CONFIG } from '../../config/environments.js';
 
 export  class ErrorReporter {
     constructor() {
-        this.shouldReport = process.env.NODE_ENV === 'production';
+        this.shouldReport = SERVER_CONFIG.isProduction;
         this.batchSize = 10;
         this.batchTimeout = 5000;
         this.errorQueue = [];
@@ -36,8 +37,8 @@ export  class ErrorReporter {
                 },
                 context: {
                     ...context,
-                    env: process.env.NODE_ENV,
-                    version: process.env.APP_VERSION
+                    env: SERVER_CONFIG.nodeEnv,
+                    version: SERVER_CONFIG.version
                 }
             };
 

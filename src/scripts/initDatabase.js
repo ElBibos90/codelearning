@@ -1,16 +1,18 @@
 import pkg from 'pg';
 const { Pool } = pkg;
-import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-
+import { DB_CONFIG } from '../config/environments.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-dotenv.config();
 
 const pool = new Pool({
-    connectionString: process.env.DATABASE_URL
+  user: DB_CONFIG.user,
+  host: DB_CONFIG.host,
+  database: DB_CONFIG.database,
+  password: DB_CONFIG.password,
+  port: DB_CONFIG.port
 });
 
 const initDatabase = async () => {

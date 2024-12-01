@@ -1,4 +1,5 @@
 import AppError from './AppError.js';
+import { SERVER_CONFIG } from '../../config/environments.js';
 
 class ValidationError extends AppError {
     constructor(message, errors = []) {
@@ -17,7 +18,7 @@ class ValidationError extends AppError {
                 code: this.code,
                 statusCode: this.statusCode,
                 errors: this.errors,
-                ...(process.env.NODE_ENV === 'development' && { stack: this.stack })
+                ...(SERVER_CONFIG.isDevelopment && { stack: this.stack })
             }
         };
     }

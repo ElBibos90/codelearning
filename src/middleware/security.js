@@ -1,6 +1,6 @@
-// src/middleware/security.js
 import rateLimit from 'express-rate-limit';
 import { redisClient } from '../config/redis.js';
+import { SECURITY_CONFIG, SERVER_CONFIG } from '../config/environments.js';
 
 class SecurityStore {
     constructor() {
@@ -27,7 +27,7 @@ class SecurityStore {
     }
 
     async addToBlacklist(ip) {
-        const expiryTime = process.env.NODE_ENV === 'test' ? 5 : 24 * 60 * 60;
+        const expiryTime = SERVER_CONFIG.isTest ? 5 : 24 * 60 * 60;
         await redisClient.set(
             this.getBlacklistKey(ip),
             '1',
@@ -37,9 +37,9 @@ class SecurityStore {
 
     async incrementViolations(ip) {
         const violations = await redisClient.incr(this.getViolationKey(ip));
-        await redisClient.expire(this.getViolationKey(ip), process.env.NODE_ENV === 'test' ? 1 : 3600);
+        await redisClient.expire(this.getViolationKey(ip), SERVER_CONFIG.isTest ? 1 : 3600);
         
-        const threshold = process.env.NODE_ENV === 'test' ? 3 : 10;
+        const threshold = SERVER_CONFIG.isTest ? 3 : 10;
         
         if (violations >= threshold) {
             await this.addToBlacklist(ip);
@@ -52,7 +52,7 @@ class SecurityStore {
         const fullKey = this.getFullKey(key);
         const value = await redisClient.incr(fullKey);
         if (value === 1) {
-            await redisClient.expire(fullKey, process.env.NODE_ENV === 'test' ? 1 : 3600);
+            await redisClient.expire(fullKey, SERVER_CONFIG.isTest ? 1 : 3600);
         }
         return value;
     }
@@ -65,8 +65,8 @@ class SecurityStore {
 const store = new SecurityStore();
 
 function createLimiter(options) {
-    const windowMs = process.env.NODE_ENV === 'test' ? 1000 : options.windowMs;
-    const max = process.env.NODE_ENV === 'test' ? options.testMax : options.max;
+    const windowMs = SERVER_CONFIG.isTest ? 1000 : options.windowMs;
+    const max = SERVER_CONFIG.isTest ? options.testMax : options.max;
 
     return async (req, res, next) => {
         try {
@@ -110,20 +110,20 @@ function createLimiter(options) {
 const configs = {
     auth: {
         type: 'auth',
-        windowMs: 60 * 60 * 1000,
-        max: 5,
+        windowMs: SECURITY_CONFIG.authRateLimitWindow * 1000,
+        max: SECURITY_CONFIG.authRateLimitMax,
         testMax: 3
     },
     admin: {
         type: 'admin',
-        windowMs: 15 * 60 * 1000,
-        max: 30,
+        windowMs: SECURITY_CONFIG.adminRateLimitWindow * 1000,
+        max: SECURITY_CONFIG.adminRateLimitMax,
         testMax: 5
     },
     api: {
         type: 'api',
-        windowMs: 15 * 60 * 1000,
-        max: 100,
+        windowMs: SECURITY_CONFIG.rateLimitWindow * 1000,
+        max: SECURITY_CONFIG.rateLimitMax,
         testMax: 10
     }
 };

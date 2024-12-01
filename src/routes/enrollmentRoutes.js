@@ -1,18 +1,12 @@
 import express from 'express';
 import { authenticateToken } from '../middleware/auth.js';
-import pkg from 'pg';
-const { Pool } = pkg;
-import dotenv from 'dotenv';
+import { pool } from '../config/database.js';
 import { getCachedData, cacheData } from '../config/redis.js';
+import { SERVER_CONFIG } from '../config/environments.js';
 
-dotenv.config();
 
 const router = express.Router();
-const pool = new Pool({
-    connectionString: process.env.DATABASE_URL
-});
 
-// POST /enrollments/:courseId - Iscrizione a un corso
 router.post('/:courseId', authenticateToken, async (req, res) => {
     try {
         const { courseId } = req.params;
@@ -66,7 +60,9 @@ router.post('/:courseId', authenticateToken, async (req, res) => {
             message: 'Iscrizione al corso effettuata con successo'
         });
     } catch (error) {
-        console.error('Error enrolling in course:', error);
+        if (!SERVER_CONFIG.isTest) {
+            console.error('Error enrolling in course:', error);
+        }
         res.status(500).json({
             success: false,
             message: 'Errore durante l\'iscrizione al corso'
@@ -74,17 +70,18 @@ router.post('/:courseId', authenticateToken, async (req, res) => {
     }
 });
 
-// enrollmentRoutes.js
 router.get('/my-courses', authenticateToken, async (req, res) => {
     try {
         const cacheKey = `enrollments:my-courses:${req.user.id}`;
         
-        const cachedData = await getCachedData(cacheKey);
-        if (cachedData) {
-            return res.json({
-                success: true,
-                data: cachedData
-            });
+        if (!SERVER_CONFIG.isTest) {
+            const cachedData = await getCachedData(cacheKey);
+            if (cachedData) {
+                return res.json({
+                    success: true,
+                    data: cachedData
+                });
+            }
         }
 
         const result = await pool.query(`
@@ -120,14 +117,18 @@ router.get('/my-courses', authenticateToken, async (req, res) => {
             ORDER BY ce.enrolled_at DESC
         `, [req.user.id]);
 
-        await cacheData(cacheKey, result.rows, 300);
+        if (!SERVER_CONFIG.isTest) {
+            await cacheData(cacheKey, result.rows, 300);
+        }
 
         res.json({
             success: true,
             data: result.rows
         });
     } catch (error) {
-        console.error('Error fetching enrolled courses:', error);
+        if (!SERVER_CONFIG.isTest) {
+            console.error('Error fetching enrolled courses:', error);
+        }
         res.status(500).json({
             success: false,
             message: 'Errore nel recupero dei corsi',
@@ -136,7 +137,6 @@ router.get('/my-courses', authenticateToken, async (req, res) => {
     }
 });
 
-// POST /enrollments/:courseId/complete - Completa un corso
 router.post('/:courseId/complete', authenticateToken, async (req, res) => {
     try {
         const { courseId } = req.params;
@@ -186,7 +186,9 @@ router.post('/:courseId/complete', authenticateToken, async (req, res) => {
             message: 'Corso completato con successo'
         });
     } catch (error) {
-        console.error('Error completing course:', error);
+        if (!SERVER_CONFIG.isTest) {
+            console.error('Error completing course:', error);
+        }
         res.status(500).json({
             success: false,
             message: 'Errore durante il completamento del corso'
@@ -194,7 +196,6 @@ router.post('/:courseId/complete', authenticateToken, async (req, res) => {
     }
 });
 
-// GET /enrollments/course/:courseId/progress - Progresso di un corso specifico
 router.get('/course/:courseId/progress', authenticateToken, async (req, res) => {
     try {
         const { courseId } = req.params;
@@ -235,7 +236,9 @@ router.get('/course/:courseId/progress', authenticateToken, async (req, res) => 
             data: result.rows[0]
         });
     } catch (error) {
-        console.error('Error fetching course progress:', error);
+        if (!SERVER_CONFIG.isTest) {
+            console.error('Error fetching course progress:', error);
+        }
         res.status(500).json({
             success: false,
             message: 'Errore nel recupero del progresso del corso'
