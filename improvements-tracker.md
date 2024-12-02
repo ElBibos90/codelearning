@@ -108,10 +108,10 @@
   - [🟢] Verificare configurazioni in tutti gli ambienti
   - [🟢] Testare validazione configurazioni
 
-- [🔴] Documentazione
-  - [🔴] Aggiornare README con nuove configurazioni
-  - [🔴] Documentare variabili per ogni ambiente
-  - [🔴] Aggiungere esempi di configurazione
+- [🟢] Documentazione
+  - [🟢] Aggiornare README con nuove configurazioni
+  - [🟢] Documentare variabili per ogni ambiente
+  - [🟢] Aggiungere esempi di configurazione
 
 ## 🏗️ Backend Architecture
 
@@ -248,4 +248,4 @@
 - 🟡 In corso
 - [🟢] Completato
 
-Data ultimo aggiornamento: 22/11/2024
+Data ultimo aggiornamento: 02/12/2024
