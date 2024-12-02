@@ -1,5 +1,6 @@
 import { jest } from '@jest/globals';
 import DatabaseError from '../../src/utils/errors/DatabaseError.js';
+import { SERVER_CONFIG } from '../../src/config/environments.js';
 
 describe('DatabaseError', () => {
     test('should create basic database error', () => {
@@ -52,7 +53,11 @@ describe('DatabaseError', () => {
     });
 
     test('should handle JSON serialization', () => {
-        process.env.NODE_ENV = 'development';
+        const originalEnv = SERVER_CONFIG.nodeEnv;
+        const originalIsDev = SERVER_CONFIG.isDevelopment;
+        SERVER_CONFIG.nodeEnv = 'development';
+        SERVER_CONFIG.isDevelopment = true;
+
         const pgError = {
             code: '23505',
             detail: 'Key violation'
@@ -62,11 +67,14 @@ describe('DatabaseError', () => {
         
         expect(json.error.pgError).toBeDefined();
         
-        process.env.NODE_ENV = 'production';
+        SERVER_CONFIG.nodeEnv = 'production';
+        SERVER_CONFIG.isDevelopment = false;
         const prodJson = error.toJSON();
         expect(prodJson.error.pgError).toBeUndefined();
-        
-        process.env.NODE_ENV = 'test';
+
+        // Ripristina l'ambiente originale
+        SERVER_CONFIG.nodeEnv = originalEnv;
+        SERVER_CONFIG.isDevelopment = originalIsDev;
     });
 
     test('should handle missing PostgreSQL error', () => {

@@ -1,24 +1,22 @@
-// src/models/userModel.js
-
 import pkg from 'pg';
-import bcrypt from 'bcryptjs';  // Cambiato da 'bcrypt' a 'bcryptjs'
+import bcrypt from 'bcryptjs';
+import { DB_CONFIG } from '../config/environments.js';
 const { Pool } = pkg;
-import dotenv from 'dotenv';
-
-dotenv.config();
 
 const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
+    user: DB_CONFIG.user,
+    host: DB_CONFIG.host,
+    database: DB_CONFIG.database,
+    password: DB_CONFIG.password,
+    port: DB_CONFIG.port
 });
 
 const SALT_ROUNDS = 10;
 
 export const userModel = {
-    // Creare un nuovo utente
     async create(userData) {
         const { name, email, password } = userData;
         
-        // Hash della password
         const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
         
         const query = {
@@ -30,14 +28,13 @@ export const userModel = {
             const result = await pool.query(query);
             return result.rows[0];
         } catch (error) {
-            if (error.code === '23505') { // Codice PostgreSQL per violazione unique
+            if (error.code === '23505') {
                 throw new Error('Email già registrata');
             }
             throw new Error(`Errore nella creazione dell'utente: ${error.message}`);
         }
     },
 
-    // Trovare un utente per email
     async findByEmail(email) {
         const query = {
             text: 'SELECT * FROM users WHERE email = $1',
@@ -51,12 +48,10 @@ export const userModel = {
         }
     },
 
-    // Verificare la password
     async verifyPassword(plainPassword, hashedPassword) {
         return await bcrypt.compare(plainPassword, hashedPassword);
     },
 
-    // Trovare un utente per ID
     async findById(id) {
         const query = {
             text: 'SELECT id, name, email, role, created_at FROM users WHERE id = $1',

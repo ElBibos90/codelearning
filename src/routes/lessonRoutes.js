@@ -3,26 +3,21 @@ import { authenticateToken } from '../middleware/auth.js';
 import { lessonValidation } from '../middleware/validators.js';
 import { sanitizeContent } from '../utils/sanitize.js';
 import { pool } from '../config/database.js';
+import { SERVER_CONFIG } from '../config/environments.js';
+
 
 const router = express.Router();
 
 router.get('/:id/detail', authenticateToken, async (req, res) => {
     try {
         const lessonId = parseInt(req.params.id);
-        // console.log('Attempting to fetch lesson:', {
-        //     lessonId,
-        //     userId: req.user.id
-        // });
 
-        // Prima verifica che la lezione esista e prendi il corso associato
         const lessonCheck = await pool.query(`
             SELECT l.*, c.id as course_id
             FROM lessons l
             JOIN courses c ON l.course_id = c.id
             WHERE l.id = $1
         `, [lessonId]);
-
-        //console.log('Lesson check result:', lessonCheck.rows);
 
         if (lessonCheck.rows.length === 0) {
             return res.status(404).json({
@@ -32,7 +27,6 @@ router.get('/:id/detail', authenticateToken, async (req, res) => {
         }
 
         const lesson = lessonCheck.rows[0];
-        //console.log('Found lesson:', lesson);
 
         // Verifica iscrizione al corso
         const enrollmentCheck = await pool.query(
@@ -40,12 +34,6 @@ router.get('/:id/detail', authenticateToken, async (req, res) => {
              WHERE user_id = $1 AND course_id = $2`,
             [req.user.id, lesson.course_id]
         );
-
-        // console.log('Enrollment check:', {
-        //     userId: req.user.id,
-        //     courseId: lesson.course_id,
-        //     found: enrollmentCheck.rows.length > 0
-        // });
 
         if (enrollmentCheck.rows.length === 0) {
             return res.status(403).json({
@@ -67,10 +55,12 @@ router.get('/:id/detail', authenticateToken, async (req, res) => {
             data: lesson
         });
     } catch (error) {
-        console.error('Error in lesson detail route:', {
-            error: error.message,
-            stack: error.stack
-        });
+        if (!SERVER_CONFIG.isTest) {
+            console.error('Error in lesson detail route:', {
+                error: error.message,
+                stack: error.stack
+            });
+        }
         res.status(500).json({
             success: false,
             message: 'Errore nel recupero della lezione',
@@ -86,9 +76,9 @@ router.post('/', authenticateToken, async (req, res) => {
             title, 
             content, 
             orderNumber,
-            templateType = 'theory',  // aggiungo default value
-            estimatedMinutes = 30,    // aggiungo default value
-            metaDescription = '',     // aggiungo default value
+            templateType = 'theory',
+            estimatedMinutes = 30,
+            metaDescription = '',
             contentFormat = 'markdown',
             status = 'draft'
         } = req.body;
@@ -105,18 +95,6 @@ router.post('/', authenticateToken, async (req, res) => {
                 message: 'Corso non trovato'
             });
         }
-
-        // Aggiungo log per debug
-        // console.log('Creating lesson with:', {
-        //     courseId,
-        //     title,
-        //     content: content?.substring(0, 50), // log solo primi 50 caratteri
-        //     orderNumber,
-        //     contentFormat,
-        //     metaDescription,
-        //     estimatedMinutes,
-        //     status
-        // });
 
         // Sanitizza il contenuto
         const sanitizedContent = sanitizeContent(content || '');
@@ -150,11 +128,110 @@ router.post('/', authenticateToken, async (req, res) => {
             data: result.rows[0]
         });
     } catch (error) {
-        console.error('Error creating lesson:', error);
+        if (!SERVER_CONFIG.isTest) {
+            console.error('Error creating lesson:', error);
+        }
         res.status(500).json({
             success: false,
             message: 'Errore nella creazione della lezione',
-            error: error.message  // aggiungo dettaglio errore per debug
+            error: error.message
+        });
+    }
+});
+
+router.put('/:id', authenticateToken, async (req, res) => {
+    try {
+        const lessonId = parseInt(req.params.id);
+        const { 
+            title,
+            content,
+            orderNumber,
+            contentFormat,
+            metaDescription,
+            estimatedMinutes,
+            status 
+        } = req.body;
+
+        // Sanitizza il contenuto se fornito
+        const sanitizedContent = content ? sanitizeContent(content) : undefined;
+
+        let updateQuery = 'UPDATE lessons SET ';
+        const values = [];
+        let paramCount = 1;
+        const updates = [];
+
+        if (title !== undefined) {
+            updates.push(`title = $${paramCount}`);
+            values.push(title);
+            paramCount++;
+        }
+
+        if (sanitizedContent !== undefined) {
+            updates.push(`content = $${paramCount}`);
+            values.push(sanitizedContent);
+            paramCount++;
+        }
+
+        if (orderNumber !== undefined) {
+            updates.push(`order_number = $${paramCount}`);
+            values.push(orderNumber);
+            paramCount++;
+        }
+
+        if (contentFormat !== undefined) {
+            updates.push(`content_format = $${paramCount}`);
+            values.push(contentFormat);
+            paramCount++;
+        }
+
+        if (metaDescription !== undefined) {
+            updates.push(`meta_description = $${paramCount}`);
+            values.push(metaDescription);
+            paramCount++;
+        }
+
+        if (estimatedMinutes !== undefined) {
+            updates.push(`estimated_minutes = $${paramCount}`);
+            values.push(estimatedMinutes);
+            paramCount++;
+        }
+
+        if (status !== undefined) {
+            updates.push(`status = $${paramCount}`);
+            values.push(status);
+            paramCount++;
+        }
+
+        if (updates.length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'Nessun campo da aggiornare fornito'
+            });
+        }
+
+        values.push(lessonId);
+        updateQuery += updates.join(', ') + `, updated_at = CURRENT_TIMESTAMP WHERE id = $${paramCount} RETURNING *`;
+
+        const result = await pool.query(updateQuery, values);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'Lezione non trovata'
+            });
+        }
+
+        res.json({
+            success: true,
+            data: result.rows[0]
+        });
+    } catch (error) {
+        if (!SERVER_CONFIG.isTest) {
+            console.error('Error updating lesson:', error);
+        }
+        res.status(500).json({
+            success: false,
+            message: 'Errore nell\'aggiornamento della lezione'
         });
     }
 });
@@ -196,10 +273,103 @@ router.put('/:id/status', authenticateToken, async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error updating lesson status:', error);
+        if (!SERVER_CONFIG.isTest) {
+            console.error('Error updating lesson status:', error);
+        }
         res.status(500).json({
             success: false,
             message: 'Errore nel cambio di stato della lezione'
+        });
+    }
+});
+
+router.put('/:id/complete', authenticateToken, async (req, res) => {
+    try {
+        const lessonId = parseInt(req.params.id);
+        const userId = req.user.id;
+
+        // Verifica che la lezione esista e l'utente sia iscritto al corso
+        const lessonCheck = await pool.query(`
+            SELECT l.id, c.id as course_id
+            FROM lessons l
+            JOIN courses c ON l.course_id = c.id
+            WHERE l.id = $1
+        `, [lessonId]);
+
+        if (lessonCheck.rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'Lezione non trovata'
+            });
+        }
+
+        const courseId = lessonCheck.rows[0].course_id;
+
+        const enrollmentCheck = await pool.query(
+            'SELECT id FROM course_enrollments WHERE user_id = $1 AND course_id = $2',
+            [userId, courseId]
+        );
+
+        if (enrollmentCheck.rows.length === 0) {
+            return res.status(403).json({
+                success: false,
+                message: 'Non sei iscritto a questo corso'
+            });
+        }
+
+        // Aggiorna o crea il record di progresso
+        await pool.query(`
+            INSERT INTO lesson_progress (user_id, lesson_id, completed, completed_at)
+            VALUES ($1, $2, true, CURRENT_TIMESTAMP)
+            ON CONFLICT (user_id, lesson_id)
+            DO UPDATE SET 
+                completed = true,
+                completed_at = CURRENT_TIMESTAMP
+        `, [userId, lessonId]);
+
+        res.json({
+            success: true,
+            message: 'Lezione completata con successo'
+        });
+
+    } catch (error) {
+        if (!SERVER_CONFIG.isTest) {
+            console.error('Error completing lesson:', error);
+        }
+        res.status(500).json({
+            success: false,
+            message: 'Errore nel completamento della lezione'
+        });
+    }
+});
+
+router.delete('/:id', authenticateToken, async (req, res) => {
+    try {
+        const lessonId = parseInt(req.params.id);
+
+        const result = await pool.query(
+            'DELETE FROM lessons WHERE id = $1 RETURNING id',
+            [lessonId]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'Lezione non trovata'
+            });
+        }
+
+        res.json({
+            success: true,
+            message: 'Lezione eliminata con successo'
+        });
+    } catch (error) {
+        if (!SERVER_CONFIG.isTest) {
+            console.error('Error deleting lesson:', error);
+        }
+        res.status(500).json({
+            success: false,
+            message: 'Errore nell\'eliminazione della lezione'
         });
     }
 });

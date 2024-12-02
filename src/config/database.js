@@ -1,23 +1,24 @@
-// src/config/database.js
 import pg from 'pg';
-import dotenv from 'dotenv';
-dotenv.config();
+import { DB_CONFIG, SERVER_CONFIG } from './environments.js';
 
 const { Pool } = pg;
 
 export const pool = new Pool({
-  user: process.env.DB_USER,
-  host: process.env.DB_HOST,
-  database: process.env.DB_NAME,
-  password: process.env.DB_PASSWORD,
-  port: process.env.DB_PORT || 5432,
+    user: DB_CONFIG.user,
+    host: DB_CONFIG.host,
+    database: DB_CONFIG.database,
+    password: DB_CONFIG.password,
+    port: DB_CONFIG.port
 });
 
-// Test della connessione
 pool.on('connect', () => {
-  //console.log('Database connesso con successo');
+    if (!SERVER_CONFIG.isTest) {
+        console.log('Database connesso con successo');
+    }
 });
 
 pool.on('error', (err) => {
-  console.error('Errore di connessione al database:', err);
+    console.error('Errore di connessione al database:', err);
 });
+
+export default pool;

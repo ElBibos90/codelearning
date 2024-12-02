@@ -1,9 +1,9 @@
 // src/utils/testDbManager.js
 import pg from 'pg';
-import dotenv from 'dotenv';
 import colors from 'colors';
+import { DB_CONFIG } from '../config/environments.js';
 
-dotenv.config();
+
 const { Pool } = pg;
 
 class TestDatabaseManager {
@@ -13,9 +13,13 @@ class TestDatabaseManager {
 
   get pool() {
     if (!this._pool) {
-      this._pool = new Pool({
-        connectionString: process.env.DATABASE_URL
-      });
+       this._pool = new Pool({
+             user: DB_CONFIG.test.user,
+             host: DB_CONFIG.test.host,
+             database: DB_CONFIG.test.database,
+             password: DB_CONFIG.test.password,
+             port: DB_CONFIG.test.port
+         });
     }
     return this._pool;
   }

@@ -1,4 +1,6 @@
 import swaggerJsdoc from 'swagger-jsdoc';
+import { SERVER_CONFIG } from '../config/environments.js';
+
 
 const options = {
     definition: {
@@ -14,8 +16,8 @@ const options = {
         },
         servers: [
             {
-                url: 'http://localhost:5000',
-                description: 'Development server'
+                url: `http://localhost:${SERVER_CONFIG.port}`,
+                description: `${SERVER_CONFIG.nodeEnv} server`
             }
         ],
         components: {
@@ -116,40 +118,6 @@ const options = {
                             type: 'string',
                             enum: ['user', 'admin'],
                             example: 'user'
-                        }
-                    }
-                },
-                Comment: {
-                    type: 'object',
-                    properties: {
-                        id: {
-                            type: 'integer',
-                            example: 1
-                        },
-                        lesson_id: {
-                            type: 'integer',
-                            example: 1
-                        },
-                        user_id: {
-                            type: 'integer',
-                            example: 1
-                        },
-                        content: {
-                            type: 'string',
-                            example: 'Ottima lezione!'
-                        },
-                        created_at: {
-                            type: 'string',
-                            format: 'date-time'
-                        },
-                        updated_at: {
-                            type: 'string',
-                            format: 'date-time'
-                        },
-                        parent_id: {
-                            type: 'integer',
-                            nullable: true,
-                            example: null
                         }
                     }
                 }

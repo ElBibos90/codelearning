@@ -5,6 +5,7 @@ import AuthError from './AuthError.js';
 import logger from '../logger.js';
 import { errorReporter } from '../errorReporting/errorReporter.js';
 import { formatError } from '../errorReporting/errorFormatter.js';
+import { SERVER_CONFIG } from '../../config/environments.js';
 
 function handleDevelopmentError(err, req, res) {
     logger.error('Development Error:', {
@@ -76,7 +77,7 @@ const errorHandler = async (err, req, res, next) => {
     }
 
     // Gestione diversa in base all'ambiente
-    if (process.env.NODE_ENV === 'development') {
+    if (SERVER_CONFIG.isDevelopment) {
         handleDevelopmentError(err, req, res);
     } else {
         handleProductionError(err, req, res);
@@ -97,7 +98,7 @@ const unhandledRejectionHandler = (reason, promise) => {
     });
 
     // In produzione, log e continua
-    if (process.env.NODE_ENV === 'production') {
+    if (SERVER_CONFIG.isProduction) {
         errorReporter.report(reason);
     } else {
         // In development, termina il processo

@@ -1,12 +1,15 @@
 import pg from 'pg';
-import dotenv from 'dotenv';
+import { DB_CONFIG } from '../config/environments.js';
 
-dotenv.config();
 const { Pool } = pg;
 
-const pool = new Pool({
-    connectionString: process.env.DATABASE_URL
-});
+ const pool = new Pool({
+         user: DB_CONFIG.user,
+         host: DB_CONFIG.host,
+         database: DB_CONFIG.database,
+         password: DB_CONFIG.password,
+         port: DB_CONFIG.port
+     });
 
 const checkTableStructure = async () => {
     try {

@@ -3,17 +3,13 @@ import { exec } from 'child_process';
 import fs from 'fs-extra';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import dotenv from 'dotenv';
 import colors from 'colors';
+import { BACKUP_CONFIG, DB_CONFIG } from '../../config/environments.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-dotenv.config();
-
-const POSTGRESQL_BIN = process.env.POSTGRESQL_BIN || 'C:\\Program Files\\PostgreSQL\\15\\bin';
 const BACKUP_DIR = path.resolve(__dirname, '../../../backups');
-const BACKUP_RETENTION_DAYS = process.env.BACKUP_RETENTION_DAYS || 7;
 
 async function createBackup(dbManager) {
     try {
@@ -37,14 +33,14 @@ async function createBackup(dbManager) {
         }
 
         // Costruisci il comando pg_dump
-        const pgDumpPath = path.join(POSTGRESQL_BIN, 'pg_dump.exe');
-        const command = `"${pgDumpPath}" -h ${process.env.DB_HOST} -p ${process.env.DB_PORT} -U ${process.env.DB_USER} -F c -b -v -f "${filePath}" ${process.env.DB_NAME}`;
+        const pgDumpPath = path.join(BACKUP_CONFIG.postgresqlBin, 'pg_dump.exe');
+        const command = `"${pgDumpPath}" -h ${DB_CONFIG.host} -p ${DB_CONFIG.port} -U ${DB_CONFIG.user} -F c -b -v -f "${filePath}" ${DB_CONFIG.database}`;
 
         // Esegui il backup
         console.log('\nExecuting backup...'.yellow);
         await new Promise((resolve, reject) => {
             exec(command, { 
-                env: { ...process.env, PGPASSWORD: process.env.DB_PASSWORD },
+                env: { PGPASSWORD: DB_CONFIG.password },
                 maxBuffer: 10 * 1024 * 1024 // 10MB buffer
             }, 
             (error, stdout, stderr) => {

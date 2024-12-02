@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 import logger, { requestLogger, errorLogger } from '../../src/utils/logger.js';
 import express from 'express';
 import request from 'supertest';
+import { SERVER_CONFIG, DB_CONFIG } from '../../src/config/environments.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const testLogDir = path.join(__dirname, '../../logs');
@@ -23,8 +24,8 @@ const logFiles = {
 
 describe('Test Environment', () => {
     it('should have correct test environment variables', () => {
-        expect(process.env.NODE_ENV).toBe('test');
-        expect(process.env.DATABASE_URL).toBeDefined();
+        expect(SERVER_CONFIG.nodeEnv).toBe('test');
+        expect(DB_CONFIG.url).toBeDefined();
     });
 
     it('should mock console.error and console.warn', () => {

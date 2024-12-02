@@ -2,6 +2,8 @@ import winston from 'winston';
 import 'winston-daily-rotate-file';
 import path from 'path';
 import fs from 'fs';
+import { SERVER_CONFIG } from '../config/environments.js';
+
 
 // Crea la directory dei log se non esiste
 const logDir = 'logs';
@@ -52,7 +54,7 @@ const dailyRotateFileTransport = new winston.transports.DailyRotateFile({
     datePattern: 'YYYY-MM-DD',
     maxSize: '20m',
     maxFiles: '14d',
-    level: process.env.NODE_ENV === 'development' ? 'debug' : 'info'
+    level: SERVER_CONFIG.isDevelopment ? 'debug' : 'info'
 });
 
 // Transport per errori
@@ -66,12 +68,12 @@ const errorFileTransport = new winston.transports.DailyRotateFile({
 
 // Configurazione logger
 const logger = winston.createLogger({
-    level: process.env.NODE_ENV === 'development' ? 'debug' : 'info',
+    level: SERVER_CONFIG.isDevelopment ? 'debug' : 'info',
     format: logFormat,
     defaultMeta: { service: 'codelearning' },
     transports: [
         // Usa transport diversi per test e non-test
-        ...(process.env.NODE_ENV === 'test' ? [
+        ...(SERVER_CONFIG.isTest ? [
             new winston.transports.File({ 
                 filename: 'logs/application.log',
                 level: 'info'
@@ -145,23 +147,6 @@ export const errorLogger = (err, req, res, next) => {
     logger.error('Request Error:', errorLog);
 
     next(err);
-};
-
-// Metodi per i test
-logger.clear = function() {
-    this.transports.forEach(t => {
-        if (typeof t.clear === 'function') {
-            t.clear();
-        }
-    });
-};
-
-logger.end = function() {
-    this.transports.forEach(t => {
-        if (typeof t.end === 'function') {
-            t.end();
-        }
-    });
 };
 
 export default logger;

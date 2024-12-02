@@ -1,3 +1,4 @@
+import { SERVER_CONFIG } from '../../config/environments.js';
 class AppError extends Error {
     constructor(message, statusCode = 500, code = 'INTERNAL_ERROR', data = {}) {
         super(message);
@@ -20,7 +21,7 @@ class AppError extends Error {
                 statusCode: this.statusCode,
                 data: this.data,
                 timestamp: this.timestamp,
-                stack: process.env.NODE_ENV === 'development' ? this.stack : undefined
+                stack: SERVER_CONFIG.isDevelopment ? this.stack : undefined
             }
         };
     }

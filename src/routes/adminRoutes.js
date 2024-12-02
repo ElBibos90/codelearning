@@ -1,16 +1,13 @@
 import express from 'express';
 import { authenticateToken, isAdmin } from '../middleware/auth.js';
 import { pool } from '../config/database.js';
+import { DB_CONFIG, SERVER_CONFIG } from '../config/environments.js';
 
 const router = express.Router();
 
 // Middleware per proteggere tutte le route admin
 router.use(authenticateToken, isAdmin);
 
-/**
- * GET /api/admin/courses
- * Recupera tutti i corsi con le relative lezioni per l'admin
- */
 router.get('/courses', async (req, res) => {
   try {
     const result = await pool.query(`
@@ -44,10 +41,6 @@ router.get('/courses', async (req, res) => {
   }
 });
 
-/**
- * POST /api/admin/courses
- * Crea un nuovo corso
- */
 router.post('/courses', async (req, res) => {
   const { title, description, difficulty_level, duration_hours } = req.body;
   
@@ -72,10 +65,6 @@ router.post('/courses', async (req, res) => {
   }
 });
 
-/**
- * PUT /api/admin/courses/:id
- * Aggiorna un corso esistente
- */
 router.put('/courses/:id', async (req, res) => {
   const { id } = req.params;
   const { title, description, difficulty_level, duration_hours } = req.body;
@@ -113,10 +102,6 @@ router.put('/courses/:id', async (req, res) => {
   }
 });
 
-/**
- * DELETE /api/admin/courses/:id
- * Elimina un corso
- */
 router.delete('/courses/:id', async (req, res) => {
   const { id } = req.params;
 
@@ -146,16 +131,11 @@ router.delete('/courses/:id', async (req, res) => {
   }
 });
 
-/**
- * POST /api/admin/courses/:courseId/lessons
- * Aggiunge una nuova lezione a un corso
- */
 router.post('/courses/:courseId/lessons', async (req, res) => {
   const { courseId } = req.params;
   const { title, content, order_number } = req.body;
 
   try {
-    // Verifica che il corso esista
     const courseCheck = await pool.query(
       'SELECT id FROM courses WHERE id = $1',
       [courseId]
@@ -188,10 +168,6 @@ router.post('/courses/:courseId/lessons', async (req, res) => {
   }
 });
 
-/**
- * PUT /api/admin/lessons/:id
- * Aggiorna una lezione esistente
- */
 router.put('/lessons/:id', async (req, res) => {
   const { id } = req.params;
   const { title, content, order_number } = req.body;
@@ -227,10 +203,6 @@ router.put('/lessons/:id', async (req, res) => {
   }
 });
 
-/**
- * DELETE /api/admin/lessons/:id
- * Elimina una lezione
- */
 router.delete('/lessons/:id', async (req, res) => {
   const { id } = req.params;
 

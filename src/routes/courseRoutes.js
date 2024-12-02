@@ -1,19 +1,14 @@
 import express from 'express';
 import { authenticateToken, isAdmin } from '../middleware/auth.js';
-import pkg from 'pg';
-const { Pool } = pkg;
-import dotenv from 'dotenv';
+import { pool } from '../config/database.js';
 import { courseValidation } from '../middleware/validators.js';
 import { sanitizeContent } from '../utils/sanitize.js';
 import { getCachedData, cacheData } from '../config/redis.js';
 import { getPaginationParams, encodeCursor } from '../utils/pagination.js';
+import { SERVER_CONFIG } from '../config/environments.js';
 
-dotenv.config();
+
 const router = express.Router();
-
-const pool = new Pool({
-    connectionString: process.env.DATABASE_URL
-});
 
 router.get('/:courseId', authenticateToken, async (req, res) => {
     try {
@@ -85,7 +80,10 @@ router.get('/:courseId', authenticateToken, async (req, res) => {
             lessons: result.rows[0].lessons || []
         };
 
-        await cacheData(cacheKey, courseData, 300);
+        // Cache solo in production e development
+        if (!SERVER_CONFIG.isTest) {
+            await cacheData(cacheKey, courseData, 300);
+        }
 
         res.json({
             success: true,
@@ -100,24 +98,24 @@ router.get('/:courseId', authenticateToken, async (req, res) => {
     }
 });
 
-// GET /courses - Lista di tutti i corsi
-// In courseRoutes.js
 router.get('/', authenticateToken, async (req, res) => {
     try {
         const { cursor, limit } = getPaginationParams(req.query.cursor, req.query.limit);
         
         const cacheKey = `courses:${req.user.id}:${cursor || 'start'}:${limit}`;
-        const cachedData = await getCachedData(cacheKey);
         
-        if (cachedData) {
-            return res.json({
-                success: true,
-                data: cachedData.data,
-                pagination: cachedData.pagination
-            });
+        // Cache solo in production e development
+        if (!SERVER_CONFIG.isTest) {
+            const cachedData = await getCachedData(cacheKey);
+            if (cachedData) {
+                return res.json({
+                    success: true,
+                    data: cachedData.data,
+                    pagination: cachedData.pagination
+                });
+            }
         }
 
-        // Query ottimizzata con paginazione cursor-based
         const query = `
             WITH enrollment_info AS (
                 SELECT 
@@ -153,7 +151,6 @@ router.get('/', authenticateToken, async (req, res) => {
 
         const { rows } = await pool.query(query, values);
 
-        // Prepara i dati paginati
         const lastItem = rows[rows.length - 1];
         const nextCursor = rows.length === limit ? encodeCursor(lastItem.id) : null;
 
@@ -165,7 +162,10 @@ router.get('/', authenticateToken, async (req, res) => {
             }
         };
 
-        await cacheData(cacheKey, result, 300);
+        // Cache solo in production e development
+        if (!SERVER_CONFIG.isTest) {
+            await cacheData(cacheKey, result, 300);
+        }
 
         res.json({
             success: true,
@@ -180,12 +180,10 @@ router.get('/', authenticateToken, async (req, res) => {
     }
 });
 
-// POST /courses - Crea nuovo corso (solo admin)
 router.post('/', authenticateToken, isAdmin, courseValidation, async (req, res) => {
     try {
         const { title, description, difficulty_level, duration_hours } = req.body;
         
-        // Sanitizza la descrizione
         const sanitizedDescription = sanitizeContent(description);
         
         const result = await pool.query(

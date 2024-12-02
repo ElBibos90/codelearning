@@ -2,36 +2,111 @@
 > codelearning@1.0.0 test
 > node --experimental-vm-modules node_modules/jest/bin/jest.js --no-cache
 
-(node:5596) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(node:9812) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
 (Use `node --trace-warnings ...` to show where the warning was created)
-PASS tests/security.test.js (8.876 s)
+PASS tests/security.test.js (8.484 s)
   Test Environment
-    √ should have correct test environment variables (3 ms)
-    √ should mock console.error and console.warn (2 ms)
-    √ should have correct test environment variables (5 ms)
+    √ should have correct test environment variables (2 ms)
+    √ should mock console.error and console.warn (1 ms)
+    √ should have correct test environment variables (1 ms)
     √ should mock console.error and console.warn (1 ms)
   Security Middleware - Rate Limiting
     Authentication Rate Limiting
-      √ should limit login attempts (824 ms)
-      √ should track login attempts separately by IP (642 ms)
+      √ should limit login attempts (803 ms)
+      √ should track login attempts separately by IP (656 ms)
     Admin Routes Rate Limiting
-      √ should apply stricter limits to admin routes (762 ms)
+      √ should apply stricter limits to admin routes (717 ms)
     API Rate Limiting
-      √ should apply general rate limits to API routes (1175 ms)
-      √ should track rate limits separately for different routes (423 ms)
+      √ should apply general rate limits to API routes (1090 ms)
+      √ should track rate limits separately for different routes (402 ms)
     IP Blacklisting
-      √ should blacklist IP after repeated violations (1521 ms)
-      √ should maintain blacklist across different routes (1504 ms)
-      √ should track violations separately by IP (326 ms)
+      √ should blacklist IP after repeated violations (1530 ms)
+      √ should maintain blacklist across different routes (1530 ms)
+      √ should track violations separately by IP (357 ms)
   Input Validation
-    √ should validate email format on register (20 ms)
-    √ should validate password strength on register (14 ms)
-    √ should validate course creation data (13 ms)
+    √ should validate email format on register (16 ms)
+    √ should validate password strength on register (12 ms)
+    √ should validate course creation data (12 ms)
   Content Sanitization
-    √ should sanitize malicious HTML content (5 ms)
+    √ should sanitize malicious HTML content (3 ms)
     √ should preserve safe HTML elements and attributes (1 ms)
-    √ should sanitize lesson content on creation (32 ms)
-    √ should handle course description sanitization (14 ms)
+    √ should sanitize lesson content on creation (30 ms)
+    √ should handle course description sanitization (13 ms)
+
+  console.log
+    DEBUG: Starting development mode test for unhandledRejectionHandler
+
+      at Object.<anonymous> (tests/errors/errorHandler.test.js:188:21)
+
+  console.log
+    DEBUG: Checking calls to console.error and process.exit
+
+      at Object.<anonymous> (tests/errors/errorHandler.test.js:201:21)
+
+  console.log
+    DEBUG: Starting production mode test for unhandledRejectionHandler
+
+      at Object.<anonymous> (tests/errors/errorHandler.test.js:211:21)
+
+  console.log
+    DEBUG: Checking calls to console.error and errorReporter.report
+
+      at Object.<anonymous> (tests/errors/errorHandler.test.js:224:21)
+
+FAIL tests/errors/errorHandler.test.js
+  Test Environment
+    √ should have correct test environment variables (2 ms)
+    √ should mock console.error and console.warn (2 ms)
+  Error Handler Middleware
+    Development Mode
+      √ should handle AppError with full details (4 ms)
+      √ should handle ValidationError (5 ms)
+      √ should handle unexpected errors with stack trace (2 ms)
+    Production Mode
+      √ should handle operational errors without stack trace (2 ms)
+      √ should sanitize unexpected errors (2 ms)
+      √ should report non-operational errors (1 ms)
+    Not Found Handler
+      √ should create not found error (2 ms)
+    Unhandled Rejection Handler
+      × should log error and exit in development (11 ms)
+      × should log error and report in production (2 ms)
+
+  ● Error Handler Middleware › Unhandled Rejection Handler › should log error and exit in development
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "Unhandled Rejection:", [Error: Test Error]
+
+    Number of calls: 0
+
+    [0m [90m 200 |[39m     
+     [90m 201 |[39m             console[33m.[39mlog([32m'DEBUG: Checking calls to console.error and process.exit'[39m)[33m;[39m
+    [31m[1m>[22m[39m[90m 202 |[39m             expect(spyConsoleError)[33m.[39mtoHaveBeenCalledWith([32m'Unhandled Rejection:'[39m[33m,[39m error)[33m;[39m
+     [90m     |[39m                                     [31m[1m^[22m[39m
+     [90m 203 |[39m             expect(spyProcessExit)[33m.[39mtoHaveBeenCalledWith([35m1[39m)[33m;[39m
+     [90m 204 |[39m     
+     [90m 205 |[39m             [90m// Ripristina l'ambiente[39m[0m
+
+      at Object.<anonymous> (tests/errors/errorHandler.test.js:202:37)
+
+  ● Error Handler Middleware › Unhandled Rejection Handler › should log error and report in production
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "Unhandled Rejection:", [Error: Test Error]
+
+    Number of calls: 0
+
+    [0m [90m 223 |[39m     
+     [90m 224 |[39m             console[33m.[39mlog([32m'DEBUG: Checking calls to console.error and errorReporter.report'[39m)[33m;[39m
+    [31m[1m>[22m[39m[90m 225 |[39m             expect(spyConsoleError)[33m.[39mtoHaveBeenCalledWith([32m'Unhandled Rejection:'[39m[33m,[39m error)[33m;[39m
+     [90m     |[39m                                     [31m[1m^[22m[39m
+     [90m 226 |[39m             expect(spyReporter)[33m.[39mtoHaveBeenCalledWith(error)[33m;[39m
+     [90m 227 |[39m     
+     [90m 228 |[39m             [90m// Ripristina l'ambiente[39m[0m
+
+      at Object.<anonymous> (tests/errors/errorHandler.test.js:225:37)
 
 PASS tests/integration/cache.test.js
   Test Environment
@@ -39,183 +114,169 @@ PASS tests/integration/cache.test.js
     √ should mock console.error and console.warn (2 ms)
   Cache Integration Tests
     Course Detail Cache
-      √ should cache course detail response (79 ms)
+      √ should cache course detail response (48 ms)
     Lesson Detail Cache
-      √ should cache lesson detail response (37 ms)
+      √ should cache lesson detail response (32 ms)
     Dashboard Overview Cache
-      √ should cache dashboard overview response (58 ms)
+      √ should cache dashboard overview response (29 ms)
     Course Stats Cache
-      √ should cache course stats response (57 ms)
+      √ should cache course stats response (24 ms)
     Profile Cache
-      √ should cache profile response (60 ms)
+      √ should cache profile response (29 ms)
     Admin Overview Cache
       √ should cache admin overview response (26 ms)
     My Courses Cache
-      √ should cache my courses response (57 ms)
-
-PASS tests/errors/errorHandler.test.js
-  Test Environment
-    √ should have correct test environment variables (3 ms)
-    √ should mock console.error and console.warn (2 ms)
-  Error Handler Middleware
-    Development Mode
-      √ should handle AppError with full details (6 ms)
-      √ should handle ValidationError (2 ms)
-      √ should handle unexpected errors with stack trace (2 ms)
-    Production Mode
-      √ should handle operational errors without stack trace (2 ms)
-      √ should sanitize unexpected errors (1 ms)
-      √ should report non-operational errors (2 ms)
-    Not Found Handler
-      √ should create not found error (5 ms)
-    Unhandled Rejection Handler
-      √ should handle unhandled rejections (1 ms)
+      √ should cache my courses response (24 ms)
 
 PASS tests/utils/logger.test.js
   Test Environment
-    √ should have correct test environment variables (3 ms)
-    √ should mock console.error and console.warn (1 ms)
+    √ should have correct test environment variables (2 ms)
+    √ should mock console.error and console.warn (2 ms)
     √ should have correct test environment variables (1 ms)
     √ should mock console.error and console.warn (1 ms)
   Logger
-    √ should create log directory if it does not exist (112 ms)
-    √ should log successful requests (641 ms)
-    √ should log error requests (641 ms)
+    √ should create log directory if it does not exist (117 ms)
+    √ should log successful requests (635 ms)
+    √ should log error requests (634 ms)
     √ should use different log levels based on environment (110 ms)
-    √ should handle request duration logging (733 ms)
-    √ should properly format log messages (625 ms)
-    √ should handle multiple simultaneous logs (1156 ms)
+    √ should handle request duration logging (724 ms)
+    √ should properly format log messages (618 ms)
+    √ should handle multiple simultaneous logs (1159 ms)
 
 PASS tests/lessonRoutes.test.js
   Test Environment
-    √ should have correct test environment variables (3 ms)
-    √ should mock console.error and console.warn (1 ms)
+    √ should have correct test environment variables (2 ms)
+    √ should mock console.error and console.warn (2 ms)
   Lesson Routes Tests
-    √ Should create a new lesson with theory template (45 ms)
+    √ Should create a new lesson with theory template (32 ms)
     √ Should update lesson status (17 ms)
-    √ Should get lesson details (17 ms)
+    √ Should get lesson details (20 ms)
 
 PASS tests/courseRoutes.test.js
   Test Environment
-    √ should have correct test environment variables (3 ms)
+    √ should have correct test environment variables (2 ms)
     √ should mock console.error and console.warn (2 ms)
   Course Management
-    √ should create a new course (75 ms)
-    √ should prevent non-admin from creating course (15 ms)
+    √ should create a new course (45 ms)
+    √ should prevent non-admin from creating course (13 ms)
     √ should get course list (17 ms)
-    √ should get course details (15 ms)
-    √ should update course (16 ms)
-    √ should delete course (15 ms)
-    √ should handle invalid course ID (14 ms)
+    √ should get course details (14 ms)
+    √ should update course (14 ms)
+    √ should delete course (18 ms)
+    √ should handle invalid course ID (13 ms)
   Course Cache
-    √ should cache course list (25 ms)
+    √ should cache course list (26 ms)
 
-FAIL tests/errors/errorReporter.test.js
-  ● Test suite failed to run
-
-    SyntaxError: The requested module '../../src/utils/errorReporting/errorReporter' does not provide an export named 'default'
-
-      at Runtime.linkAndEvaluateModule (node_modules/jest-runtime/build/index.js:708:5)
-
-PASS tests/authRoutes.test.js
+PASS tests/errors/errorReporter.test.js
   Test Environment
     √ should have correct test environment variables (2 ms)
     √ should mock console.error and console.warn (1 ms)
+  Error Reporter
+    √ should log error locally (5 ms)
+    √ should batch errors up to limit (2 ms)
+    √ should flush errors after timeout (115 ms)
+    √ should include error context (2 ms)
+    √ should handle error during reporting (2 ms)
+    √ should retry failed flushes (1 ms)
+
+PASS tests/authRoutes.test.js
+  Test Environment
+    √ should have correct test environment variables (1 ms)
+    √ should mock console.error and console.warn (1 ms)
   Authentication Routes
-    √ should register new user (133 ms)
-    √ should login existing user (77 ms)
-    √ should reject invalid credentials (76 ms)
-    √ should reject invalid email format (14 ms)
+    √ should register new user (93 ms)
+    √ should login existing user (71 ms)
+    √ should reject invalid credentials (68 ms)
+    √ should reject invalid email format (17 ms)
     √ should reject weak passwords (12 ms)
-    √ should prevent duplicate email registration (15 ms)
+    √ should prevent duplicate email registration (12 ms)
 
 PASS tests/snapshots/responses.test.js
   Test Environment
     √ should have correct test environment variables (2 ms)
-    √ should mock console.error and console.warn (2 ms)
+    √ should mock console.error and console.warn (1 ms)
   API Response Snapshots
-    √ GET /api/courses should match snapshot (61 ms)
-    √ Error response should match snapshot (17 ms)
-    √ Validation error should match snapshot (25 ms)
-    √ Success response should match snapshot (106 ms)
+    √ GET /api/courses should match snapshot (30 ms)
+    √ Error response should match snapshot (16 ms)
+    √ Validation error should match snapshot (22 ms)
+    √ Success response should match snapshot (75 ms)
 
 PASS tests/errors/ValidationError.test.js
   Test Environment
-    √ should have correct test environment variables (3 ms)
-    √ should mock console.error and console.warn (2 ms)
+    √ should have correct test environment variables (2 ms)
+    √ should mock console.error and console.warn (1 ms)
   ValidationError
     √ should create validation error with errors array (1 ms)
     √ should create from express-validator errors (1 ms)
-    √ should create from joi errors (7 ms)
+    √ should create from joi errors (1 ms)
     √ should create from zod errors (1 ms)
     √ should add errors dynamically (1 ms)
     √ should check if has errors (1 ms)
-    √ should get errors by field (2 ms)
+    √ should get errors by field (4 ms)
+
+PASS tests/errors/AppError.test.js
+  Test Environment
+    √ should have correct test environment variables (1 ms)
+    √ should mock console.error and console.warn (1 ms)
+  AppError
+    √ should create basic error with defaults (1 ms)
+    √ should create error with custom properties (2 ms)
+    √ should convert to JSON correctly (1 ms)
+    √ should identify operational errors
+    √ should create specific error types (1 ms)
+    √ should include stack trace in development (2 ms)
+
+PASS tests/errors/DatabaseError.test.js
+  Test Environment
+    √ should have correct test environment variables (2 ms)
+    √ should mock console.error and console.warn (2 ms)
+  DatabaseError
+    √ should create basic database error (1 ms)
+    √ should parse PostgreSQL errors (1 ms)
+    √ should identify unique violation errors (1 ms)
+    √ should identify foreign key violation errors (1 ms)
+    √ should identify connection errors
+    √ should handle JSON serialization (2 ms)
+    √ should handle missing PostgreSQL error (1 ms)
 
 PASS tests/pagination.test.js
   Test Environment
-    √ should have correct test environment variables (3 ms)
-    √ should mock console.error and console.warn (1 ms)
+    √ should have correct test environment variables (2 ms)
+    √ should mock console.error and console.warn (2 ms)
   Pagination Tests
-    √ should return first page of courses with next cursor (62 ms)
+    √ should return first page of courses with next cursor (27 ms)
     √ should return next page using cursor (26 ms)
-    √ should handle last page correctly (15 ms)
+    √ should handle last page correctly (14 ms)
 
 PASS tests/favorites.test.js
   Test Environment
     √ should have correct test environment variables (3 ms)
     √ should mock console.error and console.warn (2 ms)
   Favorites API
-    √ Should add a course to favorites (40 ms)
-    √ Should prevent duplicate favorites (17 ms)
-    √ Should get user favorites (49 ms)
-    √ Should remove from favorites (14 ms)
-
-PASS tests/errors/AppError.test.js
-  Test Environment
-    √ should have correct test environment variables (2 ms)
-    √ should mock console.error and console.warn (2 ms)
-  AppError
-    √ should create basic error with defaults (1 ms)
-    √ should create error with custom properties (2 ms)
-    √ should convert to JSON correctly (1 ms)
-    √ should identify operational errors (1 ms)
-    √ should create specific error types (2 ms)
-    √ should include stack trace in development (3 ms)
-
-PASS tests/errors/DatabaseError.test.js
-  Test Environment
-    √ should have correct test environment variables (3 ms)
-    √ should mock console.error and console.warn (1 ms)
-  DatabaseError
-    √ should create basic database error (1 ms)
-    √ should parse PostgreSQL errors (1 ms)
-    √ should identify unique violation errors (1 ms)
-    √ should identify foreign key violation errors (1 ms)
-    √ should identify connection errors (1 ms)
-    √ should handle JSON serialization (4 ms)
-    √ should handle missing PostgreSQL error (1 ms)
+    √ Should add a course to favorites (52 ms)
+    √ Should prevent duplicate favorites (21 ms)
+    √ Should get user favorites (48 ms)
+    √ Should remove from favorites (15 ms)
 
 PASS tests/setup-test-env.js
   Test Environment
-    √ should have correct test environment variables (3 ms)
-    √ should mock console.error and console.warn (2 ms)
+    √ should have correct test environment variables (2 ms)
+    √ should mock console.error and console.warn (1 ms)
 
 PASS tests/teardown.js
   Test Environment
-    √ should have correct test environment variables (3 ms)
-    √ should mock console.error and console.warn (2 ms)
+    √ should have correct test environment variables (2 ms)
+    √ should mock console.error and console.warn (1 ms)
 
 PASS tests/integration/health.test.js
   Test Environment
-    √ should have correct test environment variables (3 ms)
-    √ should mock console.error and console.warn (2 ms)
+    √ should have correct test environment variables (1 ms)
+    √ should mock console.error and console.warn (1 ms)
   Health Check
-    √ GET / should return 200 (79 ms)
+    √ GET / should return 200 (25 ms)
 
 Test Suites: 1 failed, 16 passed, 17 total
-Tests:       122 passed, 122 total
+Tests:       2 failed, 129 passed, 131 total
 Snapshots:   0 total
-Time:        24.343 s
+Time:        21.975 s
 Ran all test suites.
-Warning: Error in test teardown: EPERM: operation not permitted, unlink 'C:\Users\Eddy\Desktop\Main\logs\2024-11-29-application.log'

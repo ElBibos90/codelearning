@@ -1,10 +1,10 @@
-// src/scripts/maintenance/healthCheck.js
 import colors from 'colors';
 import os from 'os';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import { fileURLToPath } from 'url';
 import path from 'path';
+import { SERVER_CONFIG, DB_CONFIG } from '../../config/environments.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -23,9 +23,16 @@ async function checkSystemHealth(dbManager) {
         const usedMem = totalMem - freeMem;
         const memoryUsage = (usedMem / totalMem * 100).toFixed(2);
 
-        console.log(`CPU Load: ${os.loadavg()[0].toFixed(2)}`.cyan);
-        console.log(`Memory Usage: ${memoryUsage}%`.cyan);
-        console.log(`Uptime: ${(os.uptime() / 3600).toFixed(2)} hours`.cyan);
+        const systemStatus = {
+            environment: SERVER_CONFIG.nodeEnv,
+            cpu_load: os.loadavg()[0].toFixed(2),
+            memory_usage: `${memoryUsage}%`,
+            uptime: `${(os.uptime() / 3600).toFixed(2)} hours`
+        };
+
+        Object.entries(systemStatus).forEach(([key, value]) => {
+            console.log(`${key}: ${value}`.cyan);
+        });
 
         // 2. Verifica Database
         console.log('\nVerifica Database:'.yellow);
@@ -34,6 +41,8 @@ async function checkSystemHealth(dbManager) {
         await dbManager.query('SELECT 1');
         const connectionTime = Date.now() - connectionStart;
         console.log(`Tempo di risposta DB: ${connectionTime}ms`.cyan);
+        console.log(`Database: ${DB_CONFIG.database}`.cyan);
+        console.log(`Host: ${DB_CONFIG.host}`.cyan);
 
         // Statistiche database
         const dbStats = await dbManager.query(`
@@ -44,10 +53,9 @@ async function checkSystemHealth(dbManager) {
                 pg_size_pretty(pg_total_relation_size('lessons')) as lessons_size
         `);
 
-        console.log(`Dimensione Database: ${dbStats.rows[0].db_size}`.cyan);
-        console.log(`Dimensione Users: ${dbStats.rows[0].users_size}`.cyan);
-        console.log(`Dimensione Courses: ${dbStats.rows[0].courses_size}`.cyan);
-        console.log(`Dimensione Lessons: ${dbStats.rows[0].lessons_size}`.cyan);
+        Object.entries(dbStats.rows[0]).forEach(([key, value]) => {
+            console.log(`${key}: ${value}`.cyan);
+        });
 
         // 3. Controllo Connessioni
         console.log('\nConnessioni Database:'.yellow);
@@ -90,21 +98,19 @@ async function checkSystemHealth(dbManager) {
         const report = {
             timestamp: new Date(),
             system: {
-                cpu_load: os.loadavg()[0],
-                memory_usage: parseFloat(memoryUsage),
-                uptime: os.uptime()
+                ...systemStatus,
+                memory_usage: parseFloat(memoryUsage)
             },
             database: {
                 connection_time: connectionTime,
                 sizes: {
-                    total: dbStats.rows[0].db_size,
-                    users: dbStats.rows[0].users_size,
-                    courses: dbStats.rows[0].courses_size,
-                    lessons: dbStats.rows[0].lessons_size
+                    ...dbStats.rows[0]
                 },
                 connections: connections.rows,
                 cache_hit_ratio: parseFloat(cacheRatio)
-            }
+            },
+            duration_ms: duration,
+            environment: SERVER_CONFIG.nodeEnv
         };
 
         await dbManager.query(`
@@ -122,6 +128,11 @@ async function checkSystemHealth(dbManager) {
                 CURRENT_TIMESTAMP
             )
         `, [duration, JSON.stringify(report)]);
+
+        if (!SERVER_CONFIG.isTest) {
+            console.log('\n✓ Health check completato con successo'.green);
+            console.log(`Durata totale: ${duration}ms`.cyan);
+        }
 
     } catch (error) {
         console.error('Errore durante health check:'.red, error);

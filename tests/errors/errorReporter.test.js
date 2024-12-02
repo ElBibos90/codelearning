@@ -1,6 +1,7 @@
 import { jest } from '@jest/globals';
 import { errorReporter } from '../../src/utils/errorReporting/errorReporter.js';
 import logger from '../../src/utils/logger.js';
+import { SERVER_CONFIG } from '../../src/config/environments.js';
 
 
 // Mock delle funzioni logger
@@ -35,7 +36,7 @@ describe('Error Reporter', () => {
         // Ripristina lo stato originale
         errorReporter.errorQueue = originalQueue;
         errorReporter.persistErrors = originalPersistErrors;
-        errorReporter.shouldReport = process.env.NODE_ENV === 'production';
+        errorReporter.shouldReport = SERVER_CONFIG.isProduction;
     });
 
     test('should log error locally', async () => {

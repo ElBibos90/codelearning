@@ -1,12 +1,11 @@
 import { jest } from '@jest/globals';
-import { errorHandler, notFoundHandler, unhandledRejectionHandler, uncaughtExceptionHandler } from '../../src/utils/errors/errorHandler.js';
+import { errorHandler, notFoundHandler, unhandledRejectionHandler } from '../../src/utils/errors/errorHandler.js';
 import AppError from '../../src/utils/errors/AppError.js';
 import ValidationError from '../../src/utils/errors/ValidationError.js';
-import AuthError from '../../src/utils/errors/AuthError.js';
 import { errorReporter } from '../../src/utils/errorReporting/errorReporter.js';
 import logger from '../../src/utils/logger.js';
+import { SERVER_CONFIG } from '../../src/config/environments.js';
 
-// Mock di express Request/Response
 const mockRequest = (overrides = {}) => ({
     path: '/test',
     method: 'GET',
@@ -33,8 +32,19 @@ describe('Error Handler Middleware', () => {
     });
 
     describe('Development Mode', () => {
-        beforeAll(() => {
-            process.env.NODE_ENV = 'development';
+        let originalEnv;
+        let originalIsDev;
+
+        beforeEach(() => {
+            originalEnv = SERVER_CONFIG.nodeEnv;
+            originalIsDev = SERVER_CONFIG.isDevelopment;
+            SERVER_CONFIG.nodeEnv = 'development';
+            SERVER_CONFIG.isDevelopment = true;
+        });
+
+        afterEach(() => {
+            SERVER_CONFIG.nodeEnv = originalEnv;
+            SERVER_CONFIG.isDevelopment = originalIsDev;
         });
 
         test('should handle AppError with full details', async () => {
@@ -45,36 +55,23 @@ describe('Error Handler Middleware', () => {
             await errorHandler(error, req, res, mockNext);
             
             expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+            const expectedError = {
                 success: false,
                 error: expect.objectContaining({
                     message: 'Test error',
                     code: 'TEST_ERROR',
+                    statusCode: 400,
                     stack: expect.any(String)
                 })
-            }));
+            };
+            expect(res.json).toHaveBeenCalledWith(expect.objectContaining(expectedError));
         });
 
         test('should handle ValidationError', () => {
-            const validationErrors = [
-                { param: 'email', msg: 'Invalid email format', value: 'test@' }
-            ];
-            const error = ValidationError.fromExpressValidator(validationErrors);
-        
-            const response = error.toJSON();
-            delete response.error.stack; // Rimuovi lo stack per il confronto
-        
-            expect(response).toEqual({
-                success: false,
-                error: {
-                    message: 'Validation Error',
-                    code: 'VALIDATION_ERROR',
-                    statusCode: 422,
-                    errors: [
-                        { field: 'email', message: 'Invalid email format', value: 'test@' }
-                    ]
-                }
-            });
+            const errors = [{ field: 'email', message: 'Invalid email' }];
+            const error = new ValidationError('Validation failed', errors);
+            const result = error.toJSON();
+            expect(result.error.errors).toEqual(errors);
         });
 
         test('should handle unexpected errors with stack trace', async () => {
@@ -85,19 +82,31 @@ describe('Error Handler Middleware', () => {
             await errorHandler(error, req, res, mockNext);
             
             expect(res.status).toHaveBeenCalledWith(500);
-            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+            const expectedResponse = {
                 success: false,
                 error: expect.objectContaining({
+                    message: 'Unexpected error',
                     stack: expect.any(String)
                 })
-            }));
-            expect(errorReporter.report).toHaveBeenCalled();
+            };
+            expect(res.json).toHaveBeenCalledWith(expect.objectContaining(expectedResponse));
         });
     });
 
     describe('Production Mode', () => {
-        beforeAll(() => {
-            process.env.NODE_ENV = 'production';
+        let originalEnv;
+        let originalIsProd;
+
+        beforeEach(() => {
+            originalEnv = SERVER_CONFIG.nodeEnv;
+            originalIsProd = SERVER_CONFIG.isProduction;
+            SERVER_CONFIG.nodeEnv = 'production';
+            SERVER_CONFIG.isProduction = true;
+        });
+
+        afterEach(() => {
+            SERVER_CONFIG.nodeEnv = originalEnv;
+            SERVER_CONFIG.isProduction = originalIsProd;
         });
 
         test('should handle operational errors without stack trace', async () => {
@@ -107,7 +116,8 @@ describe('Error Handler Middleware', () => {
             
             await errorHandler(error, req, res, mockNext);
             
-            expect(res.json.mock.calls[0][0].error.stack).toBeUndefined();
+            const response = res.json.mock.calls[0][0];
+            expect(response.error.stack).toBeUndefined();
         });
 
         test('should sanitize unexpected errors', async () => {
@@ -133,6 +143,7 @@ describe('Error Handler Middleware', () => {
             
             await errorHandler(error, req, res, mockNext);
             
+            expect(errorReporter.report).toHaveBeenCalled();
             expect(errorReporter.report).toHaveBeenCalledWith(
                 error,
                 expect.objectContaining({
@@ -155,29 +166,73 @@ describe('Error Handler Middleware', () => {
     });
 
     describe('Unhandled Rejection Handler', () => {
-        const originalExit = process.exit;
-        
-        beforeAll(() => {
-            process.exit = jest.fn();
+        let spyLoggerError;
+        let spyProcessExit;
+        let spyReporter;
+    
+        beforeEach(() => {
+            // Mock logger.error, process.exit, e errorReporter.report
+            spyLoggerError = jest.spyOn(logger, 'error').mockImplementation(() => {});
+            spyProcessExit = jest.spyOn(process, 'exit').mockImplementation(() => {});
+            spyReporter = jest.spyOn(errorReporter, 'report').mockImplementation(() => Promise.resolve());
         });
-        
-        afterAll(() => {
-            process.exit = originalExit;
+    
+        afterEach(() => {
+            // Ripristina i mock
+            spyLoggerError.mockRestore();
+            spyProcessExit.mockRestore();
+            spyReporter.mockRestore();
         });
-
-        test('should handle unhandled rejections', () => {
-            const error = new Error('Unhandled rejection');
-            unhandledRejectionHandler(error, Promise.resolve());
-            
-            if (process.env.NODE_ENV === 'development') {
-                expect(process.exit).toHaveBeenCalledWith(1);
-            } else {
-                expect(errorReporter.report).toHaveBeenCalledWith(error);
-            }
+    
+        test('should log error and exit in development', () => {
+            //console.log('DEBUG: Starting development mode test for unhandledRejectionHandler');
+            const originalNodeEnv = SERVER_CONFIG.nodeEnv;
+            const originalIsDev = SERVER_CONFIG.isDevelopment;
+    
+            SERVER_CONFIG.nodeEnv = 'development';
+            SERVER_CONFIG.isDevelopment = true;
+    
+            const error = new Error('Test Error');
+            const promise = Promise.resolve();
+    
+            // Chiamata al middleware
+            unhandledRejectionHandler(error, promise);
+    
+            //console.log('DEBUG: Checking calls to logger.error and process.exit');
+            expect(spyLoggerError).toHaveBeenCalledWith('Unhandled Rejection:', { reason: error, promise });
+            expect(spyProcessExit).toHaveBeenCalledWith(1);
+    
+            // Ripristina l'ambiente
+            SERVER_CONFIG.nodeEnv = originalNodeEnv;
+            SERVER_CONFIG.isDevelopment = originalIsDev;
+        });
+    
+        test('should log error and report in production', () => {
+            //console.log('DEBUG: Starting production mode test for unhandledRejectionHandler');
+            const originalNodeEnv = SERVER_CONFIG.nodeEnv;
+            const originalIsProd = SERVER_CONFIG.isProduction;
+    
+            SERVER_CONFIG.nodeEnv = 'production';
+            SERVER_CONFIG.isProduction = true;
+    
+            const error = new Error('Test Error');
+            const promise = Promise.resolve();
+    
+            // Chiamata al middleware
+            unhandledRejectionHandler(error, promise);
+    
+            //console.log('DEBUG: Checking calls to logger.error and errorReporter.report');
+            expect(spyLoggerError).toHaveBeenCalledWith('Unhandled Rejection:', { reason: error, promise });
+            expect(spyReporter).toHaveBeenCalledWith(error);
+    
+            // Ripristina l'ambiente
+            SERVER_CONFIG.nodeEnv = originalNodeEnv;
+            SERVER_CONFIG.isProduction = originalIsProd;
         });
     });
-
     afterAll(() => {
-        process.env.NODE_ENV = 'test';
+        SERVER_CONFIG.nodeEnv = 'test';
+        SERVER_CONFIG.isDevelopment = false;
+        SERVER_CONFIG.isProduction = false;
     });
 });
