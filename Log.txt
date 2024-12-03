@@ -1,69 +1,50 @@
 
 > codelearning@1.0.0 test
-> node --experimental-vm-modules node_modules/jest/bin/jest.js --no-cache tests/services/LessonService.test.js
+> node --experimental-vm-modules node_modules/jest/bin/jest.js --no-cache tests/services/EnrollmentService.test.js
 
-(node:19956) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(node:31816) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
 (Use `node --trace-warnings ...` to show where the warning was created)
-FAIL tests/services/LessonService.test.js
+FAIL tests/services/EnrollmentService.test.js
   Test Environment
-    √ should have correct test environment variables (3 ms)
-    √ should mock console.error and console.warn (2 ms)
-  LessonService
-    Lesson Creation
-      √ should create lesson with template (3 ms)
-      √ should fail with invalid data (4 ms)
-      √ should create lesson with custom content (3 ms)
-    Lesson Update and Versioning
-      √ should update lesson and create new version (3 ms)
-      √ should get lesson versions (3 ms)
-      √ should revert to previous version (6 ms)
+    √ should have correct test environment variables (4 ms)
+    √ should mock console.error and console.warn (1 ms)
+  EnrollmentService
+    Enrollment Management
+      √ should enroll user in course (8 ms)
+      √ should prevent duplicate enrollment (3 ms)
+      √ should get user enrollments (5 ms)
+      √ should get course enrollments (2 ms)
     Progress Tracking
-      √ should mark lesson as completed (4 ms)
-      √ should get progress status (2 ms)
-      √ should update last accessed timestamp (117 ms)
-    Lesson Ordering
-      × should reorder lessons (6 ms)
-    Content Sanitization
-      × should sanitize HTML content (1 ms)
-      √ should preserve markdown content (2 ms)
+      √ should complete course enrollment (3 ms)
+      √ should get enrollment statistics (2 ms)
+    Enrollment Removal
+      √ should unenroll user from course (3 ms)
+      √ should handle unenroll from non-existent enrollment (4 ms)
+    Validation
+      × should validate enrollment data (4 ms)
+      √ should require userId (5 ms)
+      √ should require courseId (39 ms)
 
-  ● LessonService › Lesson Ordering › should reorder lessons
+  ● EnrollmentService › Validation › should validate enrollment data
 
-    expect(received).toHaveLength(expected)
+    expect(received).rejects.toThrow()
 
-    Expected length: 2
-    Received length: 4
-    Received array:  [{"id": 155, "order_number": 1}, {"id": 152, "order_number": 4}, {"id": 153, "order_number": 1002}, {"id": 154, "order_number": 1003}]
+    Received promise resolved instead of rejected
+    Resolved to value: {"completed": false, "completed_at": null, "course_id": null, "enrolled_at": 2024-12-03T19:57:27.965Z, "id": 88, "user_id": null}
 
-    [0m [90m 238 |[39m             [36mconst[39m updatedOrder [33m=[39m [36mawait[39m [33mLessonService[39m[33m.[39mreorderLessons(testCourse[33m.[39mid[33m,[39m orderUpdates)[33m;[39m
-     [90m 239 |[39m     
-    [31m[1m>[22m[39m[90m 240 |[39m             expect(updatedOrder)[33m.[39mtoHaveLength([35m2[39m)[33m;[39m
-     [90m     |[39m                                  [31m[1m^[22m[39m
-     [90m 241 |[39m             expect(updatedOrder[[35m0[39m][33m.[39mid)[33m.[39mtoBe(lesson2[33m.[39mid)[33m;[39m
-     [90m 242 |[39m             expect(updatedOrder[[35m0[39m][33m.[39morder_number)[33m.[39mtoBe([35m1[39m)[33m;[39m
-     [90m 243 |[39m             expect(updatedOrder[[35m1[39m][33m.[39mid)[33m.[39mtoBe(testLesson[33m.[39mid)[33m;[39m[0m
+    [0m [90m  99 |[39m     describe([32m'Validation'[39m[33m,[39m () [33m=>[39m {
+     [90m 100 |[39m         test([32m'should validate enrollment data'[39m[33m,[39m [36masync[39m () [33m=>[39m {
+    [31m[1m>[22m[39m[90m 101 |[39m             [36mawait[39m expect(
+     [90m     |[39m                   [31m[1m^[22m[39m
+     [90m 102 |[39m                 [33mEnrollmentService[39m[33m.[39mcreate({})
+     [90m 103 |[39m             )[33m.[39mrejects[33m.[39mtoThrow([32m'Enrollment validation failed'[39m)[33m;[39m
+     [90m 104 |[39m         })[33m;[39m[0m
 
-      at Object.<anonymous> (tests/services/LessonService.test.js:240:34)
-
-  ● LessonService › Content Sanitization › should sanitize HTML content
-
-    expect(received).not.toContain(expected) // indexOf
-
-    Expected substring: not "<script>"
-    Received string:        "<p>Safe content</p><script>alert(\"unsafe\")</script>"
-
-    [0m [90m 282 |[39m             [36mconst[39m lesson [33m=[39m lessonResult[33m.[39mrows[[35m0[39m][33m;[39m
-     [90m 283 |[39m             expect(lesson[33m.[39mcontent)[33m.[39mtoContain([32m'<p>Safe content</p>'[39m)[33m;[39m
-    [31m[1m>[22m[39m[90m 284 |[39m             expect(lesson[33m.[39mcontent)[33m.[39mnot[33m.[39mtoContain([32m'<script>'[39m)[33m;[39m
-     [90m     |[39m                                        [31m[1m^[22m[39m
-     [90m 285 |[39m         })[33m;[39m
-     [90m 286 |[39m
-     [90m 287 |[39m         test([32m'should preserve markdown content'[39m[33m,[39m [36masync[39m () [33m=>[39m {[0m
-
-      at Object.<anonymous> (tests/services/LessonService.test.js:284:40)
+      at expect (node_modules/expect/build/index.js:113:15)
+      at Object.<anonymous> (tests/services/EnrollmentService.test.js:101:19)
 
 Test Suites: 1 failed, 1 total
-Tests:       2 failed, 12 passed, 14 total
+Tests:       1 failed, 12 passed, 13 total
 Snapshots:   0 total
-Time:        1.277 s
-Ran all test suites matching /tests\\services\\LessonService.test.js/i.
+Time:        1.111 s
+Ran all test suites matching /tests\\services\\EnrollmentService.test.js/i.
