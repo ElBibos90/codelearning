@@ -94,9 +94,11 @@ describe('Authentication Routes', () => {
                 email: 'test@example.com',
                 password: 'TestPass123'
             });
-
-        expect(response.status).toBe(400);
+    
+        expect(response.status).toBe(422);
         expect(response.body.success).toBe(false);
+        expect(response.body.error).toBeDefined();
+        expect(response.body.error.code).toBe('VALIDATION_ERROR');
     });
 
     afterAll(async () => {

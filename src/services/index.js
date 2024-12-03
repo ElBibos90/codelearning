@@ -1,8 +1,12 @@
 // src/services/index.js
 import UserService from './UserService';
+import CourseService from './CourseService.js';
+import LessonService from './LessonService.js';
 
 export {
-    UserService
+    UserService,
+    CourseService,
+    LessonService
 };
 
 // Configurazione globale per tutti i servizi

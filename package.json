@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "test:setup": "node src/scripts/test/setupTestDb.js",
+    "test:setup": "node src/scripts/db/createLessonVersionsSchema.js && node src/scripts/test/setupTestDb.js",
     "test:run": "node src/scripts/test/runTests.js",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --no-cache",
     "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
