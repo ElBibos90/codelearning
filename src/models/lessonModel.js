@@ -292,39 +292,45 @@ export const lessonModel = {
         const client = await pool.connect();
         try {
             await client.query('BEGIN');
-
+    
+            // Raccogli gli ID delle lezioni per la verifica
             const lessonIds = orderUpdates.map(u => u.lessonId);
+    
+            // Verifica prima che tutte le lezioni esistano
             const existingLessons = await client.query(`
-                SELECT id FROM lessons 
-                WHERE id = ANY($1) AND course_id = $2
-            `, [lessonIds, courseId]);
-            
-            if (existingLessons.rowCount !== lessonIds.length) {
+                SELECT id 
+                FROM lessons 
+                WHERE course_id = $1 AND id = ANY($2)
+            `, [courseId, lessonIds]);
+    
+            if (existingLessons.rows.length !== lessonIds.length) {
                 throw new Error('One or more lessons not found');
             }
-
-            const updateValues = orderUpdates.map((u, i) => 
-                `($${i * 3 + 1}, $${i * 3 + 2}, $${i * 3 + 3})`
-            ).join(',');
-            
-            const flatValues = orderUpdates.flatMap(u => 
-                [u.lessonId, courseId, u.newOrder]
-            );
-            
+    
+            // Prima assegna ordini temporanei per evitare violazioni del vincolo di unicità
             await client.query(`
-                UPDATE lessons AS l SET
-                    order_number = c.new_order
-                FROM (VALUES ${updateValues}) AS c(lesson_id, course_id, new_order)
-                WHERE l.id = c.lesson_id AND l.course_id = c.course_id
-            `, flatValues);
-
+                UPDATE lessons 
+                SET order_number = order_number + 1000
+                WHERE course_id = $1
+            `, [courseId]);
+    
+            // Poi aggiorna con i nuovi ordini
+            for (const update of orderUpdates) {
+                await client.query(`
+                    UPDATE lessons 
+                    SET order_number = $1
+                    WHERE id = $2 AND course_id = $3
+                `, [update.newOrder, update.lessonId, courseId]);
+            }
+    
+            // Recupera l'ordine aggiornato
             const result = await client.query(`
                 SELECT id, order_number 
                 FROM lessons 
                 WHERE course_id = $1 
                 ORDER BY order_number
             `, [courseId]);
-
+    
             await client.query('COMMIT');
             return result.rows;
         } catch (error) {

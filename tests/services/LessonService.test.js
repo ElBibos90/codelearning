@@ -195,7 +195,32 @@ describe('LessonService', () => {
 
     describe('Lesson Ordering', () => {
         test('should reorder lessons', async () => {
-            // Crea una seconda lezione usando pool.query direttamente
+            // Prima pulisci tutte le lezioni esistenti
+            await pool.query('DELETE FROM lessons WHERE course_id = $1', [testCourse.id]);
+        
+            // Crea la prima lezione
+            const lesson1Result = await pool.query(`
+                INSERT INTO lessons (
+                    course_id, 
+                    title, 
+                    content, 
+                    content_format, 
+                    order_number, 
+                    status,
+                    version
+                ) VALUES ($1, $2, $3, $4, $5, $6, $7)
+                RETURNING id, order_number
+            `, [
+                testCourse.id,
+                'First Lesson',
+                'First lesson content',
+                'markdown',
+                1,
+                'draft',
+                1
+            ]);
+        
+            // Crea la seconda lezione
             const lesson2Result = await pool.query(`
                 INSERT INTO lessons (
                     course_id, 
@@ -217,21 +242,21 @@ describe('LessonService', () => {
                 1
             ]);
             
+            const lesson1 = lesson1Result.rows[0];
             const lesson2 = lesson2Result.rows[0];
-            expect(lesson2).toBeDefined();
-    
+        
             // Riordina le lezioni
             const orderUpdates = [
-                { lessonId: testLesson.id, newOrder: 2 },
+                { lessonId: lesson1.id, newOrder: 2 },
                 { lessonId: lesson2.id, newOrder: 1 }
             ];
-    
+        
             const updatedOrder = await LessonService.reorderLessons(testCourse.id, orderUpdates);
-    
+        
             expect(updatedOrder).toHaveLength(2);
             expect(updatedOrder[0].id).toBe(lesson2.id);
             expect(updatedOrder[0].order_number).toBe(1);
-            expect(updatedOrder[1].id).toBe(testLesson.id);
+            expect(updatedOrder[1].id).toBe(lesson1.id);
             expect(updatedOrder[1].order_number).toBe(2);
         });
     });
@@ -243,10 +268,11 @@ describe('LessonService', () => {
                 title: 'HTML Lesson',
                 content: '<p>Safe content</p><script>alert("unsafe")</script>',
                 contentFormat: 'html',
-                orderNumber: 4,
-                authorId: testUser.id
+                orderNumber: 10,
+                authorId: testUser.id,
+                status: 'draft'
             };
-
+        
             const lesson = await LessonService.create(lessonData);
             expect(lesson.content).toContain('<p>Safe content</p>');
             expect(lesson.content).not.toContain('<script>');

@@ -1,10 +1,9 @@
 # CodeLearning Services Implementation Plan
 
-## Servizi Completati ✅
+## ✅ Servizi Completati
 1. UserService
    - Autenticazione
    - Gestione profilo
-   - Gestione ruoli
    - Preferenze utente
 
 2. CourseService
@@ -14,18 +13,20 @@
    - Statistiche
    - Iscrizioni
 
-## Servizi Da Implementare 🚀
+3. LessonService
+   - CRUD lezioni ✅
+   - Gestione ordine lezioni ✅
+   - Tracciamento progresso ✅
+   - Validazione contenuti ✅
+   - Versionamento ✅ 
+   - Templates ✅
+   - Risorse associate ✅
+   - Implementati test completi ✅
+   - Separazione Model/Service ✅
 
-### 1. LessonService
-- CRUD lezioni
-- Gestione ordine lezioni
-- Tracciamento progresso
-- Validazione contenuti
-- Versionamento
-- Templates
-- Risorse associate
+## 🚀 Servizi Da Implementare
 
-### 2. EnrollmentService
+### 1. EnrollmentService [Prossimo]
 - Gestione iscrizioni
 - Tracciamento progresso corso
 - Certificati di completamento
