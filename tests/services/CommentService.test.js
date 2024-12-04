@@ -197,41 +197,50 @@ describe('CommentService', () => {
             ).rejects.toThrow('Not authorized to delete this comment');
         });
     });
-
     describe('Validation', () => {
         test('should validate required fields', async () => {
             await expect(
                 CommentService.create({})
             ).rejects.toThrow('Comment validation failed');
         });
-
+    
         test('should require lessonId', async () => {
             await expect(
                 CommentService.create({ 
                     userId: testUser.id,
-                    content: 'Test content'
+                    content: 'Test comment'
                 })
-            ).rejects.toThrow();
+            ).rejects.toThrow('Comment validation failed');
         });
-
+    
         test('should require userId', async () => {
             await expect(
                 CommentService.create({
                     lessonId: testLesson.id,
-                    content: 'Test content'
+                    content: 'Test comment'
                 })
-            ).rejects.toThrow();
+            ).rejects.toThrow('Comment validation failed');
         });
-
+    
+        test('should require content', async () => {
+            await expect(
+                CommentService.create({
+                    lessonId: testLesson.id,
+                    userId: testUser.id,
+                    content: ''
+                })
+            ).rejects.toThrow('Comment validation failed');
+        });
+    
         test('should sanitize content', async () => {
-            const commentWithHTML = await CommentService.create({
+            const comment = await CommentService.create({
                 lessonId: testLesson.id,
                 userId: testUser.id,
                 content: '<script>alert("xss")</script><p>Safe content</p>'
             });
-
-            expect(commentWithHTML.content).not.toContain('<script>');
-            expect(commentWithHTML.content).toContain('<p>Safe content</p>');
+    
+            expect(comment.content).not.toContain('<script>');
+            expect(comment.content).toContain('<p>Safe content</p>');
         });
     });
 });

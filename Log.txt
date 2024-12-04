@@ -1,246 +1,48 @@
 
 > codelearning@1.0.0 test
-> node --experimental-vm-modules node_modules/jest/bin/jest.js --no-cache tests/services/CommentService.test.js
+> node --experimental-vm-modules node_modules/jest/bin/jest.js --no-cache tests/services/FavoriteService.test.js
 
-(node:11700) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(node:2408) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
 (Use `node --trace-warnings ...` to show where the warning was created)
-FAIL tests/services/CommentService.test.js
+FAIL tests/services/FavoriteService.test.js
   Test Environment
     √ should have correct test environment variables (4 ms)
     √ should mock console.error and console.warn (2 ms)
-  CommentService
-    Comment Creation
-      × should create a new comment (1 ms)
-      × should fail with empty content
-      × should create a reply to a comment (1 ms)
-    Comment Retrieval
-      × should get lesson comments (1 ms)
-      × should get user comments
-      × should get comment replies (1 ms)
-    Comment Update
-      × should update comment content
-      × should fail update with unauthorized user
-    Comment Deletion
-      × should soft delete a comment (1 ms)
-      × should fail deletion with unauthorized user
+  FavoriteService
+    Favorite Management
+      √ should add course to favorites (8 ms)
+      √ should prevent duplicate favorites (5 ms)
+      √ should get user favorites (3 ms)
+      √ should update favorite notes (3 ms)
+      √ should check if course is favorite (3 ms)
+    Favorite Removal
+      √ should remove from favorites (6 ms)
+      √ should fail removing non-existent favorite (2 ms)
+    Favorite Statistics
+      × should get course favorite stats (6 ms)
     Validation
-      × should validate required fields (1 ms)
-      × should require lessonId
-      × should require userId (1 ms)
-      × should sanitize content
+      √ should validate required fields (2 ms)
+      √ should require courseId (1 ms)
+      √ should require userId (1 ms)
+      √ should sanitize notes (130 ms)
 
-  ● CommentService › Comment Creation › should create a new comment
+  ● FavoriteService › Favorite Statistics › should get course favorite stats
 
-    error: la relazione "comments" non esiste
+    DatabaseError: Failed to fetch favorite statistics
 
-    [0m [90m 14 |[39m         [36mtry[39m {
-     [90m 15 |[39m             [90m// Pulizia iniziale[39m
-    [31m[1m>[22m[39m[90m 16 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM comments'[39m)[33m;[39m
-     [90m    |[39m             [31m[1m^[22m[39m
-     [90m 17 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM lesson_progress'[39m)[33m;[39m
-     [90m 18 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM course_enrollments'[39m)[33m;[39m
-     [90m 19 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM lessons'[39m)[33m;[39m[0m
+    [0m [90m 123 |[39m             }[33m;[39m
+     [90m 124 |[39m         } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 125 |[39m             [36mthrow[39m [36mnew[39m [33mDatabaseError[39m([32m'Failed to fetch favorite statistics'[39m[33m,[39m error)[33m;[39m
+     [90m     |[39m                   [31m[1m^[22m[39m
+     [90m 126 |[39m         }
+     [90m 127 |[39m     }
+     [90m 128 |[39m }[0m
 
-      at node_modules/pg-pool/index.js:45:11
-      at Object.<anonymous> (tests/services/CommentService.test.js:16:13)
-
-  ● CommentService › Comment Creation › should fail with empty content
-
-    error: la relazione "comments" non esiste
-
-    [0m [90m 14 |[39m         [36mtry[39m {
-     [90m 15 |[39m             [90m// Pulizia iniziale[39m
-    [31m[1m>[22m[39m[90m 16 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM comments'[39m)[33m;[39m
-     [90m    |[39m             [31m[1m^[22m[39m
-     [90m 17 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM lesson_progress'[39m)[33m;[39m
-     [90m 18 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM course_enrollments'[39m)[33m;[39m
-     [90m 19 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM lessons'[39m)[33m;[39m[0m
-
-      at node_modules/pg-pool/index.js:45:11
-      at Object.<anonymous> (tests/services/CommentService.test.js:16:13)
-
-  ● CommentService › Comment Creation › should create a reply to a comment
-
-    error: la relazione "comments" non esiste
-
-    [0m [90m 14 |[39m         [36mtry[39m {
-     [90m 15 |[39m             [90m// Pulizia iniziale[39m
-    [31m[1m>[22m[39m[90m 16 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM comments'[39m)[33m;[39m
-     [90m    |[39m             [31m[1m^[22m[39m
-     [90m 17 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM lesson_progress'[39m)[33m;[39m
-     [90m 18 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM course_enrollments'[39m)[33m;[39m
-     [90m 19 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM lessons'[39m)[33m;[39m[0m
-
-      at node_modules/pg-pool/index.js:45:11
-      at Object.<anonymous> (tests/services/CommentService.test.js:16:13)
-
-  ● CommentService › Comment Retrieval › should get lesson comments
-
-    error: la relazione "comments" non esiste
-
-    [0m [90m 14 |[39m         [36mtry[39m {
-     [90m 15 |[39m             [90m// Pulizia iniziale[39m
-    [31m[1m>[22m[39m[90m 16 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM comments'[39m)[33m;[39m
-     [90m    |[39m             [31m[1m^[22m[39m
-     [90m 17 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM lesson_progress'[39m)[33m;[39m
-     [90m 18 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM course_enrollments'[39m)[33m;[39m
-     [90m 19 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM lessons'[39m)[33m;[39m[0m
-
-      at node_modules/pg-pool/index.js:45:11
-      at Object.<anonymous> (tests/services/CommentService.test.js:16:13)
-
-  ● CommentService › Comment Retrieval › should get user comments
-
-    error: la relazione "comments" non esiste
-
-    [0m [90m 14 |[39m         [36mtry[39m {
-     [90m 15 |[39m             [90m// Pulizia iniziale[39m
-    [31m[1m>[22m[39m[90m 16 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM comments'[39m)[33m;[39m
-     [90m    |[39m             [31m[1m^[22m[39m
-     [90m 17 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM lesson_progress'[39m)[33m;[39m
-     [90m 18 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM course_enrollments'[39m)[33m;[39m
-     [90m 19 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM lessons'[39m)[33m;[39m[0m
-
-      at node_modules/pg-pool/index.js:45:11
-      at Object.<anonymous> (tests/services/CommentService.test.js:16:13)
-
-  ● CommentService › Comment Retrieval › should get comment replies
-
-    error: la relazione "comments" non esiste
-
-    [0m [90m 14 |[39m         [36mtry[39m {
-     [90m 15 |[39m             [90m// Pulizia iniziale[39m
-    [31m[1m>[22m[39m[90m 16 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM comments'[39m)[33m;[39m
-     [90m    |[39m             [31m[1m^[22m[39m
-     [90m 17 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM lesson_progress'[39m)[33m;[39m
-     [90m 18 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM course_enrollments'[39m)[33m;[39m
-     [90m 19 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM lessons'[39m)[33m;[39m[0m
-
-      at node_modules/pg-pool/index.js:45:11
-      at Object.<anonymous> (tests/services/CommentService.test.js:16:13)
-
-  ● CommentService › Comment Update › should update comment content
-
-    error: la relazione "comments" non esiste
-
-    [0m [90m 14 |[39m         [36mtry[39m {
-     [90m 15 |[39m             [90m// Pulizia iniziale[39m
-    [31m[1m>[22m[39m[90m 16 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM comments'[39m)[33m;[39m
-     [90m    |[39m             [31m[1m^[22m[39m
-     [90m 17 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM lesson_progress'[39m)[33m;[39m
-     [90m 18 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM course_enrollments'[39m)[33m;[39m
-     [90m 19 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM lessons'[39m)[33m;[39m[0m
-
-      at node_modules/pg-pool/index.js:45:11
-      at Object.<anonymous> (tests/services/CommentService.test.js:16:13)
-
-  ● CommentService › Comment Update › should fail update with unauthorized user
-
-    error: la relazione "comments" non esiste
-
-    [0m [90m 14 |[39m         [36mtry[39m {
-     [90m 15 |[39m             [90m// Pulizia iniziale[39m
-    [31m[1m>[22m[39m[90m 16 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM comments'[39m)[33m;[39m
-     [90m    |[39m             [31m[1m^[22m[39m
-     [90m 17 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM lesson_progress'[39m)[33m;[39m
-     [90m 18 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM course_enrollments'[39m)[33m;[39m
-     [90m 19 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM lessons'[39m)[33m;[39m[0m
-
-      at node_modules/pg-pool/index.js:45:11
-      at Object.<anonymous> (tests/services/CommentService.test.js:16:13)
-
-  ● CommentService › Comment Deletion › should soft delete a comment
-
-    error: la relazione "comments" non esiste
-
-    [0m [90m 14 |[39m         [36mtry[39m {
-     [90m 15 |[39m             [90m// Pulizia iniziale[39m
-    [31m[1m>[22m[39m[90m 16 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM comments'[39m)[33m;[39m
-     [90m    |[39m             [31m[1m^[22m[39m
-     [90m 17 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM lesson_progress'[39m)[33m;[39m
-     [90m 18 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM course_enrollments'[39m)[33m;[39m
-     [90m 19 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM lessons'[39m)[33m;[39m[0m
-
-      at node_modules/pg-pool/index.js:45:11
-      at Object.<anonymous> (tests/services/CommentService.test.js:16:13)
-
-  ● CommentService › Comment Deletion › should fail deletion with unauthorized user
-
-    error: la relazione "comments" non esiste
-
-    [0m [90m 14 |[39m         [36mtry[39m {
-     [90m 15 |[39m             [90m// Pulizia iniziale[39m
-    [31m[1m>[22m[39m[90m 16 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM comments'[39m)[33m;[39m
-     [90m    |[39m             [31m[1m^[22m[39m
-     [90m 17 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM lesson_progress'[39m)[33m;[39m
-     [90m 18 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM course_enrollments'[39m)[33m;[39m
-     [90m 19 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM lessons'[39m)[33m;[39m[0m
-
-      at node_modules/pg-pool/index.js:45:11
-      at Object.<anonymous> (tests/services/CommentService.test.js:16:13)
-
-  ● CommentService › Validation › should validate required fields
-
-    error: la relazione "comments" non esiste
-
-    [0m [90m 14 |[39m         [36mtry[39m {
-     [90m 15 |[39m             [90m// Pulizia iniziale[39m
-    [31m[1m>[22m[39m[90m 16 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM comments'[39m)[33m;[39m
-     [90m    |[39m             [31m[1m^[22m[39m
-     [90m 17 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM lesson_progress'[39m)[33m;[39m
-     [90m 18 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM course_enrollments'[39m)[33m;[39m
-     [90m 19 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM lessons'[39m)[33m;[39m[0m
-
-      at node_modules/pg-pool/index.js:45:11
-      at Object.<anonymous> (tests/services/CommentService.test.js:16:13)
-
-  ● CommentService › Validation › should require lessonId
-
-    error: la relazione "comments" non esiste
-
-    [0m [90m 14 |[39m         [36mtry[39m {
-     [90m 15 |[39m             [90m// Pulizia iniziale[39m
-    [31m[1m>[22m[39m[90m 16 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM comments'[39m)[33m;[39m
-     [90m    |[39m             [31m[1m^[22m[39m
-     [90m 17 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM lesson_progress'[39m)[33m;[39m
-     [90m 18 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM course_enrollments'[39m)[33m;[39m
-     [90m 19 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM lessons'[39m)[33m;[39m[0m
-
-      at node_modules/pg-pool/index.js:45:11
-      at Object.<anonymous> (tests/services/CommentService.test.js:16:13)
-
-  ● CommentService › Validation › should require userId
-
-    error: la relazione "comments" non esiste
-
-    [0m [90m 14 |[39m         [36mtry[39m {
-     [90m 15 |[39m             [90m// Pulizia iniziale[39m
-    [31m[1m>[22m[39m[90m 16 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM comments'[39m)[33m;[39m
-     [90m    |[39m             [31m[1m^[22m[39m
-     [90m 17 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM lesson_progress'[39m)[33m;[39m
-     [90m 18 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM course_enrollments'[39m)[33m;[39m
-     [90m 19 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM lessons'[39m)[33m;[39m[0m
-
-      at node_modules/pg-pool/index.js:45:11
-      at Object.<anonymous> (tests/services/CommentService.test.js:16:13)
-
-  ● CommentService › Validation › should sanitize content
-
-    error: la relazione "comments" non esiste
-
-    [0m [90m 14 |[39m         [36mtry[39m {
-     [90m 15 |[39m             [90m// Pulizia iniziale[39m
-    [31m[1m>[22m[39m[90m 16 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM comments'[39m)[33m;[39m
-     [90m    |[39m             [31m[1m^[22m[39m
-     [90m 17 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM lesson_progress'[39m)[33m;[39m
-     [90m 18 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM course_enrollments'[39m)[33m;[39m
-     [90m 19 |[39m             [36mawait[39m pool[33m.[39mquery([32m'DELETE FROM lessons'[39m)[33m;[39m[0m
-
-      at node_modules/pg-pool/index.js:45:11
-      at Object.<anonymous> (tests/services/CommentService.test.js:16:13)
+      at FavoriteService.getFavoriteStats (src/services/FavoriteService.js:125:19)
+      at Object.<anonymous> (tests/services/FavoriteService.test.js:159:27)
 
 Test Suites: 1 failed, 1 total
-Tests:       14 failed, 2 passed, 16 total
+Tests:       1 failed, 13 passed, 14 total
 Snapshots:   0 total
-Time:        1.016 s
-Ran all test suites matching /tests\\services\\CommentService.test.js/i.
+Time:        1.219 s
+Ran all test suites matching /tests\\services\\FavoriteService.test.js/i.

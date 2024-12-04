@@ -4,13 +4,15 @@ import CourseService from './CourseService.js';
 import LessonService from './LessonService.js';
 import EnrollmentService from './EnrollmentService.js';
 import CommentService from './CommentService.js';
+import FavoriteService from './FavoriteService.js';
 
 export {
     UserService,
     CourseService,
     LessonService,
     EnrollmentService,
-    CommentService
+    CommentService,
+    FavoriteService
 };
 
 // Configurazione globale per tutti i servizi
