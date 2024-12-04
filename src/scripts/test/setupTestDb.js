@@ -1,5 +1,4 @@
 import pkg from 'pg';
-							
 import colors from 'colors';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -8,9 +7,6 @@ import { DB_CONFIG, SERVER_CONFIG } from '../../config/environments.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const { Pool } = pkg;
-
-						
-																	   
 
 const mainPool = new Pool({
     user: DB_CONFIG.user,
@@ -61,12 +57,12 @@ async function setupTestDatabase() {
                 port: DB_CONFIG.port,
             });
 
-
             console.log('Creazione schema del database...'.yellow);
             
             // Creazione schema
             await testPool.query(`
                 -- Elimina tabelle esistenti
+                DROP TABLE IF EXISTS notifications CASCADE;
                 DROP TABLE IF EXISTS lesson_progress CASCADE;
                 DROP TABLE IF EXISTS lesson_versions CASCADE;
                 DROP TABLE IF EXISTS lesson_resources CASCADE;
@@ -80,9 +76,15 @@ async function setupTestDatabase() {
                 DROP TABLE IF EXISTS users CASCADE;
                 DROP TABLE IF EXISTS maintenance_logs CASCADE;
 
-                -- Crea tipo enum per stati lezione
+                -- Crea i tipi enum
                 DO $$ BEGIN
                     CREATE TYPE lesson_status AS ENUM ('draft', 'review', 'published', 'archived');
+                EXCEPTION
+                    WHEN duplicate_object THEN null;
+                END $$;
+
+                DO $$ BEGIN
+                    CREATE TYPE notification_priority AS ENUM ('low', 'normal', 'high', 'urgent');
                 EXCEPTION
                     WHEN duplicate_object THEN null;
                 END $$;
@@ -127,29 +129,52 @@ async function setupTestDatabase() {
                     UNIQUE(course_id, order_number)
                 );
 
-                CREATE TABLE IF NOT EXISTS user_profiles (
-                user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
-                full_name VARCHAR(255),
-                bio TEXT,
-                avatar_url TEXT,
-                linkedin_url TEXT,
-                github_url TEXT,
-                website_url TEXT,
-                skills TEXT[],
-                interests TEXT[],
-                created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-            );
+                CREATE TABLE user_profiles (
+                    user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+                    full_name VARCHAR(255),
+                    bio TEXT,
+                    avatar_url TEXT,
+                    linkedin_url TEXT,
+                    github_url TEXT,
+                    website_url TEXT,
+                    skills TEXT[],
+                    interests TEXT[],
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
 
-            CREATE TABLE IF NOT EXISTS user_preferences (
-                user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
-                notification_email BOOLEAN DEFAULT true,
-                preferred_difficulty VARCHAR(20) DEFAULT 'beginner',
-                theme VARCHAR(20) DEFAULT 'light',
-                language VARCHAR(10) DEFAULT 'it',
-                created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-            );
+                CREATE TABLE user_preferences (
+                    user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+                    notification_email BOOLEAN DEFAULT true,
+                    preferred_difficulty VARCHAR(20) DEFAULT 'beginner',
+                    theme VARCHAR(20) DEFAULT 'light',
+                    language VARCHAR(10) DEFAULT 'it',
+                    notification_preferences JSONB DEFAULT '{
+                        "system": true,
+                        "course_update": true,
+                        "lesson_completed": true,
+                        "achievement": true,
+                        "comment": true,
+                        "enrollment": true
+                    }'::jsonb,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+
+                CREATE TABLE notifications (
+                    id SERIAL PRIMARY KEY,
+                    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                    type VARCHAR(50) NOT NULL,
+                    title VARCHAR(255) NOT NULL,
+                    message TEXT NOT NULL,
+                    data JSONB DEFAULT '{}',
+                    priority notification_priority DEFAULT 'normal',
+                    read_at TIMESTAMP WITH TIME ZONE,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                    CONSTRAINT notifications_type_check CHECK (
+                        type IN ('system', 'course_update', 'lesson_completed', 'achievement', 'comment', 'enrollment')
+                    )
+                );
 
                 CREATE TABLE course_enrollments (
                     id SERIAL PRIMARY KEY,
@@ -183,28 +208,28 @@ async function setupTestDatabase() {
                     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
                 );
 
-    CREATE TABLE IF NOT EXISTS course_favorites (
-        id SERIAL PRIMARY KEY,
-        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-        course_id INTEGER REFERENCES courses(id) ON DELETE CASCADE,
-        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-        notes TEXT,
-        UNIQUE(user_id, course_id)
-    );
-            -- Aggiungiamo la tabella comments
-            CREATE TABLE IF NOT EXISTS comments (
-                id SERIAL PRIMARY KEY,
-                lesson_id INTEGER NOT NULL,
-                user_id INTEGER NOT NULL,
-                content TEXT NOT NULL,
-                created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                parent_id INTEGER DEFAULT NULL,
-                is_deleted BOOLEAN DEFAULT FALSE,
-                FOREIGN KEY (lesson_id) REFERENCES lessons(id) ON DELETE CASCADE,
-                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-                FOREIGN KEY (parent_id) REFERENCES comments(id) ON DELETE SET NULL
-            );
+                CREATE TABLE course_favorites (
+                    id SERIAL PRIMARY KEY,
+                    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+                    course_id INTEGER REFERENCES courses(id) ON DELETE CASCADE,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                    notes TEXT,
+                    UNIQUE(user_id, course_id)
+                );
+
+                CREATE TABLE comments (
+                    id SERIAL PRIMARY KEY,
+                    lesson_id INTEGER NOT NULL,
+                    user_id INTEGER NOT NULL,
+                    content TEXT NOT NULL,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                    parent_id INTEGER DEFAULT NULL,
+                    is_deleted BOOLEAN DEFAULT FALSE,
+                    FOREIGN KEY (lesson_id) REFERENCES lessons(id) ON DELETE CASCADE,
+                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+                    FOREIGN KEY (parent_id) REFERENCES comments(id) ON DELETE SET NULL
+                );
 
                 CREATE TABLE maintenance_logs (
                     id SERIAL PRIMARY KEY,
@@ -226,14 +251,17 @@ async function setupTestDatabase() {
                 CREATE INDEX idx_course_favorites_user ON course_favorites(user_id);
                 CREATE INDEX idx_course_favorites_course ON course_favorites(course_id);
                 CREATE INDEX idx_maintenance_logs_job_name ON maintenance_logs(job_name);
-                CREATE INDEX IF NOT EXISTS idx_comments_lesson_id ON comments(lesson_id);
-                CREATE INDEX IF NOT EXISTS idx_comments_user_id ON comments(user_id);
-                CREATE INDEX IF NOT EXISTS idx_comments_parent_id ON comments(parent_id);
+                CREATE INDEX idx_comments_lesson_id ON comments(lesson_id);
+                CREATE INDEX idx_comments_user_id ON comments(user_id);
+                CREATE INDEX idx_comments_parent_id ON comments(parent_id);
+                CREATE INDEX idx_notifications_user_id ON notifications(user_id);
+                CREATE INDEX idx_notifications_read_at ON notifications(read_at) WHERE read_at IS NULL;
+                CREATE INDEX idx_notifications_type ON notifications(type);
+                CREATE INDEX idx_notifications_created_at ON notifications(created_at);
             `);
 
             console.log('✓ Schema creato con successo'.green);
-							   
-	
+
         } catch (err) {
             console.error('Errore durante la creazione del database:'.red, err);
             throw err;
