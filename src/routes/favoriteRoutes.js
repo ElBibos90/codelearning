@@ -1,14 +1,13 @@
 import express from 'express';
 import { authenticateToken } from '../middleware/auth.js';
-import { favoriteModel } from '../models/favoriteModel.js';
+import { FavoriteService } from '../services';
 import { SERVER_CONFIG } from '../config/environments.js';
-
 
 const router = express.Router();
 
 router.get('/', authenticateToken, async (req, res) => {
     try {
-        const favorites = await favoriteModel.getUserFavorites(req.user.id);
+        const favorites = await FavoriteService.getUserFavorites(req.user.id);
         res.json({
             success: true,
             data: favorites
@@ -30,16 +29,17 @@ router.post('/:courseId', authenticateToken, async (req, res) => {
         const { notes } = req.body;
         const userId = req.user.id;
         
-        const favorite = await favoriteModel.addFavorite(userId, courseId, notes);
+        const favorite = await FavoriteService.addFavorite(userId, parseInt(courseId), notes);
+        
         res.status(201).json({
             success: true,
             data: favorite
         });
     } catch (error) {
-        if (error.message === 'Corso già nei preferiti') {
+        if (error.message === 'Course already in favorites') {
             return res.status(400).json({
                 success: false,
-                message: error.message
+                message: 'Corso già nei preferiti'
             });
         }
         if (!SERVER_CONFIG.isTest) {
@@ -55,33 +55,33 @@ router.post('/:courseId', authenticateToken, async (req, res) => {
 router.delete('/:courseId', authenticateToken, async (req, res) => {
     try {
         const { courseId } = req.params;
-        await favoriteModel.removeFavorite(req.user.id, courseId);
+        const result = await FavoriteService.removeFavorite(req.user.id, parseInt(courseId));
+        
         res.json({
             success: true,
             message: 'Preferito rimosso con successo'
         });
     } catch (error) {
-        if (error.message === 'Preferito non trovato') {
-            res.status(404).json({
+        if (error.message === 'Favorite not found') {
+            return res.status(404).json({
                 success: false,
-                message: error.message
-            });
-        } else {
-            if (!SERVER_CONFIG.isTest) {
-                console.error('Error removing favorite:', error);
-            }
-            res.status(500).json({
-                success: false,
-                message: 'Errore nella rimozione dai preferiti'
+                message: 'Preferito non trovato'
             });
         }
+        if (!SERVER_CONFIG.isTest) {
+            console.error('Error removing favorite:', error);
+        }
+        res.status(500).json({
+            success: false,
+            message: 'Errore nella rimozione dai preferiti'
+        });
     }
 });
 
 router.get('/check/:courseId', authenticateToken, async (req, res) => {
     try {
         const { courseId } = req.params;
-        const isFavorite = await favoriteModel.isFavorite(req.user.id, courseId);
+        const isFavorite = await FavoriteService.isFavorite(req.user.id, parseInt(courseId));
         res.json({
             success: true,
             data: { isFavorite }
