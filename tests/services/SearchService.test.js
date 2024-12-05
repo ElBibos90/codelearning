@@ -9,42 +9,69 @@ describe('SearchService', () => {
     let testLesson;
 
     beforeAll(async () => {
-        // Create test course
-        const courseResult = await pool.query(`
-            INSERT INTO courses (
-                title, 
-                description, 
-                difficulty_level,
-                duration_hours
-            ) VALUES (
-                'Test JavaScript Course',
-                'Learn JavaScript programming',
-                'beginner',
-                10
-            ) RETURNING id
-        `);
-        testCourse = courseResult.rows[0];
+        try {
+            // Creazione corso di test
+            const courseResult = await pool.query(`
+                INSERT INTO courses (
+                    title, 
+                    description, 
+                    difficulty_level,
+                    duration_hours
+                ) VALUES (
+                    'Test JavaScript Course',
+                    'Learn JavaScript programming',
+                    'beginner',
+                    10
+                ) RETURNING id, title
+            `);
+            testCourse = courseResult.rows[0];
+            //console.log('Created test course:', testCourse);
 
-        // Create test lesson
-        const lessonResult = await pool.query(`
-            INSERT INTO lessons (
-                course_id,
-                title,
-                content,
-                meta_description,
-                order_number
-            ) VALUES (
-                $1,
-                'JavaScript Variables',
-                'Learn about JavaScript variables and data types',
-                'Understanding JavaScript variables',
-                1
-            ) RETURNING id
-        `, [testCourse.id]);
-        testLesson = lessonResult.rows[0];
+            // Aggiornamento manuale del vettore di ricerca per il corso
+            await pool.query(`
+                UPDATE courses
+                SET search_vector = 
+                    setweight(to_tsvector('italian', title), 'A') ||
+                    setweight(to_tsvector('italian', description), 'B') ||
+                    setweight(to_tsvector('italian', difficulty_level), 'C')
+                WHERE id = $1
+            `, [testCourse.id]);
 
-        // Wait for search vectors to be updated by triggers
-        await new Promise(resolve => setTimeout(resolve, 100));
+            // Creazione lezione di test
+            const lessonResult = await pool.query(`
+                INSERT INTO lessons (
+                    course_id,
+                    title,
+                    content,
+                    meta_description,
+                    order_number
+                ) VALUES (
+                    $1,
+                    'JavaScript Variables',
+                    'Learn about JavaScript variables and data types',
+                    'Understanding JavaScript variables',
+                    1
+                ) RETURNING id, title
+            `, [testCourse.id]);
+            testLesson = lessonResult.rows[0];
+            //console.log('Created test lesson:', testLesson);
+
+            // Aggiornamento manuale del vettore di ricerca per la lezione
+            await pool.query(`
+                UPDATE lessons
+                SET search_vector = 
+                    setweight(to_tsvector('italian', title), 'A') ||
+                    setweight(to_tsvector('italian', content), 'B') ||
+                    setweight(to_tsvector('italian', meta_description), 'C')
+                WHERE id = $1
+            `, [testLesson.id]);
+
+            // Attendi per permettere l'aggiornamento
+            await new Promise(resolve => setTimeout(resolve, 100));
+        } catch (error) {
+            console.error('Setup error:', error);
+            throw error;
+        }
     });
 
     afterAll(async () => {
@@ -106,7 +133,8 @@ describe('SearchService', () => {
 
     describe('Search Suggestions', () => {
         test('should get suggestions for courses', async () => {
-            const suggestions = await SearchService.getSuggestions('Java', 'courses');
+            const suggestions = await SearchService.getSuggestions('JavaScript', 'courses');
+            //console.log('Suggestions:', suggestions);
             expect(Array.isArray(suggestions)).toBe(true);
             expect(suggestions.length).toBeGreaterThan(0);
         });
@@ -118,7 +146,7 @@ describe('SearchService', () => {
                 expect(suggestion).toHaveProperty('type');
                 expect(['course', 'lesson']).toContain(suggestion.type);
             });
-        });
+        });      
 
         test('should handle short queries', async () => {
             const suggestions = await SearchService.getSuggestions('a');

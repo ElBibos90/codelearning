@@ -24,6 +24,7 @@ import { errorHandler, notFoundHandler, unhandledRejectionHandler, uncaughtExcep
 import { monitorRequest } from './middleware/monitoring.js';
 import monitoringRoutes from './routes/monitoringRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
+import searchRoutes from './routes/searchRoutes.js';
 
 import { 
     SERVER_CONFIG, 
@@ -110,6 +111,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/favorites', favoriteRoutes);
 app.use('/api/monitoring', monitoringRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/search', searchRoutes);
 
 // Swagger UI solo in development e production
 if (!SERVER_CONFIG.isTest) {

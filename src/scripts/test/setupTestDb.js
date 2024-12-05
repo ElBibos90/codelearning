@@ -89,6 +89,27 @@ async function setupTestDatabase() {
                     WHEN duplicate_object THEN null;
                 END $$;
 
+                -- Crea le funzioni per l'aggiornamento dei vettori di ricerca
+                CREATE OR REPLACE FUNCTION courses_search_vector_update() RETURNS trigger AS $$
+                BEGIN
+                    NEW.search_vector :=
+                        setweight(to_tsvector('italian', COALESCE(NEW.title, '')), 'A') ||
+                        setweight(to_tsvector('italian', COALESCE(NEW.description, '')), 'B') ||
+                        setweight(to_tsvector('italian', COALESCE(NEW.difficulty_level, '')), 'C');
+                    RETURN NEW;
+                END;
+                $$ LANGUAGE plpgsql;
+
+                CREATE OR REPLACE FUNCTION lessons_search_vector_update() RETURNS trigger AS $$
+                BEGIN
+                    NEW.search_vector :=
+                        setweight(to_tsvector('italian', COALESCE(NEW.title, '')), 'A') ||
+                        setweight(to_tsvector('italian', COALESCE(NEW.content, '')), 'B') ||
+                        setweight(to_tsvector('italian', COALESCE(NEW.meta_description, '')), 'C');
+                    RETURN NEW;
+                END;
+                $$ LANGUAGE plpgsql;
+
                 -- Crea le tabelle
                 CREATE TABLE users (
                     id SERIAL PRIMARY KEY,
@@ -106,6 +127,7 @@ async function setupTestDatabase() {
                     description TEXT,
                     difficulty_level VARCHAR(20) CHECK (difficulty_level IN ('beginner', 'intermediate', 'advanced')),
                     duration_hours INTEGER,
+                    search_vector tsvector,
                     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
                     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
                 );
@@ -124,6 +146,7 @@ async function setupTestDatabase() {
                     last_edited_at TIMESTAMP WITH TIME ZONE,
                     meta_description TEXT,
                     estimated_minutes INTEGER DEFAULT 30,
+                    search_vector tsvector,
                     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
                     published_at TIMESTAMP WITH TIME ZONE,
                     UNIQUE(course_id, order_number)
@@ -241,6 +264,19 @@ async function setupTestDatabase() {
                     details JSONB
                 );
 
+                -- Crea i trigger
+                DROP TRIGGER IF EXISTS courses_search_update ON courses;
+                CREATE TRIGGER courses_search_update
+                    BEFORE INSERT OR UPDATE ON courses
+                    FOR EACH ROW
+                    EXECUTE FUNCTION courses_search_vector_update();
+
+                DROP TRIGGER IF EXISTS lessons_search_update ON lessons;
+                CREATE TRIGGER lessons_search_update
+                    BEFORE INSERT OR UPDATE ON lessons
+                    FOR EACH ROW
+                    EXECUTE FUNCTION lessons_search_vector_update();
+
                 -- Crea gli indici
                 CREATE INDEX idx_lessons_course_id ON lessons(course_id);
                 CREATE INDEX idx_lessons_status ON lessons(status);
@@ -258,6 +294,17 @@ async function setupTestDatabase() {
                 CREATE INDEX idx_notifications_read_at ON notifications(read_at) WHERE read_at IS NULL;
                 CREATE INDEX idx_notifications_type ON notifications(type);
                 CREATE INDEX idx_notifications_created_at ON notifications(created_at);
+                CREATE INDEX idx_courses_search ON courses USING GIN(search_vector);
+                CREATE INDEX idx_lessons_search ON lessons USING GIN(search_vector);
+
+                -- Verifica e aggiorna i vettori di ricerca esistenti
+                UPDATE courses 
+                SET title = title
+                WHERE search_vector IS NULL;
+
+                UPDATE lessons 
+                SET title = title
+                WHERE search_vector IS NULL;
             `);
 
             console.log('✓ Schema creato con successo'.green);

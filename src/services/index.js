@@ -6,6 +6,7 @@ import EnrollmentService from './EnrollmentService.js';
 import CommentService from './CommentService.js';
 import FavoriteService from './FavoriteService.js';
 import NotificationService from './NotificationService.js';
+import SearchService from './SearchService.js';
 
 export {
     UserService,
@@ -14,7 +15,8 @@ export {
     EnrollmentService,
     CommentService,
     FavoriteService,
-    NotificationService
+    NotificationService,
+    SearchService
 };
 
 // Configurazione globale per tutti i servizi

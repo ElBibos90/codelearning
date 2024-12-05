@@ -66,43 +66,51 @@ class SearchService extends BaseService {
         }
     }
 
-    async search(query, options = {}) {
-        try {
-            this.validate(query);
-
-            const [courses, lessons] = await Promise.all([
-                this.searchCourses(query, options),
-                this.searchLessons(query, options)
-            ]);
-
-            return {
-                courses: courses.results,
-                lessons: lessons.results,
-                totalResults: courses.totalCount + lessons.totalCount,
-                query
-            };
-        } catch (error) {
-            if (error instanceof ValidationError) {
-                throw error;
+     async search(query, options = {}) {
+            try {
+                this.validate(query);
+        
+                const [courses, lessons] = await Promise.all([
+                    this.searchCourses(query, options),
+                    this.searchLessons(query, options)
+                ]);
+        
+                const totalResults = parseInt(courses.totalCount) + parseInt(lessons.totalCount);
+        
+                return {
+                    courses: courses.results,
+                    lessons: lessons.results,
+                    totalResults,
+                    query
+                };
+            } catch (error) {
+                if (error instanceof ValidationError) {
+                    throw error;
+                }
+                throw new DatabaseError('Failed to perform search', error);
             }
-            throw new DatabaseError('Failed to perform search', error);
         }
-    }
 
-    async getSuggestions(query, type = 'all') {
-        try {
-            if (!query || query.trim().length < 2) {
-                return [];
+         async getSuggestions(query, type = 'all') {
+                try {
+                    if (!query || query.trim().length < 2) {
+                        return [];
+                    }
+            
+                    const validTypes = ['all', 'courses', 'lessons']; 
+                    const validType = validTypes.includes(type) ? type : 'all';
+            
+                    try {
+                        const suggestions = await this.model.getSuggestions(query, validType);
+                        return suggestions || [];
+                    } catch (error) {
+                        console.error('Error getting suggestions:', error);
+                        return [];
+                    }
+                } catch (error) {
+                    return [];
+                }
             }
-
-            const validTypes = ['all', 'courses', 'lessons'];
-            const validType = validTypes.includes(type) ? type : 'all';
-
-            return await this.model.getSuggestions(query, validType);
-        } catch (error) {
-            throw new DatabaseError('Failed to get search suggestions', error);
-        }
-    }
 }
 
 export default new SearchService();

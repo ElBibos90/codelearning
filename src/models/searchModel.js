@@ -1,44 +1,58 @@
 import { pool } from '../config/database.js';
+import { SERVER_CONFIG } from '../config/environments.js';
 
 export const searchModel = {
     name: 'search',
 
     async searchCourses(query, options = {}) {
-        const {
-            limit = 10,
-            offset = 0,
-            difficulty = null,
-            sortBy = 'rank'
-        } = options;
+        try {
+            const {
+                limit = 10,
+                offset = 0,
+                difficulty = null,
+                sortBy = 'rank'
+            } = options;
 
-        const values = [query];
-        let paramCount = 1;
+            const values = [query];
+            let paramCount = 1;
 
-        let sql = `
-            SELECT 
-                c.*,
-                ts_rank(search_vector, plainto_tsquery('italian', $1)) as rank,
-                COUNT(*) OVER() as total_count
-            FROM courses c
-            WHERE search_vector @@ plainto_tsquery('italian', $1)
-        `;
+            let sql = `
+                SELECT 
+                    c.*,
+                    ts_rank(c.search_vector, plainto_tsquery('italian', $1)) as rank,
+                    COUNT(*) OVER() as total_count
+                FROM courses c
+                WHERE c.search_vector @@ plainto_tsquery('italian', $1)
+            `;
 
-        if (difficulty) {
-            paramCount++;
-            sql += ` AND difficulty_level = $${paramCount}`;
-            values.push(difficulty);
+            if (difficulty) {
+                paramCount++;
+                sql += ` AND c.difficulty_level = $${paramCount}`;
+                values.push(difficulty);
+            }
+
+            sql += ` ORDER BY ${sortBy === 'rank' ? 'rank DESC' : 'created_at DESC'}
+                    LIMIT $${paramCount + 1} OFFSET $${paramCount + 2}`;
+            
+            values.push(limit, offset);
+
+            if (!SERVER_CONFIG.isTest) {
+                console.log('Executing query:', sql);
+                console.log('With values:', values);
+            }
+
+            const result = await pool.query(sql, values);
+            
+            return {
+                results: result.rows,
+                totalCount: result.rows[0]?.total_count || 0
+            };
+        } catch (error) {
+            if (!SERVER_CONFIG.isTest) {
+                console.error('Search query error:', error);
+            }
+            throw error;
         }
-
-        sql += ` ORDER BY ${sortBy === 'rank' ? 'rank DESC' : 'created_at DESC'}
-                LIMIT $${paramCount + 1} OFFSET $${paramCount + 2}`;
-        
-        values.push(limit, offset);
-
-        const result = await pool.query(sql, values);
-        return {
-            results: result.rows,
-            totalCount: result.rows[0]?.total_count || 0
-        };
     },
 
     async searchLessons(query, options = {}) {
@@ -84,7 +98,7 @@ export const searchModel = {
     async getSuggestions(query, type = 'all') {
         const values = [query];
         let sql = '';
-
+    
         if (type === 'all' || type === 'courses') {
             sql += `
                 SELECT DISTINCT 
@@ -95,7 +109,7 @@ export const searchModel = {
                 LIMIT 5
             `;
         }
-
+    
         if (type === 'all' || type === 'lessons') {
             if (sql) sql += ' UNION ALL ';
             sql += `
@@ -107,8 +121,12 @@ export const searchModel = {
                 LIMIT 5
             `;
         }
-
+    
+        //console.log('Executing query:', sql); // DEBUG
+        //console.log('With values:', values); // DEBUG
+    
         const result = await pool.query(sql, values);
+        //console.log('Query results:', result.rows); // DEBUG
         return result.rows;
     }
 };

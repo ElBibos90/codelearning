@@ -1,48 +1,804 @@
 
 > codelearning@1.0.0 test
-> node --experimental-vm-modules node_modules/jest/bin/jest.js --no-cache tests/services/FavoriteService.test.js
+> node --experimental-vm-modules node_modules/jest/bin/jest.js --no-cache
 
-(node:2408) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(node:7752) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
 (Use `node --trace-warnings ...` to show where the warning was created)
-FAIL tests/services/FavoriteService.test.js
+PASS tests/security.test.js (9.03 s)
   Test Environment
-    √ should have correct test environment variables (4 ms)
-    √ should mock console.error and console.warn (2 ms)
+    √ should have correct test environment variables (7 ms)
+    √ should mock console.error and console.warn (1 ms)
+    √ should have correct test environment variables (1 ms)
+    √ should mock console.error and console.warn (1 ms)
+  Security Middleware - Rate Limiting
+    Authentication Rate Limiting
+      √ should limit login attempts (903 ms)
+      √ should track login attempts separately by IP (714 ms)
+    Admin Routes Rate Limiting
+      √ should apply stricter limits to admin routes (730 ms)
+    API Rate Limiting
+      √ should apply general rate limits to API routes (1135 ms)
+      √ should track rate limits separately for different routes (405 ms)
+    IP Blacklisting
+      √ should blacklist IP after repeated violations (1533 ms)
+      √ should maintain blacklist across different routes (1534 ms)
+      √ should track violations separately by IP (372 ms)
+  Input Validation
+    √ should validate email format on register (20 ms)
+    √ should validate password strength on register (13 ms)
+    √ should validate course creation data (15 ms)
+  Content Sanitization
+    √ should sanitize malicious HTML content (5 ms)
+    √ should preserve safe HTML elements and attributes (1 ms)
+    √ should sanitize lesson content on creation (33 ms)
+    √ should handle course description sanitization (15 ms)
+
+PASS tests/services/LessonService.test.js
+  Test Environment
+    √ should have correct test environment variables (3 ms)
+    √ should mock console.error and console.warn (1 ms)
+  LessonService
+    Lesson Creation
+      √ should create lesson with template (3 ms)
+      √ should fail with invalid data (4 ms)
+      √ should create lesson with custom content (3 ms)
+    Lesson Update and Versioning
+      √ should update lesson and create new version (6 ms)
+      √ should get lesson versions (2 ms)
+      √ should revert to previous version (6 ms)
+    Progress Tracking
+      √ should mark lesson as completed (5 ms)
+      √ should get progress status (2 ms)
+      √ should update last accessed timestamp (129 ms)
+    Lesson Ordering
+      √ should reorder lessons (10 ms)
+    Content Sanitization
+      √ should sanitize HTML content (8 ms)
+      √ should preserve markdown content (3 ms)
+
+PASS tests/services/CourseService.test.js
+  Test Environment
+    √ should have correct test environment variables (3 ms)
+    √ should mock console.error and console.warn (1 ms)
+  CourseService
+    Course Creation
+      √ should create a new course (71 ms)
+      √ should fail with invalid difficulty level (68 ms)
+      √ should fail with too short title (66 ms)
+    Course Retrieval
+      √ should get course with lessons (68 ms)
+      √ should search courses (69 ms)
+    Course Publishing
+      √ should publish course with lessons (79 ms)
+      √ should fail publishing course without lessons (70 ms)
+    Course Enrollment
+      √ should enroll user in course (70 ms)
+      √ should prevent duplicate enrollment (78 ms)
+      √ should get user progress (84 ms)
+    Course Statistics
+      √ should get course statistics (74 ms)
+
+PASS tests/services/CommentService.test.js
+  Test Environment
+    √ should have correct test environment variables (3 ms)
+    √ should mock console.error and console.warn (1 ms)
+  CommentService
+    Comment Creation
+      √ should create a new comment (8 ms)
+      √ should fail with empty content (5 ms)
+      √ should create a reply to a comment (4 ms)
+    Comment Retrieval
+      √ should get lesson comments (3 ms)
+      √ should get user comments (2 ms)
+      √ should get comment replies (2 ms)
+    Comment Update
+      √ should update comment content (3 ms)
+      √ should fail update with unauthorized user (2 ms)
+    Comment Deletion
+      √ should soft delete a comment (6 ms)
+      √ should fail deletion with unauthorized user (2 ms)
+    Validation
+      √ should validate required fields (1 ms)
+      √ should require lessonId (1 ms)
+      √ should require userId (1 ms)
+      √ should require content (1 ms)
+      √ should sanitize content (4 ms)
+
+PASS tests/errors/errorHandler.test.js
+  Test Environment
+    √ should have correct test environment variables (3 ms)
+    √ should mock console.error and console.warn (1 ms)
+  Error Handler Middleware
+    Development Mode
+      √ should handle AppError with full details (6 ms)
+      √ should handle ValidationError (1 ms)
+      √ should handle unexpected errors with stack trace (2 ms)
+    Production Mode
+      √ should handle operational errors without stack trace (2 ms)
+      √ should sanitize unexpected errors (2 ms)
+      √ should report non-operational errors (5 ms)
+    Not Found Handler
+      √ should create not found error (1 ms)
+    Unhandled Rejection Handler
+      √ should log error and exit in development (2 ms)
+      √ should log error and report in production (2 ms)
+
+PASS tests/services/FavoriteService.test.js
+  Test Environment
+    √ should have correct test environment variables (3 ms)
+    √ should mock console.error and console.warn (1 ms)
   FavoriteService
     Favorite Management
       √ should add course to favorites (8 ms)
-      √ should prevent duplicate favorites (5 ms)
+      √ should prevent duplicate favorites (4 ms)
       √ should get user favorites (3 ms)
       √ should update favorite notes (3 ms)
-      √ should check if course is favorite (3 ms)
+      √ should check if course is favorite (4 ms)
     Favorite Removal
-      √ should remove from favorites (6 ms)
+      √ should remove from favorites (3 ms)
       √ should fail removing non-existent favorite (2 ms)
     Favorite Statistics
-      × should get course favorite stats (6 ms)
+      √ should get course favorite stats (7 ms)
     Validation
       √ should validate required fields (2 ms)
-      √ should require courseId (1 ms)
+      √ should require courseId (2 ms)
       √ should require userId (1 ms)
-      √ should sanitize notes (130 ms)
+      √ should sanitize notes (80 ms)
 
-  ● FavoriteService › Favorite Statistics › should get course favorite stats
+PASS tests/integration/cache.test.js
+  Test Environment
+    √ should have correct test environment variables (3 ms)
+    √ should mock console.error and console.warn (2 ms)
+  Cache Integration Tests
+    Course Detail Cache
+      √ should cache course detail response (50 ms)
+    Lesson Detail Cache
+      √ should cache lesson detail response (32 ms)
+    Dashboard Overview Cache
+      √ should cache dashboard overview response (29 ms)
+    Course Stats Cache
+      √ should cache course stats response (27 ms)
+    Profile Cache
+      √ should cache profile response (27 ms)
+    Admin Overview Cache
+      √ should cache admin overview response (31 ms)
+    My Courses Cache
+      √ should cache my courses response (29 ms)
 
-    DatabaseError: Failed to fetch favorite statistics
+PASS tests/integration/notifications.test.js
+  Test Environment
+    √ should have correct test environment variables (3 ms)
+    √ should mock console.error and console.warn (2 ms)
+  Notification Routes
+    √ should get user notifications (32 ms)
+    √ should mark notification as read (16 ms)
+    √ should mark all notifications as read (17 ms)
+    √ should delete notification (13 ms)
+    √ should delete all read notifications (15 ms)
+    √ should handle invalid notification id (13 ms)
+    √ should handle unauthorized access (13 ms)
 
-    [0m [90m 123 |[39m             }[33m;[39m
-     [90m 124 |[39m         } [36mcatch[39m (error) {
-    [31m[1m>[22m[39m[90m 125 |[39m             [36mthrow[39m [36mnew[39m [33mDatabaseError[39m([32m'Failed to fetch favorite statistics'[39m[33m,[39m error)[33m;[39m
+PASS tests/utils/logger.test.js
+  Test Environment
+    √ should have correct test environment variables (3 ms)
+    √ should mock console.error and console.warn (2 ms)
+    √ should have correct test environment variables (1 ms)
+    √ should mock console.error and console.warn (1 ms)
+  Logger
+    √ should create log directory if it does not exist (110 ms)
+    √ should log successful requests (644 ms)
+    √ should log error requests (638 ms)
+    √ should use different log levels based on environment (117 ms)
+    √ should handle request duration logging (743 ms)
+    √ should properly format log messages (623 ms)
+    √ should handle multiple simultaneous logs (1156 ms)
+
+PASS tests/services/NotificationService.test.js
+  Test Environment
+    √ should have correct test environment variables (2 ms)
+    √ should mock console.error and console.warn (2 ms)
+  NotificationService
+    Notification Creation
+      √ should create a notification (6 ms)
+      √ should validate notification data (4 ms)
+      √ should respect user preferences (3 ms)
+    Notification Management
+      √ should get user notifications (3 ms)
+      √ should mark notification as read (3 ms)
+      √ should get unread count (4 ms)
+      √ should mark all as read (4 ms)
+    Notification Deletion
+      √ should delete a notification (2 ms)
+      √ should delete all read notifications (2 ms)
+      √ should handle non-existent notification (2 ms)
+
+PASS tests/lessonRoutes.test.js
+  Test Environment
+    √ should have correct test environment variables (3 ms)
+    √ should mock console.error and console.warn (1 ms)
+  Lesson Routes Tests
+    √ Should create a new lesson with theory template (46 ms)
+    √ Should update lesson status (19 ms)
+    √ Should get lesson details (21 ms)
+
+PASS tests/services/UserService.test.js
+  Test Environment
+    √ should have correct test environment variables (3 ms)
+    √ should mock console.error and console.warn (1 ms)
+  UserService
+    Authentication
+      √ should successfully login user (72 ms)
+      √ should fail login with wrong password (70 ms)
+      √ should register new user (142 ms)
+    Profile Management
+      √ should get full profile (2 ms)
+      √ should update profile (2 ms)
+      √ should update preferences (3 ms)
+    Password Management
+      √ should change password (197 ms)
+      √ should fail with incorrect current password (68 ms)
+    Admin Functions
+      √ should get all users (3 ms)
+      √ should update user role (3 ms)
+
+FAIL tests/services/SearchService.test.js
+  Test Environment
+    √ should have correct test environment variables (3 ms)
+    √ should mock console.error and console.warn (1 ms)
+  SearchService
+    Course Search
+      × should find courses by title (6 ms)
+      × should filter by difficulty (34 ms)
+      √ should validate search query (3 ms)
+    Lesson Search
+      × should find lessons by title (33 ms)
+      × should find lessons by content (32 ms)
+      × should filter by course (32 ms)
+    Global Search
+      × should search across courses and lessons (36 ms)
+    Search Suggestions
+      × should get suggestions for courses (35 ms)
+      × should get suggestions for all types (34 ms)
+      √ should handle short queries (1 ms)
+
+  ● SearchService › Course Search › should find courses by title
+
+    DatabaseError: Failed to search courses
+
+    [0m [90m 38 |[39m                 [36mthrow[39m error[33m;[39m
+     [90m 39 |[39m             }
+    [31m[1m>[22m[39m[90m 40 |[39m             [36mthrow[39m [36mnew[39m [33mDatabaseError[39m([32m'Failed to search courses'[39m[33m,[39m error)[33m;[39m
+     [90m    |[39m                   [31m[1m^[22m[39m
+     [90m 41 |[39m         }
+     [90m 42 |[39m     }
+     [90m 43 |[39m[0m
+
+      at SearchService.searchCourses (src/services/SearchService.js:40:19)
+      at Object.<anonymous> (tests/services/SearchService.test.js:58:28)
+
+  ● SearchService › Course Search › should filter by difficulty
+
+    DatabaseError: Failed to search courses
+
+    [0m [90m 38 |[39m                 [36mthrow[39m error[33m;[39m
+     [90m 39 |[39m             }
+    [31m[1m>[22m[39m[90m 40 |[39m             [36mthrow[39m [36mnew[39m [33mDatabaseError[39m([32m'Failed to search courses'[39m[33m,[39m error)[33m;[39m
+     [90m    |[39m                   [31m[1m^[22m[39m
+     [90m 41 |[39m         }
+     [90m 42 |[39m     }
+     [90m 43 |[39m[0m
+
+      at SearchService.searchCourses (src/services/SearchService.js:40:19)
+      at Object.<anonymous> (tests/services/SearchService.test.js:64:28)
+
+  ● SearchService › Lesson Search › should find lessons by title
+
+    DatabaseError: Failed to search lessons
+
+    [0m [90m 63 |[39m                 [36mthrow[39m error[33m;[39m
+     [90m 64 |[39m             }
+    [31m[1m>[22m[39m[90m 65 |[39m             [36mthrow[39m [36mnew[39m [33mDatabaseError[39m([32m'Failed to search lessons'[39m[33m,[39m error)[33m;[39m
+     [90m    |[39m                   [31m[1m^[22m[39m
+     [90m 66 |[39m         }
+     [90m 67 |[39m     }
+     [90m 68 |[39m[0m
+
+      at SearchService.searchLessons (src/services/SearchService.js:65:19)
+      at Object.<anonymous> (tests/services/SearchService.test.js:78:28)
+
+  ● SearchService › Lesson Search › should find lessons by content
+
+    DatabaseError: Failed to search lessons
+
+    [0m [90m 63 |[39m                 [36mthrow[39m error[33m;[39m
+     [90m 64 |[39m             }
+    [31m[1m>[22m[39m[90m 65 |[39m             [36mthrow[39m [36mnew[39m [33mDatabaseError[39m([32m'Failed to search lessons'[39m[33m,[39m error)[33m;[39m
+     [90m    |[39m                   [31m[1m^[22m[39m
+     [90m 66 |[39m         }
+     [90m 67 |[39m     }
+     [90m 68 |[39m[0m
+
+      at SearchService.searchLessons (src/services/SearchService.js:65:19)
+      at Object.<anonymous> (tests/services/SearchService.test.js:84:28)
+
+  ● SearchService › Lesson Search › should filter by course
+
+    DatabaseError: Failed to search lessons
+
+    [0m [90m 63 |[39m                 [36mthrow[39m error[33m;[39m
+     [90m 64 |[39m             }
+    [31m[1m>[22m[39m[90m 65 |[39m             [36mthrow[39m [36mnew[39m [33mDatabaseError[39m([32m'Failed to search lessons'[39m[33m,[39m error)[33m;[39m
+     [90m    |[39m                   [31m[1m^[22m[39m
+     [90m 66 |[39m         }
+     [90m 67 |[39m     }
+     [90m 68 |[39m[0m
+
+      at SearchService.searchLessons (src/services/SearchService.js:65:19)
+      at Object.<anonymous> (tests/services/SearchService.test.js:90:28)
+
+  ● SearchService › Global Search › should search across courses and lessons
+
+    DatabaseError: Failed to perform search
+
+    [0m [90m 86 |[39m                 [36mthrow[39m error[33m;[39m
+     [90m 87 |[39m             }
+    [31m[1m>[22m[39m[90m 88 |[39m             [36mthrow[39m [36mnew[39m [33mDatabaseError[39m([32m'Failed to perform search'[39m[33m,[39m error)[33m;[39m
+     [90m    |[39m                   [31m[1m^[22m[39m
+     [90m 89 |[39m         }
+     [90m 90 |[39m     }
+     [90m 91 |[39m[0m
+
+      at SearchService.search (src/services/SearchService.js:88:19)
+      at Object.<anonymous> (tests/services/SearchService.test.js:100:28)
+
+  ● SearchService › Search Suggestions › should get suggestions for courses
+
+    DatabaseError: Failed to get search suggestions
+
+    [0m [90m 101 |[39m             [36mreturn[39m [36mawait[39m [36mthis[39m[33m.[39mmodel[33m.[39mgetSuggestions(query[33m,[39m validType)[33m;[39m
+     [90m 102 |[39m         } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 103 |[39m             [36mthrow[39m [36mnew[39m [33mDatabaseError[39m([32m'Failed to get search suggestions'[39m[33m,[39m error)[33m;[39m
      [90m     |[39m                   [31m[1m^[22m[39m
-     [90m 126 |[39m         }
-     [90m 127 |[39m     }
-     [90m 128 |[39m }[0m
+     [90m 104 |[39m         }
+     [90m 105 |[39m     }
+     [90m 106 |[39m }[0m
 
-      at FavoriteService.getFavoriteStats (src/services/FavoriteService.js:125:19)
-      at Object.<anonymous> (tests/services/FavoriteService.test.js:159:27)
+      at SearchService.getSuggestions (src/services/SearchService.js:103:19)
+      at Object.<anonymous> (tests/services/SearchService.test.js:109:33)
 
-Test Suites: 1 failed, 1 total
-Tests:       1 failed, 13 passed, 14 total
+  ● SearchService › Search Suggestions › should get suggestions for all types
+
+    DatabaseError: Failed to get search suggestions
+
+    [0m [90m 101 |[39m             [36mreturn[39m [36mawait[39m [36mthis[39m[33m.[39mmodel[33m.[39mgetSuggestions(query[33m,[39m validType)[33m;[39m
+     [90m 102 |[39m         } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 103 |[39m             [36mthrow[39m [36mnew[39m [33mDatabaseError[39m([32m'Failed to get search suggestions'[39m[33m,[39m error)[33m;[39m
+     [90m     |[39m                   [31m[1m^[22m[39m
+     [90m 104 |[39m         }
+     [90m 105 |[39m     }
+     [90m 106 |[39m }[0m
+
+      at SearchService.getSuggestions (src/services/SearchService.js:103:19)
+      at Object.<anonymous> (tests/services/SearchService.test.js:115:33)
+
+PASS tests/courseRoutes.test.js
+  Test Environment
+    √ should have correct test environment variables (2 ms)
+    √ should mock console.error and console.warn (2 ms)
+  Course Management
+    √ should create a new course (51 ms)
+    √ should prevent non-admin from creating course (15 ms)
+    √ should get course list (21 ms)
+    √ should get course details (17 ms)
+    √ should update course (17 ms)
+    √ should delete course (18 ms)
+    √ should handle invalid course ID (13 ms)
+  Course Cache
+    √ should cache course list (32 ms)
+
+PASS tests/services/EnrollmentService.test.js
+  Test Environment
+    √ should have correct test environment variables (2 ms)
+    √ should mock console.error and console.warn (1 ms)
+  EnrollmentService
+    Enrollment Management
+      √ should enroll user in course (10 ms)
+      √ should prevent duplicate enrollment (4 ms)
+      √ should get user enrollments (6 ms)
+      √ should get course enrollments (3 ms)
+    Progress Tracking
+      √ should complete course enrollment (4 ms)
+      √ should get enrollment statistics (2 ms)
+    Enrollment Removal
+      √ should unenroll user from course (3 ms)
+      √ should handle unenroll from non-existent enrollment (2 ms)
+    Validation
+      √ should validate enrollment data (3 ms)
+      √ should require userId (1 ms)
+      √ should require courseId (1 ms)
+
+FAIL tests/integration/search.test.js
+  Test Environment
+    √ should have correct test environment variables (3 ms)
+    √ should mock console.error and console.warn (2 ms)
+  Search API
+    × should search across all content (40 ms)
+    × should search courses with filters (49 ms)
+    × should search lessons with course filter (46 ms)
+    × should get search suggestions (43 ms)
+    √ should handle empty search query (13 ms)
+    √ should require authentication (11 ms)
+
+  ● Search API › should search across all content
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 500
+
+    [0m [90m 65 |[39m             [33m.[39m[36mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer ${testToken}`[39m)[33m;[39m
+     [90m 66 |[39m
+    [31m[1m>[22m[39m[90m 67 |[39m         expect(response[33m.[39mstatus)[33m.[39mtoBe([35m200[39m)[33m;[39m
+     [90m    |[39m                                 [31m[1m^[22m[39m
+     [90m 68 |[39m         expect(response[33m.[39mbody[33m.[39msuccess)[33m.[39mtoBe([36mtrue[39m)[33m;[39m
+     [90m 69 |[39m         expect(response[33m.[39mbody[33m.[39mdata[33m.[39mcourses)[33m.[39mtoBeDefined()[33m;[39m
+     [90m 70 |[39m         expect(response[33m.[39mbody[33m.[39mdata[33m.[39mlessons)[33m.[39mtoBeDefined()[33m;[39m[0m
+
+      at Object.<anonymous> (tests/integration/search.test.js:67:33)
+
+  ● Search API › should search courses with filters
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 500
+
+    [0m [90m 76 |[39m             [33m.[39m[36mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer ${testToken}`[39m)[33m;[39m
+     [90m 77 |[39m
+    [31m[1m>[22m[39m[90m 78 |[39m         expect(response[33m.[39mstatus)[33m.[39mtoBe([35m200[39m)[33m;[39m
+     [90m    |[39m                                 [31m[1m^[22m[39m
+     [90m 79 |[39m         expect(response[33m.[39mbody[33m.[39msuccess)[33m.[39mtoBe([36mtrue[39m)[33m;[39m
+     [90m 80 |[39m         expect(response[33m.[39mbody[33m.[39mdata[33m.[39mresults[33m.[39mlength)[33m.[39mtoBeGreaterThan([35m0[39m)[33m;[39m
+     [90m 81 |[39m     })[33m;[39m[0m
+
+      at Object.<anonymous> (tests/integration/search.test.js:78:33)
+
+  ● Search API › should search lessons with course filter
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 500
+
+    [0m [90m 86 |[39m             [33m.[39m[36mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer ${testToken}`[39m)[33m;[39m
+     [90m 87 |[39m
+    [31m[1m>[22m[39m[90m 88 |[39m         expect(response[33m.[39mstatus)[33m.[39mtoBe([35m200[39m)[33m;[39m
+     [90m    |[39m                                 [31m[1m^[22m[39m
+     [90m 89 |[39m         expect(response[33m.[39mbody[33m.[39msuccess)[33m.[39mtoBe([36mtrue[39m)[33m;[39m
+     [90m 90 |[39m         expect(response[33m.[39mbody[33m.[39mdata[33m.[39mresults[33m.[39mlength)[33m.[39mtoBeGreaterThan([35m0[39m)[33m;[39m
+     [90m 91 |[39m     })[33m;[39m[0m
+
+      at Object.<anonymous> (tests/integration/search.test.js:88:33)
+
+  ● Search API › should get search suggestions
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 500
+
+    [0m [90m  96 |[39m             [33m.[39m[36mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer ${testToken}`[39m)[33m;[39m
+     [90m  97 |[39m
+    [31m[1m>[22m[39m[90m  98 |[39m         expect(response[33m.[39mstatus)[33m.[39mtoBe([35m200[39m)[33m;[39m
+     [90m     |[39m                                 [31m[1m^[22m[39m
+     [90m  99 |[39m         expect(response[33m.[39mbody[33m.[39msuccess)[33m.[39mtoBe([36mtrue[39m)[33m;[39m
+     [90m 100 |[39m         expect([33mArray[39m[33m.[39misArray(response[33m.[39mbody[33m.[39mdata))[33m.[39mtoBe([36mtrue[39m)[33m;[39m
+     [90m 101 |[39m     })[33m;[39m[0m
+
+      at Object.<anonymous> (tests/integration/search.test.js:98:33)
+
+PASS tests/errors/errorReporter.test.js
+  Test Environment
+    √ should have correct test environment variables (3 ms)
+    √ should mock console.error and console.warn (2 ms)
+  Error Reporter
+    √ should log error locally (9 ms)
+    √ should batch errors up to limit (2 ms)
+    √ should flush errors after timeout (110 ms)
+    √ should include error context (2 ms)
+    √ should handle error during reporting (2 ms)
+    √ should retry failed flushes (2 ms)
+
+PASS tests/authRoutes.test.js
+  Test Environment
+    √ should have correct test environment variables (3 ms)
+    √ should mock console.error and console.warn (1 ms)
+  Authentication Routes
+    √ should register new user (179 ms)
+    √ should login existing user (83 ms)
+    √ should reject invalid credentials (86 ms)
+    √ should reject invalid email format (15 ms)
+    √ should reject weak passwords (13 ms)
+    √ should prevent duplicate email registration (20 ms)
+
+PASS tests/snapshots/responses.test.js
+  Test Environment
+    √ should have correct test environment variables (3 ms)
+    √ should mock console.error and console.warn (2 ms)
+  API Response Snapshots
+    √ GET /api/courses should match snapshot (37 ms)
+    √ Error response should match snapshot (15 ms)
+    √ Validation error should match snapshot (28 ms)
+    √ Success response should match snapshot (83 ms)
+
+PASS tests/errors/ValidationError.test.js
+  Test Environment
+    √ should have correct test environment variables (3 ms)
+    √ should mock console.error and console.warn (2 ms)
+  ValidationError
+    √ should create validation error with errors array (2 ms)
+    √ should create from express-validator errors (1 ms)
+    √ should create from joi errors (1 ms)
+    √ should create from zod errors (1 ms)
+    √ should add errors dynamically (1 ms)
+    √ should check if has errors (1 ms)
+    √ should get errors by field (1 ms)
+
+PASS tests/errors/AppError.test.js
+  Test Environment
+    √ should have correct test environment variables (2 ms)
+    √ should mock console.error and console.warn (1 ms)
+  AppError
+    √ should create basic error with defaults (1 ms)
+    √ should create error with custom properties (2 ms)
+    √ should convert to JSON correctly (1 ms)
+    √ should identify operational errors (1 ms)
+    √ should create specific error types (2 ms)
+    √ should include stack trace in development (3 ms)
+
+PASS tests/errors/DatabaseError.test.js
+  Test Environment
+    √ should have correct test environment variables (3 ms)
+    √ should mock console.error and console.warn (2 ms)
+  DatabaseError
+    √ should create basic database error (1 ms)
+    √ should parse PostgreSQL errors (2 ms)
+    √ should identify unique violation errors (1 ms)
+    √ should identify foreign key violation errors (1 ms)
+    √ should identify connection errors (1 ms)
+    √ should handle JSON serialization (4 ms)
+    √ should handle missing PostgreSQL error (1 ms)
+
+PASS tests/pagination.test.js
+  Test Environment
+    √ should have correct test environment variables (2 ms)
+    √ should mock console.error and console.warn (2 ms)
+  Pagination Tests
+    √ should return first page of courses with next cursor (35 ms)
+    √ should return next page using cursor (28 ms)
+    √ should handle last page correctly (15 ms)
+
+PASS tests/favorites.test.js
+  Test Environment
+    √ should have correct test environment variables (3 ms)
+    √ should mock console.error and console.warn (2 ms)
+  Favorites API
+    √ Should add a course to favorites (46 ms)
+    √ Should prevent duplicate favorites (15 ms)
+    √ Should get user favorites (18 ms)
+    √ Should remove from favorites (15 ms)
+
+PASS tests/setup-test-env.js
+  Test Environment
+    √ should have correct test environment variables (3 ms)
+    √ should mock console.error and console.warn (2 ms)
+
+PASS tests/teardown.js
+  Test Environment
+    √ should have correct test environment variables (3 ms)
+    √ should mock console.error and console.warn (2 ms)
+
+PASS tests/integration/health.test.js
+  Test Environment
+    √ should have correct test environment variables (2 ms)
+    √ should mock console.error and console.warn (2 ms)
+  Health Check
+    √ GET / should return 200 (33 ms)
+
+Summary of all failing tests
+FAIL tests/services/SearchService.test.js
+  ● SearchService › Course Search › should find courses by title
+
+    DatabaseError: Failed to search courses
+
+    [0m [90m 38 |[39m                 [36mthrow[39m error[33m;[39m
+     [90m 39 |[39m             }
+    [31m[1m>[22m[39m[90m 40 |[39m             [36mthrow[39m [36mnew[39m [33mDatabaseError[39m([32m'Failed to search courses'[39m[33m,[39m error)[33m;[39m
+     [90m    |[39m                   [31m[1m^[22m[39m
+     [90m 41 |[39m         }
+     [90m 42 |[39m     }
+     [90m 43 |[39m[0m
+
+      at SearchService.searchCourses (src/services/SearchService.js:40:19)
+      at Object.<anonymous> (tests/services/SearchService.test.js:58:28)
+
+  ● SearchService › Course Search › should filter by difficulty
+
+    DatabaseError: Failed to search courses
+
+    [0m [90m 38 |[39m                 [36mthrow[39m error[33m;[39m
+     [90m 39 |[39m             }
+    [31m[1m>[22m[39m[90m 40 |[39m             [36mthrow[39m [36mnew[39m [33mDatabaseError[39m([32m'Failed to search courses'[39m[33m,[39m error)[33m;[39m
+     [90m    |[39m                   [31m[1m^[22m[39m
+     [90m 41 |[39m         }
+     [90m 42 |[39m     }
+     [90m 43 |[39m[0m
+
+      at SearchService.searchCourses (src/services/SearchService.js:40:19)
+      at Object.<anonymous> (tests/services/SearchService.test.js:64:28)
+
+  ● SearchService › Lesson Search › should find lessons by title
+
+    DatabaseError: Failed to search lessons
+
+    [0m [90m 63 |[39m                 [36mthrow[39m error[33m;[39m
+     [90m 64 |[39m             }
+    [31m[1m>[22m[39m[90m 65 |[39m             [36mthrow[39m [36mnew[39m [33mDatabaseError[39m([32m'Failed to search lessons'[39m[33m,[39m error)[33m;[39m
+     [90m    |[39m                   [31m[1m^[22m[39m
+     [90m 66 |[39m         }
+     [90m 67 |[39m     }
+     [90m 68 |[39m[0m
+
+      at SearchService.searchLessons (src/services/SearchService.js:65:19)
+      at Object.<anonymous> (tests/services/SearchService.test.js:78:28)
+
+  ● SearchService › Lesson Search › should find lessons by content
+
+    DatabaseError: Failed to search lessons
+
+    [0m [90m 63 |[39m                 [36mthrow[39m error[33m;[39m
+     [90m 64 |[39m             }
+    [31m[1m>[22m[39m[90m 65 |[39m             [36mthrow[39m [36mnew[39m [33mDatabaseError[39m([32m'Failed to search lessons'[39m[33m,[39m error)[33m;[39m
+     [90m    |[39m                   [31m[1m^[22m[39m
+     [90m 66 |[39m         }
+     [90m 67 |[39m     }
+     [90m 68 |[39m[0m
+
+      at SearchService.searchLessons (src/services/SearchService.js:65:19)
+      at Object.<anonymous> (tests/services/SearchService.test.js:84:28)
+
+  ● SearchService › Lesson Search › should filter by course
+
+    DatabaseError: Failed to search lessons
+
+    [0m [90m 63 |[39m                 [36mthrow[39m error[33m;[39m
+     [90m 64 |[39m             }
+    [31m[1m>[22m[39m[90m 65 |[39m             [36mthrow[39m [36mnew[39m [33mDatabaseError[39m([32m'Failed to search lessons'[39m[33m,[39m error)[33m;[39m
+     [90m    |[39m                   [31m[1m^[22m[39m
+     [90m 66 |[39m         }
+     [90m 67 |[39m     }
+     [90m 68 |[39m[0m
+
+      at SearchService.searchLessons (src/services/SearchService.js:65:19)
+      at Object.<anonymous> (tests/services/SearchService.test.js:90:28)
+
+  ● SearchService › Global Search › should search across courses and lessons
+
+    DatabaseError: Failed to perform search
+
+    [0m [90m 86 |[39m                 [36mthrow[39m error[33m;[39m
+     [90m 87 |[39m             }
+    [31m[1m>[22m[39m[90m 88 |[39m             [36mthrow[39m [36mnew[39m [33mDatabaseError[39m([32m'Failed to perform search'[39m[33m,[39m error)[33m;[39m
+     [90m    |[39m                   [31m[1m^[22m[39m
+     [90m 89 |[39m         }
+     [90m 90 |[39m     }
+     [90m 91 |[39m[0m
+
+      at SearchService.search (src/services/SearchService.js:88:19)
+      at Object.<anonymous> (tests/services/SearchService.test.js:100:28)
+
+  ● SearchService › Search Suggestions › should get suggestions for courses
+
+    DatabaseError: Failed to get search suggestions
+
+    [0m [90m 101 |[39m             [36mreturn[39m [36mawait[39m [36mthis[39m[33m.[39mmodel[33m.[39mgetSuggestions(query[33m,[39m validType)[33m;[39m
+     [90m 102 |[39m         } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 103 |[39m             [36mthrow[39m [36mnew[39m [33mDatabaseError[39m([32m'Failed to get search suggestions'[39m[33m,[39m error)[33m;[39m
+     [90m     |[39m                   [31m[1m^[22m[39m
+     [90m 104 |[39m         }
+     [90m 105 |[39m     }
+     [90m 106 |[39m }[0m
+
+      at SearchService.getSuggestions (src/services/SearchService.js:103:19)
+      at Object.<anonymous> (tests/services/SearchService.test.js:109:33)
+
+  ● SearchService › Search Suggestions › should get suggestions for all types
+
+    DatabaseError: Failed to get search suggestions
+
+    [0m [90m 101 |[39m             [36mreturn[39m [36mawait[39m [36mthis[39m[33m.[39mmodel[33m.[39mgetSuggestions(query[33m,[39m validType)[33m;[39m
+     [90m 102 |[39m         } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 103 |[39m             [36mthrow[39m [36mnew[39m [33mDatabaseError[39m([32m'Failed to get search suggestions'[39m[33m,[39m error)[33m;[39m
+     [90m     |[39m                   [31m[1m^[22m[39m
+     [90m 104 |[39m         }
+     [90m 105 |[39m     }
+     [90m 106 |[39m }[0m
+
+      at SearchService.getSuggestions (src/services/SearchService.js:103:19)
+      at Object.<anonymous> (tests/services/SearchService.test.js:115:33)
+
+FAIL tests/integration/search.test.js
+  ● Search API › should search across all content
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 500
+
+    [0m [90m 65 |[39m             [33m.[39m[36mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer ${testToken}`[39m)[33m;[39m
+     [90m 66 |[39m
+    [31m[1m>[22m[39m[90m 67 |[39m         expect(response[33m.[39mstatus)[33m.[39mtoBe([35m200[39m)[33m;[39m
+     [90m    |[39m                                 [31m[1m^[22m[39m
+     [90m 68 |[39m         expect(response[33m.[39mbody[33m.[39msuccess)[33m.[39mtoBe([36mtrue[39m)[33m;[39m
+     [90m 69 |[39m         expect(response[33m.[39mbody[33m.[39mdata[33m.[39mcourses)[33m.[39mtoBeDefined()[33m;[39m
+     [90m 70 |[39m         expect(response[33m.[39mbody[33m.[39mdata[33m.[39mlessons)[33m.[39mtoBeDefined()[33m;[39m[0m
+
+      at Object.<anonymous> (tests/integration/search.test.js:67:33)
+
+  ● Search API › should search courses with filters
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 500
+
+    [0m [90m 76 |[39m             [33m.[39m[36mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer ${testToken}`[39m)[33m;[39m
+     [90m 77 |[39m
+    [31m[1m>[22m[39m[90m 78 |[39m         expect(response[33m.[39mstatus)[33m.[39mtoBe([35m200[39m)[33m;[39m
+     [90m    |[39m                                 [31m[1m^[22m[39m
+     [90m 79 |[39m         expect(response[33m.[39mbody[33m.[39msuccess)[33m.[39mtoBe([36mtrue[39m)[33m;[39m
+     [90m 80 |[39m         expect(response[33m.[39mbody[33m.[39mdata[33m.[39mresults[33m.[39mlength)[33m.[39mtoBeGreaterThan([35m0[39m)[33m;[39m
+     [90m 81 |[39m     })[33m;[39m[0m
+
+      at Object.<anonymous> (tests/integration/search.test.js:78:33)
+
+  ● Search API › should search lessons with course filter
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 500
+
+    [0m [90m 86 |[39m             [33m.[39m[36mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer ${testToken}`[39m)[33m;[39m
+     [90m 87 |[39m
+    [31m[1m>[22m[39m[90m 88 |[39m         expect(response[33m.[39mstatus)[33m.[39mtoBe([35m200[39m)[33m;[39m
+     [90m    |[39m                                 [31m[1m^[22m[39m
+     [90m 89 |[39m         expect(response[33m.[39mbody[33m.[39msuccess)[33m.[39mtoBe([36mtrue[39m)[33m;[39m
+     [90m 90 |[39m         expect(response[33m.[39mbody[33m.[39mdata[33m.[39mresults[33m.[39mlength)[33m.[39mtoBeGreaterThan([35m0[39m)[33m;[39m
+     [90m 91 |[39m     })[33m;[39m[0m
+
+      at Object.<anonymous> (tests/integration/search.test.js:88:33)
+
+  ● Search API › should get search suggestions
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 500
+
+    [0m [90m  96 |[39m             [33m.[39m[36mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer ${testToken}`[39m)[33m;[39m
+     [90m  97 |[39m
+    [31m[1m>[22m[39m[90m  98 |[39m         expect(response[33m.[39mstatus)[33m.[39mtoBe([35m200[39m)[33m;[39m
+     [90m     |[39m                                 [31m[1m^[22m[39m
+     [90m  99 |[39m         expect(response[33m.[39mbody[33m.[39msuccess)[33m.[39mtoBe([36mtrue[39m)[33m;[39m
+     [90m 100 |[39m         expect([33mArray[39m[33m.[39misArray(response[33m.[39mbody[33m.[39mdata))[33m.[39mtoBe([36mtrue[39m)[33m;[39m
+     [90m 101 |[39m     })[33m;[39m[0m
+
+      at Object.<anonymous> (tests/integration/search.test.js:98:33)
+
+
+Test Suites: 2 failed, 25 passed, 27 total
+Tests:       12 failed, 243 passed, 255 total
 Snapshots:   0 total
-Time:        1.219 s
-Ran all test suites matching /tests\\services\\FavoriteService.test.js/i.
+Time:        33.804 s
+Ran all test suites.
