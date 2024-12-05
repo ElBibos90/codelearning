@@ -1,8 +1,8 @@
 // src/services/CourseService.js
-import BaseService from './BaseService';
-import { courseModel } from '../models/courseModel';
-import { ValidationError, DatabaseError } from '../utils/errors';
-import { sanitizeContent } from '../utils/sanitize';
+import BaseService from './BaseService.js';
+import { courseModel } from '../models/courseModel.js';
+import { ValidationError, DatabaseError } from '../utils/errors/index.js';
+import { sanitizeContent } from '../utils/sanitize.js';
 
 class CourseService extends BaseService {
     constructor() {

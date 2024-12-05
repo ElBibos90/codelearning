@@ -1,11 +1,11 @@
 // src/services/UserService.js
-import BaseService from './BaseService';
-import { userModel } from '../models/userModel';
+import BaseService from './BaseService.js';
+import { userModel } from '../models/userModel.js';
 import DatabaseError from '../utils/errors/DatabaseError.js';
 import ValidationError from '../utils/errors/ValidationError.js';
 import AuthError from '../utils/errors/AuthError.js';
 import bcrypt from 'bcryptjs';
-import { generateToken } from '../middleware/auth';
+import { generateToken } from '../middleware/auth.js';
 
 class UserService extends BaseService {
     constructor() {

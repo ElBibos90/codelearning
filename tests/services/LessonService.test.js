@@ -1,7 +1,7 @@
 import { jest } from '@jest/globals';
 import { pool } from '../../src/config/database.js';
 import LessonService from '../../src/services/LessonService.js';
-import { ValidationError, DatabaseError } from '../../src/utils/errors';
+import { ValidationError, DatabaseError } from '../../src/utils/errors/index.js';
 import bcrypt from 'bcryptjs';
 
 describe('LessonService', () => {

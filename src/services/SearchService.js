@@ -1,6 +1,6 @@
-import BaseService from './BaseService';
-import { searchModel } from '../models/searchModel';
-import { ValidationError, DatabaseError } from '../utils/errors';
+import BaseService from './BaseService.js';
+import { searchModel } from '../models/searchModel.js';
+import { ValidationError, DatabaseError } from '../utils/errors/index.js';
 
 class SearchService extends BaseService {
     constructor() {

@@ -1,7 +1,7 @@
-import BaseService from './BaseService';
-import { notificationModel } from '../models/notificationModel';
+import BaseService from './BaseService.js';
+import { notificationModel } from '../models/notificationModel.js';
 import { ValidationError, DatabaseError, AppError } from '../utils/errors/index.js';
-import { sanitizeContent } from '../utils/sanitize';
+import { sanitizeContent } from '../utils/sanitize.js';
 
 class NotificationService extends BaseService {
     constructor() {

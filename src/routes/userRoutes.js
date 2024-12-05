@@ -1,6 +1,6 @@
 // src/routes/userRoutes.js
 import express from 'express';
-import { UserService } from '../services';
+import { UserService }   from '../services/index.js';
 import { authenticateToken, isAdmin } from '../middleware/auth.js';
 import { SERVER_CONFIG } from '../config/environments.js';
 

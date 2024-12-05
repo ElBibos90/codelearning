@@ -2,7 +2,7 @@
 import express from 'express';
 import { authenticateToken, isAdmin } from '../middleware/auth.js';
 import { registerValidation } from '../middleware/validators.js';
-import { UserService } from '../services';
+import { UserService }   from '../services/index.js';
 
 const router = express.Router();
 

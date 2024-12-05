@@ -1,7 +1,7 @@
 import { jest } from '@jest/globals';
 import { pool } from '../../src/config/database.js';
 import SearchService from '../../src/services/SearchService.js';
-import { ValidationError } from '../../src/utils/errors';
+import { ValidationError } from '../../src/utils/errors/index.js';
 import bcrypt from 'bcryptjs';
 
 describe('SearchService', () => {

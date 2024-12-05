@@ -1,7 +1,7 @@
-import BaseService from './BaseService';
-import { favoriteModel } from '../models/favoriteModel';
-import { ValidationError, DatabaseError } from '../utils/errors';
-import { sanitizeContent } from '../utils/sanitize';
+import BaseService from './BaseService.js';
+import { favoriteModel } from '../models/favoriteModel.js';
+import { ValidationError, DatabaseError } from '../utils/errors/index.js';
+import { sanitizeContent } from '../utils/sanitize.js';
 
 class FavoriteService extends BaseService {
     constructor() {

@@ -1,6 +1,6 @@
 import express from 'express';
 import { authenticateToken } from '../middleware/auth.js';
-import { FavoriteService } from '../services';
+import { FavoriteService } from '../services/index.js';
 import { SERVER_CONFIG } from '../config/environments.js';
 
 const router = express.Router();
