@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ChevronLeft, ChevronRight, CheckCircle, Clock, ArrowLeft } from 'lucide-react';
+import { CommentSection } from '../comments';
 import api from '../../services/api';
 
 export default function LessonDetail() {
@@ -180,6 +181,9 @@ export default function LessonDetail() {
             </div>
           )}
         </article>
+
+        {/* Comments Section */}
+        <CommentSection lessonId={lessonId} />
 
         {/* Navigation between lessons */}
         <div className="mt-12 border-t pt-6">
