@@ -1,6 +1,6 @@
 // tests/services/UserService.test.js
 import { jest } from '@jest/globals';
-import UserService  from '../../src/services';
+import UserService  from '../../src/services/UserService.js';
 import { pool } from '../../src/config/database';
 import bcrypt from 'bcryptjs';
 
