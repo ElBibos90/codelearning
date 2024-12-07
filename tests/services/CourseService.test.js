@@ -14,7 +14,7 @@ describe('CourseService', () => {
             FROM information_schema.columns 
             WHERE table_name = 'courses'
         `);
-        //console.log('Courses table structure:', tableCheck.rows);
+        console.log('Courses table structure:', tableCheck.rows);
         
         // Assicurati che la tabella courses abbia la struttura corretta
         await pool.query(`
@@ -161,14 +161,14 @@ describe('CourseService', () => {
             `, [testCourse.id]);
         
             // Debug log
-            //console.log('Test course before publish:', testCourse);
+            console.log('Test course before publish:', testCourse);
         
             // Verifica il conteggio delle lezioni
             const lessonsResult = await pool.query(
                 'SELECT COUNT(*) FROM lessons WHERE course_id = $1',
                 [testCourse.id]
             );
-            //console.log('Lessons count:', lessonsResult.rows[0].count);
+            console.log('Lessons count:', lessonsResult.rows[0].count);
         
             // Prova a pubblicare il corso
             const publishedCourse = await CourseService.publish(testCourse.id);
@@ -179,7 +179,7 @@ describe('CourseService', () => {
             expect(publishedCourse.published_at).toBeDefined();
             
             // Debug log
-            //console.log('Published course:', publishedCourse);
+            console.log('Published course:', publishedCourse);
         });
 
         test('should fail publishing course without lessons', async () => {

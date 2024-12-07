@@ -2,11 +2,11 @@
 
 ## 1. Autenticazione e Profilo
 - [x] Implementazione Registrazione utente
-- [ ] Revisione e miglioramento Login
-  - [ ] Validazione form 
-  - [ ] Gestione errori
-  - [ ] Persistenza della sessione
-  - [ ] Remember me functionality
+- [x] Revisione e miglioramento Login
+  - [x] Validazione form 
+  - [x] Gestione errori
+  - [x] Persistenza della sessione
+  - [x] Remember me functionality
 - [ ] Implementazione Profilo Utente
   - [ ] Visualizzazione dati profilo
   - [ ] Modifica dati personali

@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff, Loader, ArrowLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import PasswordStrengthIndicator from "./components/PasswordStrengthIndicator";
-import api from '../../services/api';
+import { authService } from '../../services/authService';
 
 export default function Register() {
   const navigate = useNavigate();
@@ -61,52 +61,51 @@ export default function Register() {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const errors = validateStep2();
-    if (Object.keys(errors).length > 0) {
-      setFormErrors(errors);
-      return;
-    }
 
-    setIsLoading(true);
-    try {
-      const response = await api.post('/auth/register', {
-        name: formData.name,
-        email: formData.email,
-        password: formData.password
-      });
-
-      const { data } = response;
-
-     if (data.success) {
-        navigate('/login', { 
-          state: { 
-            message: 'Registrazione completata con successo! Effettua il login.',
-           type: 'success' 
-          } 
-        });
-       return;
-     }
-
-     // Se arriviamo qui, c'è stato un errore nella risposta
-     throw new Error(data.message || 'Errore durante la registrazione');
-
-    } catch (err) {
-      if (err.response?.data?.errors) {
-        const backendErrors = {};
-        err.response.data.errors.forEach(error => {
-          backendErrors[error.field] = error.message;
-        });
-        setFormErrors(backendErrors);
-      } else {
-        setFormErrors({ 
-          general: err.response?.data?.message || 'Si è verificato un errore durante la registrazione' 
-        });
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      const errors = validateStep2();
+      if (Object.keys(errors).length > 0) {
+        setFormErrors(errors);
+        return;
       }
-     setIsLoading(false);
-    }
-  };
+  
+      setIsLoading(true);
+      try {
+        const result = await authService.register({
+          name: formData.name,
+          email: formData.email,
+          password: formData.password
+        });
+          
+        if (result.success) {
+          navigate('/login', { 
+            state: { 
+              message: 'Registrazione completata con successo! Effettua il login.',
+              type: 'success' 
+            } 
+          });
+          return;
+        }
+  
+       throw new Error(result.message || 'Errore durante la registrazione');
+  
+      } catch (err) {
+        if (err.response?.data?.errors) {
+          const backendErrors = {};
+          err.response.data.errors.forEach(error => {
+            backendErrors[error.field] = error.message;
+          });
+          setFormErrors(backendErrors);
+        } else {
+          setFormErrors({ 
+            general: err.response?.data?.message || 'Si è verificato un errore durante la registrazione' 
+          });
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
