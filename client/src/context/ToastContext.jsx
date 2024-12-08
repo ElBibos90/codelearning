@@ -1,6 +1,7 @@
 import { createContext, useContext, useReducer, useCallback } from 'react';
 
-const ToastContext = createContext({
+// Esportiamo il context
+export const ToastContext = createContext({
   toasts: [],
   addToast: () => null,
   removeToast: () => null
@@ -12,8 +13,6 @@ const toastReducer = (state, action) => {
       return [...state, { id: Date.now(), ...action.payload }];
     case 'REMOVE_TOAST':
       return state.filter(toast => toast.id !== action.payload);
-    case 'CLEAR_TOASTS':
-      return [];
     default:
       return state;
   }
@@ -37,12 +36,8 @@ export function ToastProvider({ children }) {
     dispatch({ type: 'REMOVE_TOAST', payload: id });
   }, []);
 
-  const clearToasts = useCallback(() => {
-    dispatch({ type: 'CLEAR_TOASTS' });
-  }, []);
-
   return (
-    <ToastContext.Provider value={{ toasts, addToast, removeToast, clearToasts }}>
+    <ToastContext.Provider value={{ toasts, addToast, removeToast }}>
       {children}
     </ToastContext.Provider>
   );
