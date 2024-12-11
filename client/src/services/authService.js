@@ -37,6 +37,7 @@ export const authService = {
     } catch (error) {
       console.error('Errore durante il logout:', error);
     } finally {
+      // Continua con il logout lato client anche se la chiamata al server fallisce
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       store.dispatch(logoutAction());
