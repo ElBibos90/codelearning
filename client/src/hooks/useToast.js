@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { ToastContext } from '../context/ToastContext';
+import { ToastContext } from '../context/ToastContext.jsx'; // Aggiungi l'estensione .jsx
 
 export const useToast = () => {
   const context = useContext(ToastContext);

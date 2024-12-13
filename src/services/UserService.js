@@ -1,11 +1,10 @@
-// src/services/UserService.js
-import BaseService from './BaseService';
-import { userModel } from '../models/userModel';
+import BaseService from './BaseService.js';
+import { userModel } from '../models/userModel.js';
 import DatabaseError from '../utils/errors/DatabaseError.js';
 import ValidationError from '../utils/errors/ValidationError.js';
 import AuthError from '../utils/errors/AuthError.js';
 import bcrypt from 'bcryptjs';
-import { generateToken } from '../middleware/auth';
+import { generateToken } from '../middleware/auth.js';
 
 class UserService extends BaseService {
     constructor() {
@@ -36,15 +35,34 @@ class UserService extends BaseService {
 
     async login(email, password) {
         try {
+            console.log('\n=== LOGIN ATTEMPT ===');
+            console.log('Login attempt for email:', email);
+            
             const user = await this.model.findByEmail(email);
+            console.log('User found in database:', user ? 'Yes' : 'No');
+            
             if (!user) {
+                console.log('Authentication failed: User not found');
                 throw new AuthError('Invalid credentials');
             }
 
+            console.log('\nPassword Verification:');
+            console.log('Provided password:', password);
+            console.log('Stored hash in DB:', user.password);
+            
+            // Verifica che l'hash sia nel formato corretto di bcrypt
+            const isValidHash = /^\$2[ayb]\$[0-9]{2}\$[A-Za-z0-9./]{53}$/.test(user.password);
+            console.log('Hash format is valid:', isValidHash);
+            
             const isValidPassword = await bcrypt.compare(password, user.password);
+            console.log('bcrypt.compare() result:', isValidPassword);
+
             if (!isValidPassword) {
+                console.log('Authentication failed: Invalid password');
                 throw new AuthError('Invalid credentials');
             }
+
+            console.log('Authentication successful');
 
             // Update last login
             await this.update(user.id, {
@@ -52,6 +70,8 @@ class UserService extends BaseService {
             });
 
             const token = generateToken(user);
+            console.log('Token generated successfully');
+            console.log('=== END LOGIN ATTEMPT ===\n');
 
             return {
                 user: {
@@ -63,6 +83,7 @@ class UserService extends BaseService {
                 token
             };
         } catch (error) {
+            console.error('Login error:', error);
             if (error instanceof AuthError) {
                 throw error;
             }
@@ -72,24 +93,52 @@ class UserService extends BaseService {
 
     async register(userData) {
         try {
+            console.log('\n=== REGISTRATION ATTEMPT ===');
+            console.log('Registration data received:', {
+                ...userData,
+                password: userData.password ? '[REDACTED]' : undefined
+            });
+
             this.validate(userData);
+            console.log('Validation passed');
 
             const existingUser = await this.model.findByEmail(userData.email);
             if (existingUser) {
+                console.log('Registration failed: Email already exists');
                 throw new ValidationError('Registration failed', [{
                     field: 'email',
                     message: 'Email already registered'
                 }]);
             }
 
-            const hashedPassword = await bcrypt.hash(userData.password, 10);
+            console.log('\nPassword Hashing:');
+            console.log('Original password length:', userData.password.length);
+            
+            // Genera il salt separatamente per il debug
+            const salt = await bcrypt.genSalt(10);
+            console.log('Generated salt:', salt);
+            
+            const hashedPassword = await bcrypt.hash(userData.password, salt);
+            console.log('Generated hash:', hashedPassword);
+            
+            // Verifica immediata dell'hash
+            const verifyHash = await bcrypt.compare(userData.password, hashedPassword);
+            console.log('Immediate hash verification:', verifyHash);
+
             const user = await this.create({
                 ...userData,
                 password: hashedPassword,
                 role: 'user'
             });
+            console.log('User created in database');
+
+            // Verifica che la password sia stata salvata correttamente
+            const savedUser = await this.model.findById(user.id);
+            console.log('Saved hash matches generated hash:', savedUser.password === hashedPassword);
 
             const token = generateToken(user);
+            console.log('Token generated successfully');
+            console.log('=== END REGISTRATION ATTEMPT ===\n');
 
             return {
                 user: {
@@ -101,6 +150,7 @@ class UserService extends BaseService {
                 token
             };
         } catch (error) {
+            console.error('Registration error:', error);
             if (error instanceof ValidationError) {
                 throw error;
             }

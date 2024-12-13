@@ -1,8 +1,8 @@
-import BaseService from './BaseService';
-import { ValidationError, DatabaseError } from '../utils/errors';
-import { sanitizeContent } from '../utils/sanitize';
-import { lessonTemplates } from '../constants/lessonTemplates';
-import { lessonModel } from '../models/lessonModel';
+import BaseService from './BaseService.js';
+import { ValidationError, DatabaseError } from '../utils/errors/index.js';
+import { sanitizeContent } from '../utils/sanitize.js';
+import { lessonTemplates } from '../constants/lessonTemplates.js';
+import { lessonModel } from '../models/lessonModel.js';
 
 class LessonService extends BaseService {
     constructor() {

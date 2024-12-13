@@ -1,8 +1,8 @@
 // src/services/CourseService.js
-import BaseService from './BaseService';
-import { courseModel } from '../models/courseModel';
-import { ValidationError, DatabaseError } from '../utils/errors';
-import { sanitizeContent } from '../utils/sanitize';
+import BaseService from './BaseService.js';
+import { courseModel } from '../models/courseModel.js';
+import { ValidationError, DatabaseError } from '../utils/errors/index.js';
+import { sanitizeContent } from '../utils/sanitize.js';
 
 class CourseService extends BaseService {
     constructor() {
@@ -92,11 +92,11 @@ class CourseService extends BaseService {
 
     async publish(courseId) {
         try {
-            //console.log('Starting publish process for course:', courseId);
+            console.log('Starting publish process for course:', courseId);
     
             // Verifica corso
             const course = await this.findById(courseId);
-            //console.log('Found course:', course);
+            console.log('Found course:', course);
     
             if (!course) {
                 throw new ValidationError('Course not found');
@@ -104,7 +104,7 @@ class CourseService extends BaseService {
     
             // Verifica lezioni
             const lessonsCount = await this.model.getLessonsCount(courseId);
-            //console.log('Lessons count:', lessonsCount);
+            console.log('Lessons count:', lessonsCount);
     
             if (lessonsCount === 0) {
                 // Questo errore non dovrebbe essere catturato e trasformato
@@ -113,7 +113,7 @@ class CourseService extends BaseService {
     
             // Pubblica
             const publishedCourse = await this.model.updateStatus(courseId, 'published');
-            //console.log('Published course result:', publishedCourse);
+            console.log('Published course result:', publishedCourse);
     
             if (!publishedCourse) {
                 throw new ValidationError('Failed to update course status');

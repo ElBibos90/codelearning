@@ -1,9 +1,8 @@
 // src/models/userModel.js
 import { pool } from '../config/database.js';
-import bcrypt from 'bcryptjs';
 
 export const userModel = {
-    name: 'user', // importante per il BaseService
+    name: 'user',
 
     async findById(id) {
         const query = {
@@ -19,19 +18,22 @@ export const userModel = {
             text: 'SELECT * FROM users WHERE email = $1',
             values: [email],
         };
+        console.log('Executing findByEmail query for:', email);
         const result = await pool.query(query);
+        console.log('Found user hash:', result.rows[0]?.password);
         return result.rows[0];
     },
 
     async create(userData) {
         const { name, email, password, role = 'user' } = userData;
-        const hashedPassword = await bcrypt.hash(password, 10);
         
+        // Rimuoviamo l'hashing qui poiché viene fatto nel service
         const query = {
             text: 'INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4) RETURNING id, name, email, role, created_at',
-            values: [name, email, hashedPassword, role],
+            values: [name, email, password, role],
         };
         
+        console.log('Creating user with hash:', password);
         const result = await pool.query(query);
         return result.rows[0];
     },
@@ -42,7 +44,6 @@ export const userModel = {
         const values = [];
         let paramCount = 1;
 
-        // Costruisce la query dinamicamente basata sui campi forniti
         Object.keys(data).forEach(key => {
             if (validFields.includes(key)) {
                 updates.push(`${key} = $${paramCount}`);
@@ -62,6 +63,7 @@ export const userModel = {
         const result = await pool.query(query);
         return result.rows[0];
     },
+
     async updatePreferences(userId, preferences) {
         const query = {
             text: `
@@ -81,12 +83,14 @@ export const userModel = {
         const result = await pool.query(query);
         return result.rows[0];
     },
+
     async getPasswordHash(userId) {
         const query = {
             text: 'SELECT password FROM users WHERE id = $1',
             values: [userId]
         };
         const result = await pool.query(query);
+        console.log('Retrieved password hash for user:', userId, result.rows[0]?.password);
         return result.rows[0]?.password;
     },
     
@@ -95,6 +99,7 @@ export const userModel = {
             text: 'UPDATE users SET password = $1 WHERE id = $2 RETURNING id',
             values: [hashedPassword, userId]
         };
+        console.log('Updating password with hash:', hashedPassword);
         const result = await pool.query(query);
         return result.rows[0];
     },

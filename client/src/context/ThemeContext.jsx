@@ -1,13 +1,13 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 
-const ThemeContext = createContext({
+// Esportiamo il context
+export const ThemeContext = createContext({
   theme: 'light',
   setTheme: () => null
 });
 
 export function ThemeProvider({ children }) {
   const [theme, setTheme] = useState(() => {
-    // Check local storage or system preference
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('theme');
       if (stored) return stored;

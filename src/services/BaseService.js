@@ -1,6 +1,6 @@
 // src/services/BaseService.js
 import DatabaseError from '../utils/errors/DatabaseError.js';
-import { getCachedData, cacheData, deleteCachedData } from '../config/redis';
+import { getCachedData, cacheData, deleteCachedData } from '../config/redis.js';
 
 class BaseService {
     constructor(model) {

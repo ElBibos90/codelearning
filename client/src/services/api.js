@@ -3,7 +3,7 @@ import { store } from '../store';
 import { logout } from '../store/authSlice';
 
 const api = axios.create({
-  baseURL: 'http://localhost:5000/api',
+  baseURL: '/api',  // Torniamo a usare il path relativo
   headers: {
     'Content-Type': 'application/json'
   }
@@ -26,12 +26,9 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Dispatch logout action attraverso lo store
       store.dispatch(logout());
-      // Reindirizza al login solo se non sei già nella pagina di login
-      if (!window.location.pathname.includes('/login')) {
-        window.location.href = '/login';
-      }
+      localStorage.removeItem('token');
+      window.location.href = '/login';
     }
     return Promise.reject(error);
   }

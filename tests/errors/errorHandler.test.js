@@ -185,7 +185,7 @@ describe('Error Handler Middleware', () => {
         });
     
         test('should log error and exit in development', () => {
-            //console.log('DEBUG: Starting development mode test for unhandledRejectionHandler');
+            console.log('DEBUG: Starting development mode test for unhandledRejectionHandler');
             const originalNodeEnv = SERVER_CONFIG.nodeEnv;
             const originalIsDev = SERVER_CONFIG.isDevelopment;
     
@@ -198,7 +198,7 @@ describe('Error Handler Middleware', () => {
             // Chiamata al middleware
             unhandledRejectionHandler(error, promise);
     
-            //console.log('DEBUG: Checking calls to logger.error and process.exit');
+            console.log('DEBUG: Checking calls to logger.error and process.exit');
             expect(spyLoggerError).toHaveBeenCalledWith('Unhandled Rejection:', { reason: error, promise });
             expect(spyProcessExit).toHaveBeenCalledWith(1);
     
@@ -208,7 +208,7 @@ describe('Error Handler Middleware', () => {
         });
     
         test('should log error and report in production', () => {
-            //console.log('DEBUG: Starting production mode test for unhandledRejectionHandler');
+            console.log('DEBUG: Starting production mode test for unhandledRejectionHandler');
             const originalNodeEnv = SERVER_CONFIG.nodeEnv;
             const originalIsProd = SERVER_CONFIG.isProduction;
     
@@ -221,7 +221,7 @@ describe('Error Handler Middleware', () => {
             // Chiamata al middleware
             unhandledRejectionHandler(error, promise);
     
-            //console.log('DEBUG: Checking calls to logger.error and errorReporter.report');
+            console.log('DEBUG: Checking calls to logger.error and errorReporter.report');
             expect(spyLoggerError).toHaveBeenCalledWith('Unhandled Rejection:', { reason: error, promise });
             expect(spyReporter).toHaveBeenCalledWith(error);
     

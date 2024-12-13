@@ -1,7 +1,7 @@
 // src/routes/profileRoutes.js
 import express from 'express';
 import { authenticateToken } from '../middleware/auth.js';
-import { UserService } from '../services';
+import { UserService } from '../services/index.js';
 import { getCachedData, cacheData } from '../config/redis.js';
 import { SERVER_CONFIG } from '../config/environments.js';
 

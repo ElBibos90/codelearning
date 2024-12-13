@@ -1,6 +1,6 @@
-import BaseService from './BaseService';
-import { enrollmentModel } from '../models/enrollmentModel';
-import { ValidationError, DatabaseError } from '../utils/errors';
+import BaseService from './BaseService.js';
+import { enrollmentModel } from '../models/enrollmentModel.js';
+import { ValidationError, DatabaseError } from '../utils/errors/index.js';
 
 class EnrollmentService extends BaseService {
     constructor() {

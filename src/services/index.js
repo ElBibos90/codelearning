@@ -1,5 +1,4 @@
-// src/services/index.js
-import UserService from './UserService';
+import UserService from './UserService.js';
 import CourseService from './CourseService.js';
 import LessonService from './LessonService.js';
 import EnrollmentService from './EnrollmentService.js';

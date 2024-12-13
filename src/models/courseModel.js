@@ -141,13 +141,13 @@ export const courseModel = {
 
     async getLessonsCount(courseId) {
         try {
-            //console.log('Getting lessons count for course:', courseId);
+            console.log('Getting lessons count for course:', courseId);
             const query = {
                 text: 'SELECT COUNT(*) FROM lessons WHERE course_id = $1',
                 values: [courseId]
             };
             const result = await pool.query(query);
-            //console.log('Lessons count result:', result.rows[0]);
+            console.log('Lessons count result:', result.rows[0]);
             return parseInt(result.rows[0].count);
         } catch (error) {
             console.error('Error getting lessons count:', error.message);
@@ -164,7 +164,7 @@ export const courseModel = {
             };
             const checkResult = await pool.query(checkQuery);
             if (checkResult.rows.length === 0) {
-                //console.log('Course not found:', courseId);
+                console.log('Course not found:', courseId);
                 return null;
             }
     
@@ -182,10 +182,10 @@ export const courseModel = {
                 values: [status, courseId]
             };
     
-            //console.log('Executing update query:', updateQuery.text, updateQuery.values);
+            console.log('Executing update query:', updateQuery.text, updateQuery.values);
             
             const result = await pool.query(updateQuery);
-            //console.log('Update result:', result.rows[0]);
+            console.log('Update result:', result.rows[0]);
             
             return result.rows[0];
         } catch (error) {

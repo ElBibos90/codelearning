@@ -1,7 +1,7 @@
 import { jest } from '@jest/globals';
 import { pool } from '../../src/config/database.js';
 import SearchService from '../../src/services/SearchService.js';
-import { ValidationError } from '../../src/utils/errors';
+import { ValidationError } from '../../src/utils/errors/index.js';
 import bcrypt from 'bcryptjs';
 
 describe('SearchService', () => {
@@ -25,7 +25,7 @@ describe('SearchService', () => {
                 ) RETURNING id, title
             `);
             testCourse = courseResult.rows[0];
-            //console.log('Created test course:', testCourse);
+            console.log('Created test course:', testCourse);
 
             // Aggiornamento manuale del vettore di ricerca per il corso
             await pool.query(`
@@ -54,7 +54,7 @@ describe('SearchService', () => {
                 ) RETURNING id, title
             `, [testCourse.id]);
             testLesson = lessonResult.rows[0];
-            //console.log('Created test lesson:', testLesson);
+            console.log('Created test lesson:', testLesson);
 
             // Aggiornamento manuale del vettore di ricerca per la lezione
             await pool.query(`
@@ -134,7 +134,7 @@ describe('SearchService', () => {
     describe('Search Suggestions', () => {
         test('should get suggestions for courses', async () => {
             const suggestions = await SearchService.getSuggestions('JavaScript', 'courses');
-            //console.log('Suggestions:', suggestions);
+            console.log('Suggestions:', suggestions);
             expect(Array.isArray(suggestions)).toBe(true);
             expect(suggestions.length).toBeGreaterThan(0);
         });

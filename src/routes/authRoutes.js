@@ -2,7 +2,7 @@
 import express from 'express';
 import { authenticateToken, isAdmin } from '../middleware/auth.js';
 import { registerValidation } from '../middleware/validators.js';
-import { UserService } from '../services';
+import { UserService }   from '../services/index.js';
 
 const router = express.Router();
 
@@ -51,17 +51,17 @@ router.get('/admin', authenticateToken, isAdmin, (req, res) => {
     });
 });
 
-router.post('/logout', authenticateToken, async (req, res) => {
+router.post('/logout', authenticateToken, async (req, res, next) => {
     try {
-        await UserService.logout(req.user.id);
-        res.json({
-            success: true,
-            message: 'Logout effettuato con successo'
-        });
+      // Non c'è bisogno di attendere nulla qui
+      res.status(200).json({
+        success: true,
+        message: 'Logout effettuato con successo'
+      });
     } catch (error) {
-        next(error);
+      next(error);
     }
-});
+  });
 
 router.post('/register', registerValidation, async (req, res, next) => {
     try {

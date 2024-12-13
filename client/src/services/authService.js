@@ -5,6 +5,7 @@ import { logout as logoutAction } from '../store/authSlice';
 export const authService = {
   async login(email, password) {
     try {
+      // Rimuoviamo /api/ anche qui
       const response = await api.post('/auth/login', { email, password });
       if (response.data.token) {
         localStorage.setItem('token', response.data.token);
@@ -19,26 +20,27 @@ export const authService = {
 
   async register(userData) {
     try {
+      // Rimuoviamo /api/ perché è già nel baseURL
       const response = await api.post('/auth/register', userData);
       return response.data;
     } catch (error) {
+      if (error.response?.status === 429) {
+        throw new Error('Troppe richieste. Per favore attendi qualche minuto prima di riprovare.');
+      }
       throw new Error(error.response?.data?.message || 'Errore durante la registrazione');
     }
   },
 
   async logout() {
     try {
-      // Chiamata al backend per invalidare il token (opzionale)
       await api.post('/auth/logout');
     } catch (error) {
       console.error('Errore durante il logout:', error);
     } finally {
-      // Pulizia locale anche se la chiamata al backend fallisce
+      // Continua con il logout lato client anche se la chiamata al server fallisce
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      // Dispatch dell'azione logout di Redux
       store.dispatch(logoutAction());
-      // Redirect al login
       window.location.href = '/login';
     }
   }

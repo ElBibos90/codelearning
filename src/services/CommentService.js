@@ -1,7 +1,7 @@
-import BaseService from './BaseService';
-import { commentModel } from '../models/commentModel';
-import { ValidationError, DatabaseError } from '../utils/errors';
-import { sanitizeContent } from '../utils/sanitize';
+import BaseService from './BaseService.js';
+import { commentModel } from '../models/commentModel.js';
+import { ValidationError, DatabaseError } from '../utils/errors/index.js';
+import { sanitizeContent } from '../utils/sanitize.js';
 
 class CommentService extends BaseService {
     constructor() {

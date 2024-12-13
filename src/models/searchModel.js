@@ -122,11 +122,11 @@ export const searchModel = {
             `;
         }
     
-        //console.log('Executing query:', sql); // DEBUG
-        //console.log('With values:', values); // DEBUG
+        console.log('Executing query:', sql); // DEBUG
+        console.log('With values:', values); // DEBUG
     
         const result = await pool.query(sql, values);
-        //console.log('Query results:', result.rows); // DEBUG
+        console.log('Query results:', result.rows); // DEBUG
         return result.rows;
     }
 };
